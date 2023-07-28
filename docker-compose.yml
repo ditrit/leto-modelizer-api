@@ -1,0 +1,18 @@
+version: '3'
+services:
+  db:
+    image: postgres:15.3
+    environment:
+      - POSTGRES_USER=leto_admin
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_DB=leto_db
+    ports:
+      - "5432:5432"
+  api:
+    image: leto-modelizer-api:latest
+    environment:
+      NODE_ENV: "dev"
+    ports:
+      - 1337:1337
+    depends_on:
+      - db
