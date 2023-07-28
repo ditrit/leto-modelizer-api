@@ -43,7 +43,7 @@
     "cypress": "=12.17.2",
     "esdoc": "=1.1.0",
     "esdoc-standard-plugin": "=1.0.0",
-    "eslint": "=8.45.0",
+    "eslint": "=8.46.0",
     "eslint-config-airbnb-base": "=15.0.0",
     "eslint-formatter-json-relative": "=0.1.0",
     "eslint-plugin-cypress": "=2.13.3",
