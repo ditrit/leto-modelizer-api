@@ -58,5 +58,8 @@
     "jsdoc": "=4.0.2",
     "nunjucks": "=3.2.4"
   },
-  "type": "module"
+  "type": "module",
+  "cypress-cucumber-preprocessor": {
+    "stepDefinitions": "tests/e2e/support/**/*.js"
+  }
 }
