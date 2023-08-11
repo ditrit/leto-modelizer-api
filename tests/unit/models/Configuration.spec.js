@@ -12,6 +12,7 @@ describe('Test class: Configuration', () => {
       expect(configuration.parseServer.databaseURI).toBeNull();
       expect(configuration.parseServer.appId).toEqual('leto-modelizer-api');
       expect(configuration.parseServer.masterKey).toBeNull();
+      expect(configuration.parseServer.masterKeyIps).toEqual([]);
       expect(configuration.parseServer.serverURL).toEqual('http://localhost:1337/api');
     });
 
@@ -25,6 +26,7 @@ describe('Test class: Configuration', () => {
       expect(configuration.parseServer.databaseURI).toBeNull();
       expect(configuration.parseServer.appId).toEqual('leto-modelizer-api');
       expect(configuration.parseServer.masterKey).toBeNull();
+      expect(configuration.parseServer.masterKeyIps).toEqual([]);
       expect(configuration.parseServer.serverURL).toEqual('http://localhost:1337/api');
     });
 
@@ -37,6 +39,7 @@ describe('Test class: Configuration', () => {
           databaseURI: 'test2',
           appId: 'appId',
           masterKey: 'master',
+          masterKeyIps: '1.1.0.0/0',
           serverURL: 'url',
         },
       });
@@ -48,6 +51,7 @@ describe('Test class: Configuration', () => {
       expect(configuration.parseServer.databaseURI).toEqual('test2');
       expect(configuration.parseServer.appId).toEqual('appId');
       expect(configuration.parseServer.masterKey).toEqual('master');
+      expect(configuration.parseServer.masterKeyIps).toEqual(['1.1.0.0/0']);
       expect(configuration.parseServer.serverURL).toEqual('url');
     });
   });
