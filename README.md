@@ -70,15 +70,16 @@ Now your project is up and running using Docker, providing a convenient and isol
 
 ### Configuration
 
-| Variable     | Required                                 | Example                                               | Description                                                                                                                              |
-|--------------|------------------------------------------|-------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------|
-| DATABASE_URI | Yes                                      | postgres://leto_admin:password@localhost:5432/leto_db | Represents a connection string used to connect to a database.                                                                            |
-| APP_ID       | No, default: `leto-modelizer-api`        | leto-modelizer-api                                    | A unique identifier for your application, used to distinguish it when interacting with the Parse backend.                                |
-| MASTER_KEY   | Yes                                      | mySuperSecretMasterKey123                             | A special access key that grants unrestricted access to the Parse backend, allowing administrative-level operations and data management. |
-| SERVER_URL   | No, default: `http://localhost:1337/api` | http://localhost:1337/api                             | That defines the URL where the server is hosted, enabling clients to connect and interact with the Parse backend.                        |
-| PARSE_MOUNT  | No, default: `/api`                      | /api                                                  | That specifies the mount path where the Parse middleware should be deployed in your Node.js application.                                 |
-| PORT         | No, default: `1337`                      | 1337                                                  | The network port number on which a server process listens for incoming connections from clients.                                         |
-| NODE_ENV     | Yes                                      | prod                                                  | Indicate the name of your .env file you want to use.                                                                                     |
+| Variable       | Required                                 | Example                                               | Description                                                                                                                              |
+|----------------|------------------------------------------|-------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------|
+| DATABASE_URI   | Yes                                      | postgres://leto_admin:password@localhost:5432/leto_db | Represents a connection string used to connect to a database.                                                                            |
+| APP_ID         | No, default: `leto-modelizer-api`        | leto-modelizer-api                                    | A unique identifier for your application, used to distinguish it when interacting with the Parse backend.                                |
+| MASTER_KEY     | Yes                                      | mySuperSecretMasterKey123                             | A special access key that grants unrestricted access to the Parse backend, allowing administrative-level operations and data management. |
+| MASTER_KEY_IPS | No, default: [], no ip allowed           | 0.0.0.0/0                                             | Restrict masterKey to be used by only these ips. 0.0.0.0/0 enables any ip, not recommended for production.                               |
+| SERVER_URL     | No, default: `http://localhost:1337/api` | http://localhost:1337/api                             | That defines the URL where the server is hosted, enabling clients to connect and interact with the Parse backend.                        |
+| PARSE_MOUNT    | No, default: `/api`                      | /api                                                  | That specifies the mount path where the Parse middleware should be deployed in your Node.js application.                                 |
+| PORT           | No, default: `1337`                      | 1337                                                  | The network port number on which a server process listens for incoming connections from clients.                                         |
+| NODE_ENV       | Yes                                      | prod                                                  | Indicate the name of your .env file you want to use.                                                                                     |
 
 ### Build
 
@@ -89,6 +90,7 @@ configuration settings. Add the following variables to the .env file:
 DATABASE_URI=postgres://leto_admin:password@localhost:5432/leto_db
 APP_ID=my_app_id
 MASTER_KEY=my_super_secret_master_key
+MASTER_KEY_IPS=1.1.1.1/1,2.2.2.2/2,3.3.3.3/3
 SERVER_URL=http://localhost:1337/api
 PARSE_MOUNT=/api
 PORT=1337
