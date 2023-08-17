@@ -18,6 +18,7 @@ class Configuration {
    * @param {string} [props.parseServer.masterKey] - A special access key that grants
    * unrestricted access to the Parse backend, allowing administrative-level operations.
    * and data management.
+   * @param {string} [props.parseServer.masterKeyIps] - IPs allowed to use the master key.
    * @param {string} [props.parseServer.serverURL] - That defines the URL where the server
    * is hosted, enabling clients to connect and interact with the Parse backend.
    */
@@ -29,6 +30,7 @@ class Configuration {
       databaseURI: null,
       appId: 'leto-modelizer-api',
       masterKey: null,
+      masterKeyIps: null,
       serverURL: 'http://localhost:1337/api',
     },
   }) {
@@ -70,6 +72,11 @@ class Configuration {
      * @type {string}
      */
     this.parseServer.masterKey = props.parseServer?.masterKey || null;
+    /**
+     * IPs allowed to use the master key.
+     * @type {string[]}
+     */
+    this.parseServer.masterKeyIps = props.parseServer?.masterKeyIps?.split(',') || [];
     /**
      * That defines the URL where the server is hosted, enabling clients to connect and
      * interact with the Parse backend.
