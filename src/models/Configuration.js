@@ -21,6 +21,7 @@ class Configuration {
    * @param {string} [props.parseServer.masterKeyIps] - IPs allowed to use the master key.
    * @param {string} [props.parseServer.serverURL] - That defines the URL where the server
    * is hosted, enabling clients to connect and interact with the Parse backend.
+   * @param {Array} [props.parseServer.entities] - Define the list of entities in the database.
    */
   constructor(props = {
     mode: null,
@@ -32,6 +33,7 @@ class Configuration {
       masterKey: null,
       masterKeyIps: null,
       serverURL: 'http://localhost:1337/api',
+      entities: [],
     },
   }) {
     /**
@@ -89,6 +91,25 @@ class Configuration {
      */
     this.parseServer.liveQuery = {
       classNames: ['Posts', 'Comments'],
+    };
+    /**
+     * Define a schema for the Parse Server.
+     * @type {object}
+     */
+    this.parseServer.schema = {
+      definitions: props.parseServer?.entities || [],
+      // If set to true, schema changes are disabled and applying them is only possible
+      // by redeploying Parse Server with a new schema definition.
+      lockSchemas: true,
+      // If set to `true`, Parse Server will automatically delete non-defined classes from
+      // the database; internal classes like `User` or `Role` are never deleted.
+      strict: true,
+      // If set to `true`, a field type change will cause the field including its data to be
+      // deleted from the database, and then a new field to be created with the new type.
+      recreateModifiedFields: false,
+      // If set to `true`, Parse Server will automatically delete non-defined class fields;
+      // internal fields in classes like User or Role are never deleted.
+      deleteExtraFields: false,
     };
   }
 }

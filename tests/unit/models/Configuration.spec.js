@@ -14,6 +14,13 @@ describe('Test class: Configuration', () => {
       expect(configuration.parseServer.masterKey).toBeNull();
       expect(configuration.parseServer.masterKeyIps).toEqual([]);
       expect(configuration.parseServer.serverURL).toEqual('http://localhost:1337/api');
+      expect(configuration.parseServer.schema).toEqual({
+        definitions: [],
+        deleteExtraFields: false,
+        lockSchemas: true,
+        recreateModifiedFields: false,
+        strict: true,
+      });
     });
 
     it('Checks passing undefined variables to constructor', () => {
@@ -28,6 +35,13 @@ describe('Test class: Configuration', () => {
       expect(configuration.parseServer.masterKey).toBeNull();
       expect(configuration.parseServer.masterKeyIps).toEqual([]);
       expect(configuration.parseServer.serverURL).toEqual('http://localhost:1337/api');
+      expect(configuration.parseServer.schema).toEqual({
+        definitions: [],
+        deleteExtraFields: false,
+        lockSchemas: true,
+        recreateModifiedFields: false,
+        strict: true,
+      });
     });
 
     it('Checks passing all variables to constructor', () => {
@@ -41,6 +55,7 @@ describe('Test class: Configuration', () => {
           masterKey: 'master',
           masterKeyIps: '1.1.0.0/0',
           serverURL: 'url',
+          entities: [],
         },
       });
 
@@ -53,6 +68,13 @@ describe('Test class: Configuration', () => {
       expect(configuration.parseServer.masterKey).toEqual('master');
       expect(configuration.parseServer.masterKeyIps).toEqual(['1.1.0.0/0']);
       expect(configuration.parseServer.serverURL).toEqual('url');
+      expect(configuration.parseServer.schema).toEqual({
+        definitions: [],
+        deleteExtraFields: false,
+        lockSchemas: true,
+        recreateModifiedFields: false,
+        strict: true,
+      });
     });
   });
 });
