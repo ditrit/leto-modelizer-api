@@ -4,13 +4,17 @@ import nunjucks from 'nunjucks';
 /**
  * Make a request through cypress.
  * @param {string} endpoint - Endpoint to call.
+ * @param {object} body - Body to pass via HTTP request
  * @param {string} method - HTTP method to use.
+ * @param {object} headers - Headers for HTTP request
  * @returns {Cypress.Chainable<void>} Cypress chainable promise.
  */
-function request(endpoint, method = 'GET') {
+function request(endpoint, body, method = 'GET', headers = { 'X-Parse-Application-Id': 'leto-modelizer-api-dev', 'Content-Type': 'application/json' }) {
   return cy.request({
     method,
     url: `http://localhost:1337/api${endpoint}`,
+    body,
+    headers,
     failOnStatusCode: false,
   })
     .then((response) => {
@@ -19,10 +23,43 @@ function request(endpoint, method = 'GET') {
     });
 }
 
+When('I request {string} with method {string} with masterKey', (endpointTemplate, method) => {
+  const endpoint = nunjucks.renderString(endpointTemplate, cy.context);
+  const headers = {
+    'X-Parse-Application-Id': 'leto-modelizer-api-dev',
+    'X-Parse-Master-Key': 'password',
+  };
+  request(endpoint, {}, method, headers);
+});
+
 When('I request {string}', (endpointTemplate) => {
   const endpoint = nunjucks.renderString(endpointTemplate, cy.context);
 
   request(endpoint);
+});
+
+When('I request {string} with method {string} and body with masterKey', (endpointTemplate, method, dataTable) => {
+  const endpoint = nunjucks.renderString(endpointTemplate, cy.context);
+  const body = {};
+  const tables = dataTable.hashes();
+  for (let i = 0; i < tables.length; i += 1) {
+    body[tables[i].key] = tables[i].value;
+  }
+  const headers = {
+    'X-Parse-Application-Id': 'leto-modelizer-api-dev',
+    'X-Parse-Master-Key': 'password',
+  };
+  request(endpoint, body, method, headers);
+});
+
+When('I request {string} with method {string} and body', (endpointTemplate, method, dataTable) => {
+  const endpoint = nunjucks.renderString(endpointTemplate, cy.context);
+  const body = {};
+  const tables = dataTable.hashes();
+  for (let i = 0; i < tables.length; i += 1) {
+    body[tables[i].key] = tables[i].value;
+  }
+  request(endpoint, body, method);
 });
 
 Then('I expect {int} as status code', (status) => {
