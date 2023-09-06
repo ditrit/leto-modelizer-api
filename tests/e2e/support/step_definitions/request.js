@@ -52,6 +52,15 @@ When('I request {string} with method {string} and body with masterKey', (endpoin
   request(endpoint, body, method, headers);
 });
 
+When('I request {string} with method {string} with body as json and masterKey', (endpointTemplate, method, body) => {
+  const endpoint = nunjucks.renderString(endpointTemplate, cy.context);
+  const headers = {
+    'X-Parse-Application-Id': 'leto-modelizer-api-dev',
+    'X-Parse-Master-Key': 'password',
+  };
+  request(endpoint, body, method, headers);
+});
+
 When('I request {string} with method {string} and body', (endpointTemplate, method, dataTable) => {
   const endpoint = nunjucks.renderString(endpointTemplate, cy.context);
   const body = {};
