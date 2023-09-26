@@ -21,6 +21,7 @@ class Configuration {
    * @param {string} [props.parseServer.masterKeyIps] - IPs allowed to use the master key.
    * @param {string} [props.parseServer.serverURL] - That defines the URL where the server
    * is hosted, enabling clients to connect and interact with the Parse backend.
+   * @param {string} [props.parseServer.cloud] - Path to the file that contains the cloud functions.
    * @param {Array} [props.parseServer.entities] - Define the list of entities in the database.
    */
   constructor(props = {
@@ -33,6 +34,7 @@ class Configuration {
       masterKey: null,
       masterKeyIps: null,
       serverURL: 'http://localhost:1337/api',
+      cloud: 'src/cloud/main.js',
       entities: [],
     },
   }) {
@@ -85,6 +87,11 @@ class Configuration {
      * @type {string}
      */
     this.parseServer.serverURL = props.parseServer?.serverURL || 'http://localhost:1337/api';
+    /**
+     * The path to the file that contains the cloud functions.
+     * @type {string}
+     */
+    this.parseServer.cloud = props.parseServer?.cloud || 'src/cloud/main.js';
     /**
      * LiveQuery configuration for parse server.
      * @type {object}

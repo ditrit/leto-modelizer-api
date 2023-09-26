@@ -1,6 +1,7 @@
 import dotenv from 'dotenv';
 import Configuration from '../models/Configuration.js';
 import User from '../entities/User.js';
+import Group from '../entities/Group.js';
 
 /**
  * Load and return configuration.
@@ -21,7 +22,7 @@ export function loadConfiguration() {
       liveQuery: {
         classNames: ['Posts', 'Comments'], // List of classes to support for query subscriptions
       },
-      entities: [User],
+      entities: [User, Group],
     },
   });
 }
