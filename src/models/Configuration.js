@@ -21,8 +21,9 @@ class Configuration {
    * @param {string} [props.parseServer.masterKeyIps] - IPs allowed to use the master key.
    * @param {string} [props.parseServer.serverURL] - That defines the URL where the server
    * is hosted, enabling clients to connect and interact with the Parse backend.
-   * @param {string} [props.parseServer.cloud] - Path to the file that contains the cloud functions.
    * @param {Array} [props.parseServer.entities] - Define the list of entities in the database.
+   * @param {object} [props.parseServer.auth] - Define the supported 3rd Party
+   * authentication methods.
    */
   constructor(props = {
     mode: null,
@@ -34,8 +35,8 @@ class Configuration {
       masterKey: null,
       masterKeyIps: null,
       serverURL: 'http://localhost:1337/api',
-      cloud: 'src/cloud/main.js',
       entities: [],
+      auth: {},
     },
   }) {
     /**
@@ -91,7 +92,7 @@ class Configuration {
      * The path to the file that contains the cloud functions.
      * @type {string}
      */
-    this.parseServer.cloud = props.parseServer?.cloud || 'src/cloud/main.js';
+    this.parseServer.cloud = 'src/cloud/main.js';
     /**
      * LiveQuery configuration for parse server.
      * @type {object}
@@ -118,6 +119,11 @@ class Configuration {
       // internal fields in classes like User or Role are never deleted.
       deleteExtraFields: false,
     };
+    /**
+     * Define the supported 3rd Party authentication methods.
+     * @type {object}
+     */
+    this.parseServer.auth = props.parseServer?.auth || {};
   }
 }
 

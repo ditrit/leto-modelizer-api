@@ -10,6 +10,11 @@ describe('Test service: ConfigurationService', () => {
         mode: 'test',
         parseServer: {
           entities: [User, Group],
+          auth: {
+            github: {
+              enabled: true,
+            },
+          },
         },
       }));
     });

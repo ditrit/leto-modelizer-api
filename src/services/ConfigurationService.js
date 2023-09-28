@@ -23,6 +23,11 @@ export function loadConfiguration() {
         classNames: ['Posts', 'Comments'], // List of classes to support for query subscriptions
       },
       entities: [User, Group],
+      auth: {
+        github: {
+          enabled: true,
+        },
+      },
     },
   });
 }
