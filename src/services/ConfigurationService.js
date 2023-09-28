@@ -2,6 +2,7 @@ import dotenv from 'dotenv';
 import Configuration from '../models/Configuration.js';
 import User from '../entities/User.js';
 import Group from '../entities/Group.js';
+import EnterpriseGithub from '../auth_modules/enterpriseGithub.js';
 
 /**
  * Load and return configuration.
@@ -33,6 +34,9 @@ export function loadConfiguration() {
       auth: {
         github: {
           enabled: true,
+        },
+        enterpriseGithub: {
+          module: new EnterpriseGithub(process.env.OAUTH_APP_API_BASE_URL),
         },
       },
     },
