@@ -3,7 +3,10 @@
 /**
  * Cloud and trigger functions definition.
  */
-import { isGroupUnique } from './cloud-functions.js';
+import axios from 'axios';
+import { Octokit } from 'octokit';
+import * as enterpriseServer36Admin from '@octokit/plugin-enterprise-server';
+import { isGroupUnique, thirdPartyAuth } from './cloud-functions.js';
 
 Parse.Cloud.beforeSave(
   'Group',
@@ -13,4 +16,16 @@ Parse.Cloud.beforeSave(
     request.user?.getSessionToken(),
     Parse,
   ),
+);
+
+Parse.Cloud.define('GitHubAuth',
+  (request) => {
+    return thirdPartyAuth(
+      request.params.code,
+      Parse,
+      axios,
+      Octokit,
+      enterpriseServer36Admin
+    )
+  }
 );
