@@ -7,14 +7,16 @@ import nunjucks from 'nunjucks';
  * @param {object} body - Body to pass via HTTP request
  * @param {string} method - HTTP method to use.
  * @param {object} headers - Headers for HTTP request
+ * @param {boolean} isForm - Whether to convert the body values to URL encoded content.
  * @returns {Cypress.Chainable<void>} Cypress chainable promise.
  */
-function request(endpoint, body, method = 'GET', headers = { 'X-Parse-Application-Id': 'leto-modelizer-api-dev', 'Content-Type': 'application/json' }) {
+function request(endpoint, body, method = 'GET', headers = { 'X-Parse-Application-Id': 'leto-modelizer-api-dev', 'Content-Type': 'application/json' }, isForm = false) {
   return cy.request({
     method,
     url: `http://localhost:1337${endpoint}`,
     body,
     headers,
+    isForm,
     failOnStatusCode: false,
   })
     .then((response) => {
@@ -53,12 +55,34 @@ When('I request {string} with method {string} and body with masterKey', (endpoin
 });
 
 When('I request {string} with method {string} with body as json and masterKey', (endpointTemplate, method, body) => {
+  body = body.toString();
+  const regEx = /{{([^}]+)}}/g;
+  const variable = regEx.exec(body);
+  if (variable) {
+    body = body.replace(variable[0], cy.context[variable[1]]);
+  }
+  body = JSON.parse(body);
   const endpoint = nunjucks.renderString(endpointTemplate, cy.context);
   const headers = {
     'X-Parse-Application-Id': 'leto-modelizer-api-dev',
     'X-Parse-Master-Key': 'password',
   };
   request(endpoint, body, method, headers);
+});
+
+When('I request {string} with method {string} with body as json in url encoded mode and masterKey', (endpointTemplate, method, body) => {
+  body = body.toString();
+  const regEx = /{{([^}]+)}}/g;
+  const variable = regEx.exec(body);
+  if (variable) {
+    body = body.replace(variable[0], cy.context[variable[1]]);
+  }
+  const endpoint = nunjucks.renderString(endpointTemplate, cy.context);
+  const headers = {
+    'X-Parse-Application-Id': 'leto-modelizer-api-dev',
+    'X-Parse-Master-Key': 'password',
+  };
+  request(endpoint, body, method, headers, true);
 });
 
 When('I request {string} with method {string} and body', (endpointTemplate, method, dataTable) => {
@@ -89,4 +113,12 @@ Then('I expect body field {string} is {string}', (key, valueTemplate) => {
   const value = nunjucks.renderString(valueTemplate, cy.context);
 
   expect(cy.context.body[key]).to.eq(value);
+});
+
+Then('I expect length of array body field {string} is {int}', (key, length) => {
+  expect(cy.context.body[key].length).to.eq(length);
+});
+
+Then('I set body field {string} to context field {string}', (key, contextField) => {
+  cy.context[contextField] = cy.context.body[key];
 });
