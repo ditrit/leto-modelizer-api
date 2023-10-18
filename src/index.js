@@ -1,7 +1,9 @@
 import http from 'http';
 import express from 'express';
+import Parse from 'parse/node.js';
 import { ParseServer } from 'parse-server';
 import { loadConfiguration } from './services/ConfigurationService.js';
+import { setupDefaultRoles } from './init.js';
 
 const configuration = loadConfiguration();
 const server = new ParseServer(configuration.parseServer);
@@ -34,3 +36,5 @@ httpServer.listen(configuration.port, () => {
 });
 
 await ParseServer.createLiveQueryServer(httpServer);
+
+await setupDefaultRoles(configuration, Parse);
