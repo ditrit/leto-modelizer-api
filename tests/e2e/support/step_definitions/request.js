@@ -12,7 +12,7 @@ import nunjucks from 'nunjucks';
 function request(endpoint, body, method = 'GET', headers = { 'X-Parse-Application-Id': 'leto-modelizer-api-dev', 'Content-Type': 'application/json' }) {
   return cy.request({
     method,
-    url: `http://localhost:1337/api${endpoint}`,
+    url: `http://localhost:1337${endpoint}`,
     body,
     headers,
     failOnStatusCode: false,
@@ -73,6 +73,12 @@ When('I request {string} with method {string} and body', (endpointTemplate, meth
 
 Then('I expect {int} as status code', (status) => {
   expect(cy.context.statusCode).to.eq(status);
+});
+
+Then('I expect body is {string}', (bodyTemplate) => {
+  const body = nunjucks.renderString(bodyTemplate, cy.context);
+
+  expect(cy.context.body).to.eq(body);
 });
 
 Then('I expect body contains {int} attribute(s)', (length) => {

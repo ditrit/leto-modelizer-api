@@ -10,6 +10,13 @@ class Configuration {
    * should be deployed in your Node.js application.
    * @param {number} [props.port] - The network port number on which a server process listens
    * for incoming client connections.
+   * @param {boolean} [props.isEnterpriseGitHub] - Is GitHub authentication type enterprise.
+   * @param {string} [props.oauthAccessTokenURL] - URL to request to get the User access_token.
+   * @param {string} [props.clientId] - ClientId of the GitHub OAuth App.
+   * @param {string} [props.clientSecret] - ClientSecret of the GitHub OAuth App.
+   * @param {string} [props.identityRequestEndpoint] - The endpoint where the user authenticates
+   * himself to the provider.
+   * @param {string} [props.baseURL] - URL to request on the GitHub API.
    * @param {object} [props.parseServer] - Parse server configuration object.
    * @param {string} [props.parseServer.databaseURI] - Represents a connection string used to
    * connect to a database.
@@ -21,21 +28,28 @@ class Configuration {
    * @param {string} [props.parseServer.masterKeyIps] - IPs allowed to use the master key.
    * @param {string} [props.parseServer.serverURL] - That defines the URL where the server
    * is hosted, enabling clients to connect and interact with the Parse backend.
-   * @param {string} [props.parseServer.cloud] - Path to the file that contains the cloud functions.
    * @param {Array} [props.parseServer.entities] - Define the list of entities in the database.
+   * @param {object} [props.parseServer.auth] - Define the supported 3rd Party
+   * authentication methods.
    */
   constructor(props = {
     mode: null,
     mountPath: '/api',
     port: 1337,
+    isEnterpriseGitHub: false,
+    oauthAccessTokenURL: 'https://github.com/login/oauth/access_token',
+    clientId: null,
+    clientSecret: null,
+    baseURL: null,
+    identityRequestEndpoint: null,
     parseServer: {
       databaseURI: null,
       appId: 'leto-modelizer-api',
       masterKey: null,
       masterKeyIps: null,
       serverURL: 'http://localhost:1337/api',
-      cloud: 'src/cloud/main.js',
       entities: [],
+      auth: {},
     },
   }) {
     /**
@@ -54,6 +68,36 @@ class Configuration {
      * @type {number}
      */
     this.port = props.port || 1337;
+    /**
+     * Is GitHub authentication type enterprise.
+     * @type {boolean}
+     */
+    this.isEnterpriseGitHub = props.isEnterpriseGitHub || false;
+    /**
+     * URL to request to get the User access_token.
+     * @type {string}
+     */
+    this.oauthAccessTokenURL = props.oauthAccessTokenURL;
+    /**
+     * ClientId of the GitHub OAuth App.
+     * @type {string}
+     */
+    this.clientId = props.clientId;
+    /**
+     * ClientSecret of the GitHub OAuth App.
+     * @type {string}
+     */
+    this.clientSecret = props.clientSecret;
+    /**
+     * The endpoint where the user authenticates himself to the provider.
+     * @type {string}
+     */
+    this.identityRequestEndpoint = props.identityRequestEndpoint;
+    /**
+     * URL to request on the GitHub API.
+     * @type {string}
+     */
+    this.baseURL = props.baseURL;
     /**
      * Parse server configuration object.
      * @type {object}
@@ -91,7 +135,7 @@ class Configuration {
      * The path to the file that contains the cloud functions.
      * @type {string}
      */
-    this.parseServer.cloud = props.parseServer?.cloud || 'src/cloud/main.js';
+    this.parseServer.cloud = 'src/cloud/main.js';
     /**
      * LiveQuery configuration for parse server.
      * @type {object}
@@ -118,6 +162,11 @@ class Configuration {
       // internal fields in classes like User or Role are never deleted.
       deleteExtraFields: false,
     };
+    /**
+     * Define the supported 3rd Party authentication methods.
+     * @type {object}
+     */
+    this.parseServer.auth = props.parseServer?.auth || {};
   }
 }
 

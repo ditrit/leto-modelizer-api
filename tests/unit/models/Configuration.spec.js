@@ -21,6 +21,7 @@ describe('Test class: Configuration', () => {
         recreateModifiedFields: false,
         strict: true,
       });
+      expect(configuration.parseServer.auth).toEqual({});
     });
 
     it('Checks passing undefined variables to constructor', () => {
@@ -42,6 +43,7 @@ describe('Test class: Configuration', () => {
         recreateModifiedFields: false,
         strict: true,
       });
+      expect(configuration.parseServer.auth).toEqual({});
     });
 
     it('Checks passing all variables to constructor', () => {
@@ -56,6 +58,9 @@ describe('Test class: Configuration', () => {
           masterKeyIps: '1.1.0.0/0',
           serverURL: 'url',
           entities: [],
+          auth: {
+            myModule: true,
+          },
         },
       });
 
@@ -75,6 +80,7 @@ describe('Test class: Configuration', () => {
         recreateModifiedFields: false,
         strict: true,
       });
+      expect(configuration.parseServer.auth).toEqual({ myModule: true });
     });
   });
 });

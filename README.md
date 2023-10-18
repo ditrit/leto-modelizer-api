@@ -17,6 +17,10 @@ This server is based on [Parse Server](https://docs.parseplatform.org/parse-serv
 
 For all information related to Parse Server, please refer to its documentation.
 
+### Authentication
+
+For this version authentication is only enable with public or enterprise GitHub.
+
 ### Installation
 
 To get started with __leto-modelizer-api__ using Docker, follow these steps:
@@ -70,16 +74,22 @@ Now your project is up and running using Docker, providing a convenient and isol
 
 ### Configuration
 
-| Variable       | Required                                 | Example                                               | Description                                                                                                                              |
-|----------------|------------------------------------------|-------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------|
-| DATABASE_URI   | Yes                                      | postgres://leto_admin:password@localhost:5432/leto_db | Represents a connection string used to connect to a database.                                                                            |
-| APP_ID         | No, default: `leto-modelizer-api`        | leto-modelizer-api                                    | A unique identifier for your application, used to distinguish it when interacting with the Parse backend.                                |
-| MASTER_KEY     | Yes                                      | mySuperSecretMasterKey123                             | A special access key that grants unrestricted access to the Parse backend, allowing administrative-level operations and data management. |
-| MASTER_KEY_IPS | No, default: [], no ip allowed           | 0.0.0.0/0                                             | Restrict masterKey to be used by only these ips. 0.0.0.0/0 enables any ip, not recommended for production.                               |
-| SERVER_URL     | No, default: `http://localhost:1337/api` | http://localhost:1337/api                             | That defines the URL where the server is hosted, enabling clients to connect and interact with the Parse backend.                        |
-| PARSE_MOUNT    | No, default: `/api`                      | /api                                                  | That specifies the mount path where the Parse middleware should be deployed in your Node.js application.                                 |
-| PORT           | No, default: `1337`                      | 1337                                                  | The network port number on which a server process listens for incoming connections from clients.                                         |
-| NODE_ENV       | Yes                                      | prod                                                  | Indicate the name of your .env file you want to use.                                                                                     |
+| Variable                        | Required                                                    | Example                                               | Description                                                                                                                                         |
+|---------------------------------|-------------------------------------------------------------|-------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------|
+| DATABASE_URI                    | Yes                                                         | postgres://leto_admin:password@localhost:5432/leto_db | Represents a connection string used to connect to a database.                                                                                       |
+| APP_ID                          | No, default: `leto-modelizer-api`                           | leto-modelizer-api                                    | A unique identifier for your application, used to distinguish it when interacting with the Parse backend.                                           |
+| MASTER_KEY                      | Yes                                                         | mySuperSecretMasterKey123                             | A special access key that grants unrestricted access to the Parse backend, allowing administrative-level operations and data management.            |
+| MASTER_KEY_IPS                  | No, default: [], no ip allowed                              | 0.0.0.0/0                                             | Restrict masterKey to be used by only these ips. 0.0.0.0/0 enables any ip, not recommended for production.                                          |
+| OAUTH_APP_CLIENT_ID             | Yes                                                         | 0a000a000a0a0000a                                     | The ID of the OAuth App you created on your own GitHub/Enterprise GitHub dashboard.                                                                 |
+| OAUTH_APP_CLIENT_SECRET         | Yes                                                         | 0a000a000a00aa0aaa0a0000a                             | A secret token generated on the OAuth App you created on your own GitHub/Enterprise GitHub dashboard.                                               |
+| OAUTH_IDENTITY_REQUEST_ENDPOINT | No if GITHUB_OAUTH_TYPE=public, otherwise yes.              | https://github.com/login/oauth/authorize?client_id=id | The endpoint where the user authenticates himself to the provider.                                                                                  |
+| GITHUB_OAUTH_TYPE               | No, only enterprise/public are accepted, default is public. | enterprise                                            | Defines whether the app will use an enterprise GitHub authentication or the public one, if set to 'enterprise', the enterprise API URL is required. |
+| OAUTH_APP_ACCESS_TOKEN_URL      | Yes                                                         | https://github.com/login/oauth/access_token           | The URL where the user should get his access_token from, put the GitHub one for a classic GitHub authentication.                                    |
+| OAUTH_APP_API_BASE_URL          | No                                                          | https://myenterprisehost/customghapi                  | If set, the API calls will be performed at this URL, else the GitHub API will be used.                                                              |
+| SERVER_URL                      | No, default: `http://localhost:1337/api`                    | http://localhost:1337/api                             | That defines the URL where the server is hosted, enabling clients to connect and interact with the Parse backend.                                   |
+| PARSE_MOUNT                     | No, default: `/api`                                         | /api                                                  | That specifies the mount path where the Parse middleware should be deployed in your Node.js application.                                            |
+| PORT                            | No, default: `1337`                                         | 1337                                                  | The network port number on which a server process listens for incoming connections from clients.                                                    |
+| NODE_ENV                        | Yes                                                         | prod                                                  | Indicate the name of your .env file you want to use.                                                                                                |
 
 ### Build
 
@@ -91,6 +101,12 @@ DATABASE_URI=postgres://leto_admin:password@localhost:5432/leto_db
 APP_ID=my_app_id
 MASTER_KEY=my_super_secret_master_key
 MASTER_KEY_IPS=1.1.1.1/1,2.2.2.2/2,3.3.3.3/3
+OAUTH_APP_CLIENT_ID=0a000a000a0a0000a
+OAUTH_APP_CLIENT_SECRET=0a000a000a00aa0aaa0a0000a
+OAUTH_IDENTITY_REQUEST_ENDPOINT=https://myenterprisehost/login/oauth/authorize?client_id=0a000a000a0a0000a
+GITHUB_OAUTH_TYPE=enterprise
+OAUTH_APP_ACCESS_TOKEN_URL=https://myenterprisehost/login/oauth/access_token
+OAUTH_APP_API_BASE_URL=https://myenterprisehost/customghapi
 SERVER_URL=http://localhost:1337/api
 PARSE_MOUNT=/api
 PORT=1337
