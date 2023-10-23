@@ -34,7 +34,7 @@ async function initRole(roleName, Parse) {
 
   // If the role already exists, we have nothing to do here
   if (roleExists) {
-    console.log('Role "admin" already exists');
+    console.log(`Role ${roleName} already exists`);
 
     return false;
   }
@@ -52,10 +52,11 @@ async function initRole(roleName, Parse) {
     await newRole.save({}, { useMasterKey: true });
     console.log(`new ${roleName} role created`);
   } catch (error) {
-    console.error(`Error during admin role initialization : ${error.message}`);
+    console.error(`Error during ${roleName} role initialization : ${error.message}`);
 
     return false;
   }
+
   return true;
 }
 
@@ -69,5 +70,9 @@ export async function setupDefaultRoles(configuration, Parse) {
   await initParse(configuration, Parse);
   console.log('init parse done');
 
-  return initRole('admin', Parse);
+  const defaultRolesToInitialize = ['admin', 'CF_createDiagram'];
+
+  return Promise.allSettled(
+    defaultRolesToInitialize.map((role) => initRole(role, Parse)),
+  ).then((allResults) => allResults.map((result) => result.value));
 }
