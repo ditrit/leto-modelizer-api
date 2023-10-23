@@ -120,7 +120,7 @@ Then build your docker image.
 docker build --build-arg NODE_ENV=[env_name] -t leto-modelizer-api .
 ```
 
-Replace my_app_id and my_super_secret_master_key with appropriate values for your Parse Server setup.
+Replace `my_app_id` and `my_super_secret_master_key` with appropriate values for your Parse Server setup.
 
 ## License
 
