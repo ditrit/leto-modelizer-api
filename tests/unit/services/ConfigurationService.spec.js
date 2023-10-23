@@ -4,6 +4,8 @@ import User from 'src/entities/User';
 import Group from 'src/entities/Group';
 import EnterpriseGithub from 'src/auth_modules/enterpriseGithub.js';
 import Role from 'src/entities/Role';
+import Library from 'src/entities/Library';
+import Template from 'src/entities/Template';
 
 describe('Test service: ConfigurationService', () => {
   describe('Test function: loadConfiguration', () => {
@@ -11,7 +13,7 @@ describe('Test service: ConfigurationService', () => {
       expect(loadConfiguration({ NODE_ENV: 'test' })).toEqual(new Configuration({
         mode: 'test',
         parseServer: {
-          entities: [User, Group, Role],
+          entities: [User, Group, Role, Library, Template],
           auth: {
             github: {
               enabled: true,
