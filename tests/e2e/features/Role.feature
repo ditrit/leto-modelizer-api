@@ -7,6 +7,13 @@ Feature: Role management
     """
     Then I expect length of array body field "results" is 1
 
+  Scenario: Check CF_createDiagram default user is initialized
+    When I request "/api/roles" with method "GET" with body as json in url encoded mode and masterKey
+    """
+    where={"name":"CF_createDiagram"}
+    """
+    Then I expect length of array body field "results" is 1
+
   Scenario: Set and unset a Role to a User
     When I request "/api/purge/_User" with method "DELETE" with masterKey
     Then I expect 200 as status code
