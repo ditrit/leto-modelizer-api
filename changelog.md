@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * User entity definition.
 * Group entity definition.
 * Enable GitHub and enterprise GitHub authentication.
+* Role entity definition.
 
 ### Fixed
 
