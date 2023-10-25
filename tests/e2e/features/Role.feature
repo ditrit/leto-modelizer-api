@@ -6,6 +6,12 @@ Feature: Role management
       | where | {"name":"admin"} |
     Then I expect length of array body field "results" is 1
 
+  Scenario: Check CF_createDiagram role is initialized
+    When I request "/api/classes/_Role" with method "GET" with query parameter with masterKey
+      | key   | value                       |
+      | where | {"name":"CF_createDiagram"} |
+    Then I expect length of array body field "results" is 1
+
   Scenario: Set and unset a Role to a User
     Given I purge role "moderator"
     And   I purge all users
