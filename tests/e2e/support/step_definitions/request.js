@@ -1,4 +1,4 @@
-import { Then, When } from '@badeball/cypress-cucumber-preprocessor';
+import { Then, When, Given } from '@badeball/cypress-cucumber-preprocessor';
 import nunjucks from 'nunjucks';
 
 /**
@@ -10,12 +10,16 @@ import nunjucks from 'nunjucks';
  * @param {boolean} isForm - Whether to convert the body values to URL encoded content.
  * @returns {Cypress.Chainable<void>} Cypress chainable promise.
  */
-function request(endpoint, body, method = 'GET', headers = { 'X-Parse-Application-Id': 'leto-modelizer-api-dev', 'Content-Type': 'application/json' }, isForm = false) {
+function request(endpoint, body, method = 'GET', headers = {}, isForm = false) {
   return cy.request({
     method,
     url: `http://localhost:1337${endpoint}`,
     body,
-    headers,
+    headers: {
+      'X-Parse-Application-Id': 'leto-modelizer-api-dev',
+      'Content-Type': 'application/json',
+      ...headers,
+    },
     isForm,
     failOnStatusCode: false,
   })
@@ -28,7 +32,6 @@ function request(endpoint, body, method = 'GET', headers = { 'X-Parse-Applicatio
 When('I request {string} with method {string} with masterKey', (endpointTemplate, method) => {
   const endpoint = nunjucks.renderString(endpointTemplate, cy.context);
   const headers = {
-    'X-Parse-Application-Id': 'leto-modelizer-api-dev',
     'X-Parse-Master-Key': 'password',
   };
   request(endpoint, {}, method, headers);
@@ -48,41 +51,36 @@ When('I request {string} with method {string} and body with masterKey', (endpoin
     body[tables[i].key] = tables[i].value;
   }
   const headers = {
-    'X-Parse-Application-Id': 'leto-modelizer-api-dev',
     'X-Parse-Master-Key': 'password',
   };
   request(endpoint, body, method, headers);
 });
 
-When('I request {string} with method {string} with body as json and masterKey', (endpointTemplate, method, body) => {
-  body = body.toString();
-  const regEx = /{{([^}]+)}}/g;
-  const variable = regEx.exec(body);
-  if (variable) {
-    body = body.replace(variable[0], cy.context[variable[1]]);
-  }
-  body = JSON.parse(body);
+When('I request {string} with method {string} with body as json with masterKey', (endpointTemplate, method, bodyTemplate) => {
+  const body = JSON.parse(nunjucks.renderString(bodyTemplate.toString(), cy.context));
   const endpoint = nunjucks.renderString(endpointTemplate, cy.context);
   const headers = {
-    'X-Parse-Application-Id': 'leto-modelizer-api-dev',
     'X-Parse-Master-Key': 'password',
   };
+
   request(endpoint, body, method, headers);
 });
 
-When('I request {string} with method {string} with body as json in url encoded mode and masterKey', (endpointTemplate, method, body) => {
-  body = body.toString();
-  const regEx = /{{([^}]+)}}/g;
-  const variable = regEx.exec(body);
-  if (variable) {
-    body = body.replace(variable[0], cy.context[variable[1]]);
-  }
-  const endpoint = nunjucks.renderString(endpointTemplate, cy.context);
+When('I request {string} with method {string} with query parameter(s) with masterKey', (endpointTemplate, method, dataTable) => {
+  let endpoint = nunjucks.renderString(endpointTemplate, cy.context);
   const headers = {
-    'X-Parse-Application-Id': 'leto-modelizer-api-dev',
     'X-Parse-Master-Key': 'password',
   };
-  request(endpoint, body, method, headers, true);
+  const queryParameters = dataTable.hashes();
+
+  for (let index = 0; index < queryParameters.length; index += 1) {
+    const value = nunjucks.renderString(queryParameters[index].value, cy.context);
+
+    endpoint += index === 0 ? '?' : '&';
+    endpoint += `${queryParameters[index].key}=${encodeURIComponent(value)}`;
+  }
+
+  request(endpoint, null, method, headers, true);
 });
 
 When('I request {string} with method {string} and body', (endpointTemplate, method, dataTable) => {
@@ -122,3 +120,43 @@ Then('I expect length of array body field {string} is {int}', (key, length) => {
 Then('I set body field {string} to context field {string}', (key, contextField) => {
   cy.context[contextField] = cy.context.body[key];
 });
+
+Given('I purge role {string}', (roleName) => cy.request({
+  method: 'GET',
+  url: 'http://localhost:1337/api/roles',
+  headers: {
+    'X-Parse-Application-Id': 'leto-modelizer-api-dev',
+    'X-Parse-Master-Key': 'password',
+  },
+  body: {
+    where: { name: roleName },
+  },
+  isForm: false,
+  failOnStatusCode: false,
+})
+  .then(async (response) => {
+    if (response.body.results.length === 0) {
+      return;
+    }
+
+    await cy.request({
+      method: 'DELETE',
+      url: `http://localhost:1337/api/roles/${response.body.results[0]?.objectId}`,
+      headers: {
+        'X-Parse-Application-Id': 'leto-modelizer-api-dev',
+        'X-Parse-Master-Key': 'password',
+      },
+      isForm: false,
+      failOnStatusCode: false,
+    });
+  }));
+
+Given('I purge all users', () => request(
+  '/api/purge/_User',
+  {},
+  'DELETE',
+  {
+    'X-Parse-Application-Id': 'leto-modelizer-api-dev',
+    'X-Parse-Master-Key': 'password',
+  },
+));
