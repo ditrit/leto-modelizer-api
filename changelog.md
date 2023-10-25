@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-* Setup server
+* Setup server.
 * User entity definition.
 * Group entity definition.
 * Enable GitHub and enterprise GitHub authentication.
@@ -18,3 +18,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 * Fix use of masterKey by enabling it for allowed IPs.
+* Fix delete the associated relation after delete Role or User, [see issue](https://github.com/ditrit/leto-modelizer-api/issues/19).
