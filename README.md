@@ -4,15 +4,19 @@ Backend for leto-modelizer to manage libraries and access rights.
 
 ## Features
  
-### Conditionnal features
+### Conditional features
 
-A conditionnal feature (abbreviated CF) is linked to an action that a user is allowed (or not) to perform.
+A conditional feature (abbreviated CF) is linked to an action that a user is allowed (or not) to perform.
 It translates into a specific system role that can't be deleted nor modified by administrators, so it can only be activated or deactivated for users.
 The CF are created according to this pattern: `CF_[action]`, where `action` is written in camelCase.
 
-List of conditionnal features:
+List of conditional features:
 
-- `CF_createDiagram`: check if user can create a diagram.
+- `CF_createProject`: allows user to create a project in `leto-modelizer`.
+- `CF_createProjectFromTemplate`: allows user to create a project from template in `leto-modelizer`.
+- `CF_createDiagram`: allows user to create a diagram in `leto-modelizer`.
+- `CF_createDiagramFromTemplate`: allows user to create a diagram from template in `leto-modelizer`.
+- `CF_deleteDiagram`: allows user to delete a diagram in `leto-modelizer`.
 
 ## Getting Started
 
