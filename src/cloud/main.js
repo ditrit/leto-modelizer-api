@@ -6,7 +6,10 @@
 import axios from 'axios';
 import { Octokit } from 'octokit';
 import * as enterpriseServer36Admin from '@octokit/plugin-enterprise-server';
-import { isGroupUnique, thirdPartyAuth } from './cloud-functions.js';
+import { thirdPartyAuth } from './cloud-functions.js';
+import { importLibraryTemplates, fillLibraryFields } from './library.js';
+import { createAssociatedRole } from './role.js';
+import { isGroupUnique } from './group.js';
 
 Parse.Cloud.beforeSave(
   'Group',
@@ -28,4 +31,18 @@ Parse.Cloud.define('GitHubAuth',
       enterpriseServer36Admin
     )
   }
+);
+Parse.Cloud.afterSave('Library',
+  async (request) => {
+    await importLibraryTemplates(
+      request.object,
+      axios,
+      Parse
+    );
+    await createAssociatedRole(request.object, request.object.get('roleName'), Parse);
+  }
+);
+
+Parse.Cloud.beforeSave('Library',
+  async (request) => await fillLibraryFields(request, axios, Parse),
 );
