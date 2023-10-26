@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * Group entity definition.
 * Enable GitHub and enterprise GitHub authentication.
 * Role entity definition.
+* First conditionnal feature to create a diagram.
 
 ### Fixed
 

@@ -27,7 +27,7 @@
   "homepage": "https://github.com/ditrit/leto-modelizer-api#readme",
   "main": "index.js",
   "dependencies": {
-    "@octokit/plugin-enterprise-server": "^15.1.0",
+    "@octokit/plugin-enterprise-server": "^15.1.2",
     "axios": "^1.5.1",
     "dotenv": "=16.3.1",
     "express": "=4.18.2",

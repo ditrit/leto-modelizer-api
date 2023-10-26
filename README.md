@@ -4,7 +4,15 @@ Backend for leto-modelizer to manage libraries and access rights.
 
 ## Features
  
-To complete.
+### Conditionnal features
+
+A conditionnal feature (abbreviated CF) is linked to an action that a user is allowed (or not) to perform.
+It translates into a specific system role that can't be deleted nor modified by administrators, so it can only be activated or deactivated for users.
+The CF are created according to this pattern: `CF_[action]`, where `action` is written in camelCase.
+
+List of conditionnal features:
+
+- `CF_createDiagram`: check if user can create a diagram.
 
 ## Getting Started
 
@@ -120,7 +128,7 @@ Then build your docker image.
 docker build --build-arg NODE_ENV=[env_name] -t leto-modelizer-api .
 ```
 
-Replace my_app_id and my_super_secret_master_key with appropriate values for your Parse Server setup.
+Replace `my_app_id` and `my_super_secret_master_key` with appropriate values for your Parse Server setup.
 
 ## License
 
