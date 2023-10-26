@@ -14,7 +14,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * Group entity definition.
 * Enable GitHub and enterprise GitHub authentication.
 * Role entity definition.
-* First conditionnal feature to create a diagram.
+* Setup conditional features:
+  * `CF_createProject`: allows user to create a project in `leto-modelizer`.
+  * `CF_createProjectFromTemplate`: allows user to create a project from template in `leto-modelizer`.
+  * `CF_createDiagram`: allows user to create a diagram in `leto-modelizer`.
+  * `CF_createDiagramFromTemplate`: allows user to create a diagram from template in `leto-modelizer`.
+  * `CF_deleteDiagram`: allows user to delete a diagram in `leto-modelizer`.
 
 ### Fixed
 

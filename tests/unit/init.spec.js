@@ -33,7 +33,14 @@ describe('Test function: setupDefaultRoles', () => {
       },
     };
 
-    expect(setupDefaultRoles(configuration, Parse)).resolves.toEqual([false, false]);
+    expect(setupDefaultRoles(configuration, Parse)).resolves.toEqual([
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+    ]);
   });
 
   it('should return resolved promise with array containing false for each default roles if the save fails', async () => {
@@ -94,7 +101,14 @@ describe('Test function: setupDefaultRoles', () => {
       },
     };
 
-    expect(setupDefaultRoles(configuration, Parse)).resolves.toEqual([false, false]);
+    expect(setupDefaultRoles(configuration, Parse)).resolves.toEqual([
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+    ]);
   });
 
   it('should return a resolved promise with array containing false if admin and CF_createDiagram roles already exist', async () => {
@@ -129,7 +143,14 @@ describe('Test function: setupDefaultRoles', () => {
       },
     };
 
-    expect(setupDefaultRoles(configuration, Parse)).resolves.toEqual([false, false]);
+    expect(setupDefaultRoles(configuration, Parse)).resolves.toEqual([
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+    ]);
   });
 
   it('should return a resolved promise with true if admin and CF_createDiagram roles do not exist', async () => {
@@ -189,6 +210,13 @@ describe('Test function: setupDefaultRoles', () => {
       },
     };
 
-    expect(setupDefaultRoles(configuration, Parse)).resolves.toEqual([true, true]);
+    expect(setupDefaultRoles(configuration, Parse)).resolves.toEqual([
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+    ]);
   });
 });

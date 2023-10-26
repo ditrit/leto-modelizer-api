@@ -70,7 +70,14 @@ export async function setupDefaultRoles(configuration, Parse) {
   await initParse(configuration, Parse);
   console.log('init parse done');
 
-  const defaultRolesToInitialize = ['admin', 'CF_createDiagram'];
+  const defaultRolesToInitialize = [
+    'admin',
+    'CF_createProject',
+    'CF_createProjectFromTemplate',
+    'CF_createDiagram',
+    'CF_createDiagramFromTemplate',
+    'CF_deleteDiagram',
+  ];
 
   return Promise.allSettled(
     defaultRolesToInitialize.map((role) => initRole(role, Parse)),

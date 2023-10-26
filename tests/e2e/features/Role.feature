@@ -1,16 +1,18 @@
 Feature: Role management
 
-  Scenario: Check admin default user is initialized
+  Scenario Outline: Check <role> default user is initialized
     When I request "/api/classes/_Role" with method "GET" with query parameter with masterKey
       | key   | value            |
-      | where | {"name":"admin"} |
+      | where | {"name":"<role>"} |
     Then I expect length of array body field "results" is 1
-
-  Scenario: Check CF_createDiagram role is initialized
-    When I request "/api/classes/_Role" with method "GET" with query parameter with masterKey
-      | key   | value                       |
-      | where | {"name":"CF_createDiagram"} |
-    Then I expect length of array body field "results" is 1
+    Examples:
+      | role                         |
+      | admin                        |
+      | CF_createProject             |
+      | CF_createProjectFromTemplate |
+      | CF_createDiagram             |
+      | CF_createDiagramFromTemplate |
+      | CF_deleteDiagram             |
 
   Scenario: Set and unset a Role to a User
     Given I purge role "moderator"
