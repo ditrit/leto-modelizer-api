@@ -17,6 +17,10 @@ List of conditional features:
 - `CF_createDiagram`: allows user to create a diagram in `leto-modelizer`.
 - `CF_createDiagramFromTemplate`: allows user to create a diagram from template in `leto-modelizer`.
 - `CF_deleteDiagram`: allows user to delete a diagram in `leto-modelizer`.
+- `CF_createComponent`: allows user to create a component in `leto-modelizer`.
+- `CF_createComponentFromTemplate`: allows user to create a component from template in `leto-modelizer`.
+- `CF_deleteComponent`: allows user to delete a component in `leto-modelizer`.
+- `CF_useTextEditor`: allows user to use the text editor in `leto-modelizer`.
 
 ## Getting Started
 
