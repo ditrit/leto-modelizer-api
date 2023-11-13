@@ -40,6 +40,10 @@ describe('Test function: setupDefaultRoles', () => {
       false,
       false,
       false,
+      false,
+      false,
+      false,
+      false,
     ]);
   });
 
@@ -108,10 +112,14 @@ describe('Test function: setupDefaultRoles', () => {
       false,
       false,
       false,
+      false,
+      false,
+      false,
+      false,
     ]);
   });
 
-  it('should return a resolved promise with array containing false if admin and CF_createDiagram roles already exist', async () => {
+  it('should return a resolved promise with array containing false for each default roles if they already exist', async () => {
     const Parse = {
       initialize: () => true,
       Role: class {
@@ -150,10 +158,14 @@ describe('Test function: setupDefaultRoles', () => {
       false,
       false,
       false,
+      false,
+      false,
+      false,
+      false,
     ]);
   });
 
-  it('should return a resolved promise with true if admin and CF_createDiagram roles do not exist', async () => {
+  it('should return a resolved promise with true for each default roles if they do not exist', async () => {
     const Parse = {
       initialize: () => true,
       Role: class {
@@ -211,6 +223,10 @@ describe('Test function: setupDefaultRoles', () => {
     };
 
     expect(setupDefaultRoles(configuration, Parse)).resolves.toEqual([
+      true,
+      true,
+      true,
+      true,
       true,
       true,
       true,

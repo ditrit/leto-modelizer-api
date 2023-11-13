@@ -77,6 +77,10 @@ export async function setupDefaultRoles(configuration, Parse) {
     'CF_createDiagram',
     'CF_createDiagramFromTemplate',
     'CF_deleteDiagram',
+    'CF_createComponent',
+    'CF_createComponentFromTemplate',
+    'CF_deleteComponent',
+    'CF_useTextEditor',
   ];
 
   return Promise.allSettled(
