@@ -9,7 +9,7 @@ const Role = {
   className: '_Role',
   fields: {},
   classLevelPermissions: {
-    find: { 'role:admin': true },
+    find: { requiresAuthentication: true },
     count: { 'role:admin': true },
     get: { 'role:admin': true },
     update: { 'role:admin': true },
