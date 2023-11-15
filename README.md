@@ -107,6 +107,18 @@ Now your project is up and running using Docker, providing a convenient and isol
 | PORT                            | No, default: `1337`                                         | 1337                                                  | The network port number on which a server process listens for incoming connections from clients.                                                    |
 | NODE_ENV                        | Yes                                                         | prod                                                  | Indicate the name of your .env file you want to use.                                                                                                |
 
+## Github configuration
+
+In order for the API, to work properly, you need your (enterprise) github to be properly configured to use leto-modelizer-api with leto-modelizer.
+
+Here are the step to follow to configure it:
+- Connect to your github account
+- Go to: Settings > Developper Settings > OAth apps
+- Create a new OAth app, if needed.
+- Copy the `client ID` and use it for `OAUTH_APP_CLIENT_ID` field in leto-modelizer-api
+- Generate a `client secret` (or use the existing one), copy it and use it for `OAUTH_APP_CLIENT_SECRET` field in leto-modelizer-api
+- Fill the `Homepage URL` and the `Authorization callback URL` with your leto-modelizer URL, for instance `http://localhost:8080/` for dev settings.
+
 ### Build
 
 Create a `[env_name].env` file in the root of the project directory to store your 
@@ -137,6 +149,7 @@ docker build --build-arg NODE_ENV=[env_name] -t leto-modelizer-api .
 ```
 
 Replace `my_app_id` and `my_super_secret_master_key` with appropriate values for your Parse Server setup.
+
 
 ## License
 
