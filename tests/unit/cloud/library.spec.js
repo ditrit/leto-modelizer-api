@@ -1,5 +1,4 @@
-import { importLibraryTemplates, fillLibraryFields } from 'src/cloud/library.js';
-
+import { importLibraryTemplates, fillLibraryFields, deleteAssociatedTemplates } from 'src/cloud/library.js';
 
 describe('Test function: importLibraryTemplates', () => {
   it('Should return a resolved promise with nothing if the object did not exist', async () => {
@@ -484,5 +483,64 @@ describe('Test function: fillLibraryFields', () => {
       },
     };
     expect(fillLibraryFields(request, axios, Parse)).resolves.toEqual();
+  });
+});
+
+describe('Test function: deleteAssociatedTemplates', () => {
+  it('Should return a resolved promise with nothing', async () => {
+    const request = {
+      object: {
+        get: () => 'name',
+      },
+    };
+    const Parse = {
+      Object: {
+        extend: () => class Template {
+          constructor() {
+            this.name = 'name';
+          }
+
+          relation() {
+            this.name = 'name';
+            return {
+              query() {
+                return {
+                  equalTo() {
+                    return {
+                      find: () => Promise.resolve([new Template()]),
+                    };
+                  },
+                };
+              },
+              remove: () => true,
+            };
+          }
+
+          save() {
+            this.name = 'name';
+            return true;
+          }
+
+          destroy() {
+            this.name = 'name';
+            return true;
+          }
+        },
+      },
+      Query: class {
+        equalTo() {
+          this.name = 'name';
+          return true;
+        }
+
+        find() {
+          this.name = 'name';
+          const Template = Parse.Object.extend('Template');
+          return Promise.resolve([new Template()]);
+        }
+      },
+    };
+
+    expect(await deleteAssociatedTemplates(request, Parse)).toEqual();
   });
 });

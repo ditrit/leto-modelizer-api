@@ -7,8 +7,8 @@ import axios from 'axios';
 import { Octokit } from 'octokit';
 import * as enterpriseServer36Admin from '@octokit/plugin-enterprise-server';
 import { thirdPartyAuth } from './cloud-functions.js';
-import { importLibraryTemplates, fillLibraryFields } from './library.js';
-import { createAssociatedRole } from './role.js';
+import { importLibraryTemplates, fillLibraryFields, deleteAssociatedTemplates } from './library.js';
+import { createAssociatedRole, deleteAssociatedRole } from './role.js';
 import { isGroupUnique } from './group.js';
 
 Parse.Cloud.beforeSave(
@@ -45,4 +45,13 @@ Parse.Cloud.afterSave('Library',
 
 Parse.Cloud.beforeSave('Library',
   async (request) => await fillLibraryFields(request, axios, Parse),
+);
+
+Parse.Cloud.beforeDelete(
+  'Library',
+  async (request) => await deleteAssociatedTemplates(request, Parse),
+);
+
+Parse.Cloud.afterDelete('Library',
+  async (request) => await deleteAssociatedRole(request.object.get('roleName'), Parse),
 );
