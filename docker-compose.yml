@@ -16,3 +16,9 @@ services:
       - 1337:1337
     depends_on:
       - db
+  templates:
+    image: nginx:latest
+    ports:
+      - "8080:80"
+    volumes:
+      - ./tests/e2e/resources:/usr/share/nginx/html

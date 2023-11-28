@@ -160,3 +160,33 @@ Given('I purge all users', () => request(
     'X-Parse-Master-Key': 'password',
   },
 ));
+
+Given('I purge all roles', () => request(
+  '/api/purge/_Role',
+  {},
+  'DELETE',
+  {
+    'X-Parse-Application-Id': 'leto-modelizer-api-dev',
+    'X-Parse-Master-Key': 'password',
+  },
+));
+
+Given('I purge all libraries', () => request(
+  '/api/purge/Library',
+  {},
+  'DELETE',
+  {
+    'X-Parse-Application-Id': 'leto-modelizer-api-dev',
+    'X-Parse-Master-Key': 'password',
+  },
+));
+
+Given('I purge all templates', () => request(
+  '/api/purge/Template',
+  {},
+  'DELETE',
+  {
+    'X-Parse-Application-Id': 'leto-modelizer-api-dev',
+    'X-Parse-Master-Key': 'password',
+  },
+));

@@ -4,6 +4,8 @@ import User from '../entities/User.js';
 import Group from '../entities/Group.js';
 import EnterpriseGithub from '../auth_modules/enterpriseGithub.js';
 import Role from '../entities/Role.js';
+import Library from '../entities/Library.js';
+import Template from '../entities/Template.js';
 
 /**
  * Load and return configuration.
@@ -31,7 +33,7 @@ export function loadConfiguration() {
       liveQuery: {
         classNames: ['Posts', 'Comments'], // List of classes to support for query subscriptions
       },
-      entities: [User, Group, Role],
+      entities: [User, Group, Role, Library, Template],
       auth: {
         github: {
           enabled: true,
