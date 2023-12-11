@@ -15,7 +15,8 @@
     "dev": "NODE_ENV=dev node src/index.js",
     "test": "jest --coverageProvider=v8",
     "test:coverage": "jest --coverage --coverageProvider=v8",
-    "test:e2e": "cypress run --browser chrome"
+    "test:e2e": "cypress run --browser chrome",
+    "init:admin": "node scripts/init_admin.js init"
   },
   "repository": {
     "type": "git",
@@ -43,6 +44,8 @@
     "@cypress/browserify-preprocessor": "=3.0.2",
     "babel-jest": "=29.7.0",
     "better-docs": "=2.7.2",
+    "chalk": "^5.3.0",
+    "commander": "^11.1.0",
     "cypress": "=13.6.0",
     "esdoc": "=1.1.0",
     "esdoc-standard-plugin": "=1.0.0",
@@ -59,7 +62,8 @@
     "jest-environment-jsdom": "=29.7.0",
     "jest-sonar-reporter": "=2.0.0",
     "jsdoc": "=4.0.2",
-    "nunjucks": "=3.2.4"
+    "nunjucks": "=3.2.4",
+    "prompts": "^2.4.2"
   },
   "type": "module",
   "cypress-cucumber-preprocessor": {
