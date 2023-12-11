@@ -107,7 +107,34 @@ Now your project is up and running using Docker, providing a convenient and isol
 | PORT                            | No, default: `1337`                                         | 1337                                                  | The network port number on which a server process listens for incoming connections from clients.                                                    |
 | NODE_ENV                        | Yes                                                         | prod                                                  | Indicate the name of your .env file you want to use.                                                                                                |
 
-## Github configuration
+## Setup first admin
+
+Once you have successfully installed and set up the server, the next step is to create your first administrator on leto-modelizer. Follow the steps below to achieve this:
+
+1. Authenticate your administrator on leto-modelizer
+2. Run the Initialization Command
+
+Execute the following command to create your first administrator:
+
+```bash
+npm run init:admin
+```
+
+The `npm run init:admin` command will prompt you with a series of questions to set up your administrator. However, if you wish to skip this interactive process, you can use the following options:
+
+
+```bash
+npm run init:admin -- username=XXXX configFile=./dev.env apiUrl=http://localhost:1337/api 
+```
+
+Options explanation:
+* `username`: The GitHub username of your administrator.
+* `configFile`: The location of your configuration file.
+* `apiUrl`: The URL of your API.
+
+Feel free to customize these options based on your specific requirements. This command allows you to streamline the administrator creation process by providing the necessary information directly through the command line.
+
+## GitHub configuration
 
 In order for the API to work properly, you need your (enterprise) github to be properly configured to use leto-modelizer-api with leto-modelizer.
 
