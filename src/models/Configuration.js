@@ -31,6 +31,8 @@ class Configuration {
    * @param {Array} [props.parseServer.entities] - Define the list of entities in the database.
    * @param {object} [props.parseServer.auth] - Define the supported 3rd Party
    * authentication methods.
+   * @param {string} [props.parseServer.domainWhitelist] - Define the authorized domains
+   * to be imported.
    */
   constructor(props = {
     mode: null,
@@ -50,6 +52,7 @@ class Configuration {
       serverURL: 'http://localhost:1337/api',
       entities: [],
       auth: {},
+      domainWhitelist: '',
     },
   }) {
     /**
@@ -167,6 +170,11 @@ class Configuration {
      * @type {object}
      */
     this.parseServer.auth = props.parseServer?.auth || {};
+    /**
+     * Define the authorized domains to be imported.
+     * @type {Array}
+     */
+    this.parseServer.domainWhitelist = props.parseServer?.domainWhitelist?.split(',') || [];
   }
 }
 
