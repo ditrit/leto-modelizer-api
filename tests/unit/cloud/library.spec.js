@@ -1,4 +1,4 @@
-import { importLibraryTemplates, fillLibraryFields, deleteAssociatedTemplates } from 'src/cloud/library.js';
+import { importLibraryTemplates, deleteAssociatedTemplates } from 'src/cloud/library.js';
 
 describe('Test function: importLibraryTemplates', () => {
   it('Should return a resolved promise with nothing if the object did not exist', async () => {
