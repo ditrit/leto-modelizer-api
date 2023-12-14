@@ -1,0 +1,44 @@
+{
+    "name": "Leto-modelizer-templates-library",
+    "version": "0.1.0",
+    "description": "Library that contains all default templates for leto-modelizer.",
+    "author": "Vincent Moittie <moittie.vincent@gmail.com>",
+    "templates": [
+      {
+        "key": "terraform_test_application",
+        "name": "Test application",
+        "plugin": "terrator-plugin",
+        "type": "component",
+        "description": "Initialized test application.",
+        "url": null,
+        "files": ["app.tf"]
+      },
+      {
+        "key": "terraform_aws_ssh_security_group",
+        "name": "AWS SSH security_group",
+        "plugin": "terrator-plugin",
+        "type": "component",
+        "description": "Configured SSH security_group",
+        "url": "https://github.com/ditrit/leto-modelizer-templates-library/terraform_aws_ssh_security_group#readme",
+        "files": ["main.tf"]
+      },
+      {
+        "key": "terraform_aws_basic_infra",
+        "name": "AWS basic infrastructure",
+        "plugin": "terrator-plugin",
+        "type": "model",
+        "description": "Schema of a basic infrastructure with a VPC and load balancer.",
+        "url": null,
+        "files": ["main.tf"]
+      },
+      {
+        "key": "terraform_aws_s3_bucket_acl",
+        "name": "AWS S3 Bucket ACL",
+        "plugin": "terrator-plugin",
+        "type": "model",
+        "description": "Schema of a S3 bucket and ACL.",
+        "url": null,
+        "files": ["main.tf"]
+      }
+    ]
+  }
