@@ -22,13 +22,16 @@ docker run                        \
     postgres:15.3
 ```
 
-Once database is setup.
+Once database is setup and the dev.env file is filled (cf: README.md).
 
 you can run:
 
 ```shell
 npm run dev
 ```
+
+### Launch the dashboard (optional)
+[README.md](./README.md#4-launch-the-dashboard-optional)
 
 ## Default commands
 

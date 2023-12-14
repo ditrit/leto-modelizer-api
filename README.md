@@ -86,6 +86,28 @@ To stop and remove the Docker containers when you're done using the project, run
 docker-compose down
 ```
 
+#### 4. Launch the dashboard (optional)
+
+In order to directly interact with the DB, you can use the parse dashboard:
+
+```shell
+npm install -g parse-dashboard
+```
+
+You can launch the dashboard for an app with a single command by supplying an app ID, master key, URL, and name like this:
+```shell
+parse-dashboard --dev --appId yourAppId --masterKey yourMasterKey --serverURL "https://example.com/parse" --appName optionalName
+```
+For instance, for DEV it will be:
+```shell
+parse-dashboard --dev --appId leto-modelizer-api-dev --masterKey password --serverURL "http://127.0.0.1:1337/api"
+```
+You can now go on http://localhost:4040/ to use parse dashboard.
+
+**_NOTE:_** For more detail on parse dashboard see [this page](https://www.npmjs.com/package/parse-dashboard).
+
+**_NOTE:_** You can use the parse dashboard until [Leto-Modelizer-Admin](https://github.com/ditrit/leto-modelizer-admin) is fully functional.
+
 Now your project is up and running using Docker, providing a convenient and isolated environment for your backend.
 
 ### Configuration
