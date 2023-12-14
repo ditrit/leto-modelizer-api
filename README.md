@@ -128,6 +128,7 @@ Now your project is up and running using Docker, providing a convenient and isol
 | PARSE_MOUNT                     | No, default: `/api`                                         | /api                                                  | That specifies the mount path where the Parse middleware should be deployed in your Node.js application.                                            |
 | PORT                            | No, default: `1337`                                         | 1337                                                  | The network port number on which a server process listens for incoming connections from clients.                                                    |
 | NODE_ENV                        | Yes                                                         | prod                                                  | Indicate the name of your .env file you want to use.                                                                                                |
+| DOMAIN_WHITELIST                | Yes                                                         | `http://templates/,https://mytrusteddomain/           | List the trusted domain from where it is possible to import a new library                                                                           |
 
 ## Setup first admin
 
@@ -184,6 +185,7 @@ OAUTH_IDENTITY_REQUEST_ENDPOINT=https://myenterprisehost/login/oauth/authorize?c
 GITHUB_OAUTH_TYPE=enterprise
 OAUTH_APP_ACCESS_TOKEN_URL=https://myenterprisehost/login/oauth/access_token
 OAUTH_APP_API_BASE_URL=https://myenterprisehost/customghapi
+DOMAIN_WHITELIST=http://templates/,https://mytrusteddomain/
 SERVER_URL=http://localhost:1337/api
 PARSE_MOUNT=/api
 PORT=1337
