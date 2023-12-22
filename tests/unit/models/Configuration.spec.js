@@ -22,6 +22,7 @@ describe('Test class: Configuration', () => {
         strict: true,
       });
       expect(configuration.parseServer.auth).toEqual({});
+      expect(configuration.parseServer.domainWhitelist).toEqual(['']);
     });
 
     it('Checks passing undefined variables to constructor', () => {
@@ -44,6 +45,7 @@ describe('Test class: Configuration', () => {
         strict: true,
       });
       expect(configuration.parseServer.auth).toEqual({});
+      expect(configuration.parseServer.domainWhitelist).toEqual([]);
     });
 
     it('Checks passing all variables to constructor', () => {
@@ -61,6 +63,7 @@ describe('Test class: Configuration', () => {
           auth: {
             myModule: true,
           },
+          domainWhitelist: 'http://templates/,https://templates/',
         },
       });
 
@@ -81,6 +84,7 @@ describe('Test class: Configuration', () => {
         strict: true,
       });
       expect(configuration.parseServer.auth).toEqual({ myModule: true });
+      expect(configuration.parseServer.domainWhitelist).toEqual(['http://templates/', 'https://templates/']);
     });
   });
 });

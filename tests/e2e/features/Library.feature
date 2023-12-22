@@ -49,6 +49,16 @@ Feature: Library management
     Then I expect 400 as status code
     And I expect body field "error" is "roleName must contain only lower case alphanumerics and underscores"
 
+  Scenario: Create a Library with unauthorized url:
+    Given I purge all libraries
+
+    When I request "/api/classes/Library" with method "POST" and body with masterKey
+      | key      | value                                         |
+      | roleName | mylibrole                                     |
+      | url      | http://templates/unauthorizedlib3/index.json  |
+    Then I expect 400 as status code
+    And I expect body field "error" is "unauthorized domain"
+
   Scenario: Create and update a Library:
 
     When I request "/api/classes/Library" with method "POST" and body with masterKey
@@ -59,7 +69,7 @@ Feature: Library management
     And I set body field "objectId" to context field "lib_id"
 
     When I request "/api/classes/Template" with method "GET" with query parameter with masterKey
-      | key   | value                                                                                                                    |
+      | key   | value                                                                                    |
       | where | { "library": { "__type": "Pointer", "className": "Library", "objectId": "{{lib_id}}" } } |
     Then I expect 200 as status code
     And  I expect length of array body field "results" is 1
@@ -70,7 +80,7 @@ Feature: Library management
     Then I expect 200 as status code
 
     When I request "/api/classes/Template" with method "GET" with query parameter with masterKey
-      | key   | value                                                                                                                    |
+      | key   | value                                                                                    |
       | where | { "library": { "__type": "Pointer", "className": "Library", "objectId": "{{lib_id}}" } } |
     Then I expect 200 as status code
     And  I expect length of array body field "results" is 4

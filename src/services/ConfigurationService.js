@@ -42,6 +42,7 @@ export function loadConfiguration() {
           module: new EnterpriseGithub(process.env.OAUTH_APP_API_BASE_URL),
         },
       },
+      domainWhitelist: process.env.DOMAIN_WHITELIST,
     },
   });
 }

@@ -26,6 +26,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   * `CF_deleteComponent`: allows user to delete a component in `leto-modelizer`.
   * `CF_useTextEditor`: allows user to use the text editor in `leto-modelizer`.
 * Libraries declaration, update and delete management and Template entity definition.
+* Add whitelist for domain, to list all accepted domain for library importation.
 
 ### Fixed
 

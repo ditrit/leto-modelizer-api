@@ -1,4 +1,5 @@
 import { isFieldAlreadyUsed } from './utils.js';
+import { loadConfiguration } from '../services/ConfigurationService.js';
 
 /**
  * This function is called when a Library is deleted and delete the associated templates.
@@ -69,6 +70,7 @@ export async function importLibraryTemplates(library, axios, Parse) {
  * @returns {Promise} A promise with nothing on success, otherwise an error.
  */
 export async function fillLibraryFields(request, axios, Parse) {
+  const configuration = loadConfiguration();
   const url = request.object.get('url');
   const roleName = request.object.get('roleName');
   const rawIndex = await axios.get(url);
@@ -94,6 +96,9 @@ export async function fillLibraryFields(request, axios, Parse) {
   }
   if (/[^a-z0-9_]/.test(roleName)) {
     throw new Error('roleName must contain only lower case alphanumerics and underscores');
+  }
+  if (!configuration.parseServer.domainWhitelist.some((accepted) => url.startsWith(accepted))) {
+    throw new Error('unauthorized domain');
   }
   return Promise.resolve();
 }
