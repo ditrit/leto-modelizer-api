@@ -1,24 +1,21 @@
 version: '3'
+
 services:
   db:
-    image: postgres:15.3
+    restart: always
+    image: postgres:16
     environment:
-      - POSTGRES_USER=leto_admin
-      - POSTGRES_PASSWORD=password
-      - POSTGRES_DB=leto_db
+      POSTGRES_DB: leto_db
+      POSTGRES_USER: leto_admin
+      POSTGRES_PASSWORD: password
     ports:
-      - "5432:5432"
+      - 5432:5432
   api:
+    restart: always
     image: leto-modelizer-api:latest
     environment:
-      NODE_ENV: "dev"
+      DATABASE_HOST: db
     ports:
-      - 1337:1337
+      - 8443:8443
     depends_on:
       - db
-  templates:
-    image: nginx:latest
-    ports:
-      - "8080:80"
-    volumes:
-      - ./tests/e2e/resources:/usr/share/nginx/html

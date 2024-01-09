@@ -1,9 +1,10 @@
-FROM node:18.14-alpine
-ARG NODE_ENV
+# Build stage
+FROM gradle:8.5.0-jdk21 AS build
 WORKDIR /app
-COPY package*.json ./
-RUN npm install -g npm@8.19.3 && npm install
 COPY . .
-EXPOSE 1337
-ENV NODE_ENV=${NODE_ENV}
-CMD ["npm", "run", "start"]
+RUN gradle clean build -x test
+
+FROM eclipse-temurin:21
+COPY --from=build /app/build/libs/leto-modelizer-api-0.0.1-SNAPSHOT.jar .
+EXPOSE 8443
+ENTRYPOINT ["java","-jar","/leto-modelizer-api-0.0.1-SNAPSHOT.jar"]
