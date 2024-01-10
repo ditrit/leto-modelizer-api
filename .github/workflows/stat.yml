@@ -21,19 +21,35 @@ jobs:
     name: Save sonar statistics
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      - name: Setup Node
-        uses: actions/setup-node@v3
+      - uses: actions/checkout@v4
+      - name: Set up JDK 21 for x64
+        uses: actions/setup-java@v3
         with:
-          node-version: 18.14
-      - name: Setup npm
-        run: npm install -g npm@8.19.3
-      - name: Install dependencies
-        run: npm ci
-      - name: Run unit tests
-        run: export NODE_OPTIONS=--max_old_space_size=8192 && npm run test
-      - name: SonarCloud Scan
-        uses: sonarsource/sonarcloud-github-action@master
+          java-version: '21'
+          distribution: 'temurin'
+          architecture: x64
+      - name: Generate certificate
+        run: |
+          keytool \
+          -genkeypair -v \
+          -alias mykey \
+          -dname "CN=Test, OU=Test, O=Test, L=Test, S=Test, C=Test" \
+          -keystore src/main/resources/keystore.jks \
+          -storepass password \
+          -keypass password \
+          -keyalg RSA \
+          -keysize 2048 \
+          -validity 3650
+      - name: Build application
+        run: docker build -t leto-modelizer-api .
+      - name: Run application
+        run: docker compose up -d
+      - name: Setup Gradle
+        uses: gradle/gradle-build-action@v2
+      - name: Execute tests
+        run: ./gradlew test
+      - name: Execute sonar scan
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        run: ./gradlew sonar -Dsonar.token=$SONAR_TOKEN

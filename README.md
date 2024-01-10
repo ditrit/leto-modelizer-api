@@ -1,41 +1,54 @@
 # leto-modelizer-api
 
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=ditrit_leto-modelizer-api&metric=alert_status)](https://sonarcloud.io/summary/overall?id=ditrit_leto-modelizer-api)
+[![Reliability Rating](https://sonarcloud.io/api/project_badges/measure?project=ditrit_leto-modelizer-api&metric=reliability_rating)](https://sonarcloud.io/summary/overall?id=ditrit_leto-modelizer-api)
+[![Maintainability Rating](https://sonarcloud.io/api/project_badges/measure?project=ditrit_leto-modelizer-api&metric=sqale_rating)](https://sonarcloud.io/summary/overall?id=ditrit_leto-modelizer-api)
+[![Security Rating](https://sonarcloud.io/api/project_badges/measure?project=ditrit_leto-modelizer-api&metric=security_rating)](https://sonarcloud.io/summary/overall?id=ditrit_leto-modelizer-api)
+
+[![Code Smells](https://sonarcloud.io/api/project_badges/measure?project=ditrit_leto-modelizer-api&metric=code_smells)](https://sonarcloud.io/summary/overall?id=ditrit_leto-modelizer-api)
+[![Bugs](https://sonarcloud.io/api/project_badges/measure?project=ditrit_leto-modelizer-api&metric=bugs)](https://sonarcloud.io/summary/overall?id=ditrit_leto-modelizer-api)
+[![Vulnerabilities](https://sonarcloud.io/api/project_badges/measure?project=ditrit_leto-modelizer-api&metric=vulnerabilities)](https://sonarcloud.io/summary/overall?id=ditrit_leto-modelizer-api)
+[![Technical Debt](https://sonarcloud.io/api/project_badges/measure?project=ditrit_leto-modelizer-api&metric=sqale_index)](https://sonarcloud.io/summary/overall?id=ditrit_leto-modelizer-api)
+
+[![Lines of Code](https://sonarcloud.io/api/project_badges/measure?project=ditrit_leto-modelizer-api&metric=ncloc)](https://sonarcloud.io/summary/overall?id=ditrit_leto-modelizer-api)
+[![Coverage](https://sonarcloud.io/api/project_badges/measure?project=ditrit_leto-modelizer-api&metric=coverage)](https://sonarcloud.io/summary/overall?id=ditrit_leto-modelizer-api)
+[![Duplicated Lines (%)](https://sonarcloud.io/api/project_badges/measure?project=ditrit_leto-modelizer-api&metric=duplicated_lines_density)](https://sonarcloud.io/summary/overall?id=ditrit_leto-modelizer-api)
+
+[![](https://dcbadge.vercel.app/api/server/zkKfj9gj2C?style=flat&theme=default-inverted)](https://discord.gg/zkKfj9gj2C)
+
 Backend for leto-modelizer to manage libraries and access rights.
 
 ## Features
- 
-### Conditional features
 
-A conditional feature (abbreviated CF) is linked to an action that a user is allowed (or not) to perform.
-It translates into a specific system role that can't be deleted nor modified by administrators, so it can only be activated or deactivated for users.
-The CF are created according to this pattern: `CF_[action]`, where `action` is written in camelCase.
+### Manage permissions
 
-List of conditional features:
+A permission is linked to an action that a user is allowed (or not) to perform.
+It translates into a specific system role that can't be deleted nor modified by administrators, so it can only be activated or deactivated for users, groups and roles.
 
-- `CF_createProject`: allows user to create a project in `leto-modelizer`.
-- `CF_createProjectFromTemplate`: allows user to create a project from template in `leto-modelizer`.
-- `CF_createDiagram`: allows user to create a diagram in `leto-modelizer`.
-- `CF_createDiagramFromTemplate`: allows user to create a diagram from template in `leto-modelizer`.
-- `CF_deleteDiagram`: allows user to delete a diagram in `leto-modelizer`.
-- `CF_createComponent`: allows user to create a component in `leto-modelizer`.
-- `CF_createComponentFromTemplate`: allows user to create a component from template in `leto-modelizer`.
-- `CF_deleteComponent`: allows user to delete a component in `leto-modelizer`.
-- `CF_useTextEditor`: allows user to use the text editor in `leto-modelizer`.
+List of permissions:
+
+- `admin`: allows user to access and use `leto-modelizer-admin`.
+- `create_project`: allows user to create a project in `leto-modelizer`.
+- `create_project_from_template`: allows user to create a project from template in `leto-modelizer`.
+- `create_diagram`: allows user to create a diagram in `leto-modelizer`.
+- `create_diagram_from_template`: allows user to create a diagram from template in `leto-modelizer`.
+- `delete_diagram`: allows user to delete a diagram in `leto-modelizer`.
+- `create_component`: allows user to create a component in `leto-modelizer`.
+- `create_component_from_template`: allows user to create a component from template in `leto-modelizer`.
+- `delete_component`: allows user to delete a component in `leto-modelizer`.
+- `use_text_editor`: allows user to use the text editor in `leto-modelizer`.
 
 ## Getting Started
 
 ### Requirements
 
-- node - v18.14
-- npm - v8.19.3
+- java - v21
+- gradle - v8.5
+- postgres - v16
 
-This server is based on [Parse Server](https://docs.parseplatform.org/parse-server/guide/).
+This server is based on [Spring boot](https://spring.io/projects/spring-boot/) and [Jersey](https://eclipse-ee4j.github.io/jersey/).
 
-For all information related to Parse Server, please refer to its documentation.
-
-### Authentication
-
-For this version authentication is only enable with public or enterprise GitHub.
+For all information related to them, please refer to documentation.
 
 ### Installation
 
@@ -58,6 +71,14 @@ git clone git@github.com:ditrit/leto-modelizer-api.git
 cd leto-modelizer-api
 ```
 
+### Generate certificate for HTTPS
+
+To generate certificate, run this command at the root of your project folder:
+
+```shell
+keytool -genkey -alias myKeyAlias -keyalg RSA -keysize 2048 -keystore src/main/resources/keystore.jks -validity 3650
+```
+
 ### Run server
 
 #### 1. Build and Run with Docker Compose
@@ -65,7 +86,7 @@ cd leto-modelizer-api
 Run the following command to build the Docker containers and start the server:
 
 ```shell
-docker build --build-arg NODE_ENV=dev -t leto-modelizer-api .
+docker build -t leto-modelizer-api .
  
 docker-compose up -d
 ```
@@ -75,8 +96,7 @@ This command will build leto-modelizer-api set up the server with the specified 
 #### 2. Verify Installation
 
 Once the containers are up and running, you can access your server at the defined
-SERVER_URL (http://localhost:1337/api/health in this example).
-You can now start using the Parse functionalities in your project.
+SERVER_URL (https://localhost:8443/api/actuator/health in this example).
 
 #### 3. Clean Up
 
@@ -88,118 +108,51 @@ docker-compose down
 
 #### 4. Launch the dashboard (optional)
 
-In order to directly interact with the DB, you can use the parse dashboard:
-
-```shell
-npm install -g parse-dashboard
-```
-
-You can launch the dashboard for an app with a single command by supplying an app ID, master key, URL, and name like this:
-```shell
-parse-dashboard --dev --appId yourAppId --masterKey yourMasterKey --serverURL "https://example.com/parse" --appName optionalName
-```
-For instance, for DEV it will be:
-```shell
-parse-dashboard --dev --appId leto-modelizer-api-dev --masterKey password --serverURL "http://127.0.0.1:1337/api"
-```
-You can now go on http://localhost:4040/ to use parse dashboard.
-
-**_NOTE:_** For more detail on parse dashboard see [this page](https://www.npmjs.com/package/parse-dashboard).
-
-**_NOTE:_** You can use the parse dashboard until [Leto-Modelizer-Admin](https://github.com/ditrit/leto-modelizer-admin) is fully functional.
-
-Now your project is up and running using Docker, providing a convenient and isolated environment for your backend.
+In order to directly interact with the DB or the API, you can use the dashboard [Leto-Modelizer-Admin](https://github.com/ditrit/leto-modelizer-admin).
 
 ### Configuration
 
-| Variable                        | Required                                                    | Example                                               | Description                                                                                                                                         |
-|---------------------------------|-------------------------------------------------------------|-------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------|
-| DATABASE_URI                    | Yes                                                         | postgres://leto_admin:password@localhost:5432/leto_db | Represents a connection string used to connect to a database.                                                                                       |
-| APP_ID                          | No, default: `leto-modelizer-api`                           | leto-modelizer-api                                    | A unique identifier for your application, used to distinguish it when interacting with the Parse backend.                                           |
-| MASTER_KEY                      | Yes                                                         | mySuperSecretMasterKey123                             | A special access key that grants unrestricted access to the Parse backend, allowing administrative-level operations and data management.            |
-| MASTER_KEY_IPS                  | No, default: [], no ip allowed                              | 0.0.0.0/0                                             | Restrict masterKey to be used by only these ips. 0.0.0.0/0 enables any ip, not recommended for production.                                          |
-| OAUTH_APP_CLIENT_ID             | Yes                                                         | 0a000a000a0a0000a                                     | The ID of the OAuth App you created on your own GitHub/Enterprise GitHub dashboard.                                                                 |
-| OAUTH_APP_CLIENT_SECRET         | Yes                                                         | 0a000a000a00aa0aaa0a0000a                             | A secret token generated on the OAuth App you created on your own GitHub/Enterprise GitHub dashboard.                                               |
-| OAUTH_IDENTITY_REQUEST_ENDPOINT | No if GITHUB_OAUTH_TYPE=public, otherwise yes.              | https://github.com/login/oauth/authorize?client_id=id | The endpoint where the user authenticates himself to the provider.                                                                                  |
-| GITHUB_OAUTH_TYPE               | No, only enterprise/public are accepted, default is public. | enterprise                                            | Defines whether the app will use an enterprise GitHub authentication or the public one, if set to 'enterprise', the enterprise API URL is required. |
-| OAUTH_APP_ACCESS_TOKEN_URL      | Yes                                                         | https://github.com/login/oauth/access_token           | The URL where the user should get his access_token from, put the GitHub one for a classic GitHub authentication.                                    |
-| OAUTH_APP_API_BASE_URL          | No                                                          | https://myenterprisehost/customghapi                  | If set, the API calls will be performed at this URL, else the GitHub API will be used.                                                              |
-| SERVER_URL                      | No, default: `http://localhost:1337/api`                    | http://localhost:1337/api                             | That defines the URL where the server is hosted, enabling clients to connect and interact with the Parse backend.                                   |
-| PARSE_MOUNT                     | No, default: `/api`                                         | /api                                                  | That specifies the mount path where the Parse middleware should be deployed in your Node.js application.                                            |
-| PORT                            | No, default: `1337`                                         | 1337                                                  | The network port number on which a server process listens for incoming connections from clients.                                                    |
-| NODE_ENV                        | Yes                                                         | prod                                                  | Indicate the name of your .env file you want to use.                                                                                                |
-| DOMAIN_WHITELIST                | Yes                                                         | `http://templates/,https://mytrusteddomain/           | List the trusted domain from where it is possible to import a new library                                                                           |
+| Variable                | Required                               | Description                                                                                                                         |
+|-------------------------|----------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------|
+| DATABASE_HOST           | No, default: `localhost`               | A configuration parameter that specifies the hostname or IP address of the server where the database is hosted.                     |
+| DATABASE_PORT           | No, default: `5432`                    | A configuration parameter that defines the port number on which the database server is listening for connections.                   |
+| DATABASE_NAME           | No, default: `leto_db`                 | A configuration parameter that specifies the name of the specific database to be accessed on the server.                            |
+| DATABASE_USER           | No, default: `leto_admin`              | A configuration parameter indicating the username used to authenticate with the database server.                                    |
+| DATABASE_PASSWORD       | No, default: `password`                | A configuration parameter that specifies the password for authenticating the designated user with the database server.              |
+| SSL_KEY_STORE           | No, default: `classpath:keystore.jks`  | A configuration parameter specifying the file path to the keystore containing SSL/TLS certificates and keys for secure connections. |
+| SSL_KEY_STORE_PASSWORD  | No, default: `password`                | A configuration parameter that defines the password for accessing the SSL key store file.                                           |
+| SSL_KEY_PASSWORD        | No, default: `password`                | A configuration parameter that specifies the password for the individual SSL key within the key store.                              |
 
-## Setup first admin
-
-Once you have successfully installed and set up the server, the next step is to create your first administrator on leto-modelizer. Follow the steps below to achieve this:
-
-1. Authenticate your administrator on leto-modelizer
-2. Run the Initialization Command
-
-Execute the following command to create your first administrator:
-
-```bash
-npm run init:admin
-```
-
-The `npm run init:admin` command will prompt you with a series of questions to set up your administrator. However, if you wish to skip this interactive process, you can use the following options:
-
-
-```bash
-npm run init:admin -- username=XXXX configFile=./dev.env apiUrl=http://localhost:1337/api 
-```
-
-Options explanation:
-* `username`: The GitHub username of your administrator.
-* `configFile`: The location of your configuration file.
-* `apiUrl`: The URL of your API.
-
-Feel free to customize these options based on your specific requirements. This command allows you to streamline the administrator creation process by providing the necessary information directly through the command line.
-
-## GitHub configuration
-
-In order for the API to work properly, you need your (enterprise) github to be properly configured to use leto-modelizer-api with leto-modelizer.
-
-Here are the steps to follow to configure it:
-- Log in to your github account.
-- Go to: Settings > Developper Settings > OAuth apps
-- Create a new OAuth app, if needed.
-- Copy the `client ID` and use it for `OAUTH_APP_CLIENT_ID` field in leto-modelizer-api.
-- Generate a `client secret` (or use the existing one), copy it and use it for `OAUTH_APP_CLIENT_SECRET` field in leto-modelizer-api.
-- Fill the `Homepage URL` and the `Authorization callback URL` with your leto-modelizer URL, for instance `http://localhost:8080/` for dev settings.
 
 ### Build
 
-Create a `[env_name].env` file in the root of the project directory to store your 
+Create a `[env_name].env` file in the root of the project directory to store your
 configuration settings. Add the following variables to the .env file:
 
 ```makefile
-DATABASE_URI=postgres://leto_admin:password@localhost:5432/leto_db
-APP_ID=my_app_id
-MASTER_KEY=my_super_secret_master_key
-MASTER_KEY_IPS=1.1.1.1/1,2.2.2.2/2,3.3.3.3/3
-OAUTH_APP_CLIENT_ID=0a000a000a0a0000a
-OAUTH_APP_CLIENT_SECRET=0a000a000a00aa0aaa0a0000a
-OAUTH_IDENTITY_REQUEST_ENDPOINT=https://myenterprisehost/login/oauth/authorize?client_id=0a000a000a0a0000a
-GITHUB_OAUTH_TYPE=enterprise
-OAUTH_APP_ACCESS_TOKEN_URL=https://myenterprisehost/login/oauth/access_token
-OAUTH_APP_API_BASE_URL=https://myenterprisehost/customghapi
-DOMAIN_WHITELIST=http://templates/,https://mytrusteddomain/
-SERVER_URL=http://localhost:1337/api
-PARSE_MOUNT=/api
-PORT=1337
+# Postgres configuration
+POSTGRES_DB=leto_db
+POSTGRES_USER=leto_admin
+POSTGRES_PASSWORD=password
+
+# Default configuration
+DATABASE_HOST=localhost
+DATABASE_PORT=5432
+DATABASE_NAME=leto_db
+DATABASE_USER=leto_admin
+DATABASE_PASSWORD=password
+SSL_KEY_STORE=classpath:keystore.jks
+SSL_KEY_STORE_PASSWORD=password
+SSL_KEY_PASSWORD=password
 ```
 
 See Configuration section for more details.
 
-Then build your docker image.
+Then run your docker compose with this command:
 
 ```shell
-docker build --build-arg NODE_ENV=[env_name] -t leto-modelizer-api .
+docker-compose --env-file [env_name].env up
 ```
-
-Replace `my_app_id` and `my_super_secret_master_key` with appropriate values for your Parse Server setup.
 
 ## License
 
