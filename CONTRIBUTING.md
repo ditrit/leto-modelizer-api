@@ -42,6 +42,25 @@ Once database is setup you can run :
 
 > :warning: **You have to generate keystore.jks before!**, see [README](https://github.com/ditrit/leto-modelizer-api/blob/main/README.md#Generate-certificate-for-HTTPS).
 
+## Run application tests
+
+To run all the application tests (unit and integration), use this command:
+
+```shell
+./gradlew test -i
+```
+
+To run only the application unit tests, use this command:
+
+```shell
+./gradlew unitTest -i
+```
+
+To run all the application integration tests, use this command:
+
+```shell
+./gradlew integrationTest -i
+```
 ## Checkstyle
 
 Before pushing your branch and open/synchronize a pull-request, you have to verify the checkstyle of your application. Here is the command to do so:
