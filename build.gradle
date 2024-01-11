@@ -4,10 +4,10 @@ plugins {
 	id 'io.spring.dependency-management' version '1.1.4'
 	id 'checkstyle'
 	id 'com.github.ben-manes.versions' version '0.50.0'
-	id "org.sonarqube" version "4.4.1.3373"
+	id 'org.sonarqube' version '4.4.1.3373'
+	id 'com.adarshr.test-logger' version '4.0.0'
+	id 'jacoco'
 }
-
-apply plugin: 'jacoco'
 
 group = 'com.ditrit'
 version = '0.0.1-SNAPSHOT'
@@ -47,9 +47,27 @@ dependencies {
 }
 
 tasks.named('test') {
-	useJUnitPlatform()
+	useJUnitPlatform {
+		includeTags "unit", "integration"
+	}
 	systemProperty("cucumber.junit-platform.naming-strategy", "long")
 	finalizedBy jacocoTestReport
+}
+
+tasks.register("unitTest", Test) {
+	mustRunAfter check
+	useJUnitPlatform {
+		includeTags "unit"
+	}
+	finalizedBy jacocoTestReport
+}
+
+tasks.register("integrationTest", Test) {
+	useJUnitPlatform {
+		includeTags "integration"
+	}
+	systemProperty("cucumber.junit-platform.naming-strategy", "long")
+	mustRunAfter check
 }
 
 checkstyle {
@@ -69,7 +87,6 @@ jacoco {
 }
 
 jacocoTestReport {
-	dependsOn test
 	reports {
 		xml.required = true
 		csv.required = false

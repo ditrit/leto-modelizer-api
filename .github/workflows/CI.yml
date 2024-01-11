@@ -78,7 +78,7 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: reports-${{ github.sha }}
-          path: build/reports/jacoco/test/jacocoTestReport.xml
+          path: build/reports/jacoco/test
 
   check-dependencies:
     name: Check dependencies
@@ -123,7 +123,7 @@ jobs:
         uses: actions/download-artifact@v3
         with:
           name: reports-${{ github.sha }}
-          path: build/reports/jacoco/test/jacocoTestReport.xml
+          path: build/reports/jacoco/test
       - name: Execute sonar scan
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
