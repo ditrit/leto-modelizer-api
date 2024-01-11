@@ -9,13 +9,13 @@ services:
       POSTGRES_USER: leto_admin
       POSTGRES_PASSWORD: password
     ports:
-      - 5432:5432
+      - "5432:5432"
   api:
     restart: always
     image: leto-modelizer-api:latest
     environment:
       DATABASE_HOST: db
     ports:
-      - 8443:8443
+      - "8443:8443"
     depends_on:
       - db
