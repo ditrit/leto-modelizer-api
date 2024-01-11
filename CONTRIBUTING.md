@@ -102,7 +102,7 @@ Steps to release:
 - Improve the version number in `package.json`, `package-lock.json` and `changelog.md`.
 - Verify the content of the `changelog.md`.
 - Commit the modifications with the label `Release version X.Y.Z`.
-- Create a pull request on github for this branch into `main`.
+- Create a pull request on GitHub for this branch into `main`.
 - Once the pull request validated and merged, tag the `main` branch with `vX.Y.Z`.
 - After the tag is pushed, make the release on the tag in GitHub.
 
