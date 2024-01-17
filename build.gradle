@@ -35,6 +35,7 @@ dependencies {
 	implementation 'org.flywaydb:flyway-core:10.5.0'
 	implementation "org.flywaydb:flyway-database-postgresql:10.5.0"
 	implementation 'commons-lang:commons-lang:2.6'
+	implementation 'commons-beanutils:commons-beanutils:1.9.4'
 	compileOnly 'org.projectlombok:lombok'
 	runtimeOnly 'org.postgresql:postgresql:42.7.1'
 	annotationProcessor 'org.projectlombok:lombok'
