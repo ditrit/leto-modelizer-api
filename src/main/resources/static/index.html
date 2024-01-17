@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Authentication Success</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #474262;
+            color: #f8f8f2;
+            font-family: Arial, sans-serif;
+        }
+        .box {
+            text-align: center;
+            background-color: #817D98;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
+        }
+        .title {
+            font-size: 2rem;
+        }
+        .subtitle {
+            font-size: 1rem;
+            margin: 1rem 0;
+        }
+        #redirect-button {
+            background-color: #139A43;
+            color: #f8f8f2;
+            border: none;
+            padding: 10px 20px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+            margin: 4px 2px;
+            transition-duration: 0.4s;
+            cursor: pointer;
+            border-radius: 4px;
+            box-shadow: 0 2px 5px 0 rgba(0, 0, 0, 0.25);
+        }
+        #redirect-button:hover {
+            background-color: #64ff7b;
+            color: white;
+        }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/js-confetti@latest/dist/js-confetti.browser.js"></script>
+</head>
+<body>
+
+<div class="box">
+    <h1 class="title">Authentication Success</h1>
+    <p class="subtitle">You will be redirected in <span id="timer">5</span> second(s).</p>
+    <button id="redirect-button">Go to application</button>
+</div>
+
+<script type="application/javascript">
+    new JSConfetti().addConfetti({
+        confettiNumber: 2000,
+    });
+
+    var timer = 5;
+    var intervalId = setInterval(function () {
+        if (timer <= 0) {
+            clearInterval(intervalId);
+            window.location.href = '/api/redirect';
+        } else {
+            document.getElementById('timer').textContent = `${--timer}`;
+        }
+    }, 1000);
+
+    document.getElementById('redirect-button').addEventListener('mouseup', function () {
+        clearInterval(intervalId);
+        window.location.href = '/api/redirect';
+    });
+</script>
+
+</body>
+</html>

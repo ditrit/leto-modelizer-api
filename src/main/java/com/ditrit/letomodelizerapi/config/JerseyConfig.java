@@ -1,5 +1,6 @@
 package com.ditrit.letomodelizerapi.config;
 
+import com.ditrit.letomodelizerapi.controller.HomeController;
 import com.ditrit.letomodelizerapi.controller.UserController;
 import com.ditrit.letomodelizerapi.controller.handler.ApiExceptionHandler;
 import com.ditrit.letomodelizerapi.controller.handler.ConstraintViolationExceptionHandler;
@@ -19,6 +20,7 @@ public class JerseyConfig extends ResourceConfig {
         // Filter
         // Controller
         register(UserController.class);
+        register(HomeController.class);
 
         // Exception handler
         register(ApiExceptionHandler.class);
