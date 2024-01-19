@@ -7,6 +7,14 @@ plugins {
 	id 'org.sonarqube' version '4.4.1.3373'
 	id 'com.adarshr.test-logger' version '4.0.0'
 	id 'jacoco'
+	id 'idea'
+}
+
+idea {
+	module {
+		downloadJavadoc = true
+		downloadSources = true
+	}
 }
 
 group = 'com.ditrit'
@@ -28,13 +36,18 @@ repositories {
 
 dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-actuator'
+	implementation 'org.springframework.boot:spring-boot-starter-web'
 	implementation 'org.springframework.boot:spring-boot-starter-data-jdbc'
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
 	implementation 'org.springframework.boot:spring-boot-starter-jersey'
 	implementation 'org.springframework.boot:spring-boot-starter-validation'
-	implementation 'org.flywaydb:flyway-core:10.5.0'
-	implementation "org.flywaydb:flyway-database-postgresql:10.5.0"
+	implementation 'org.springframework.boot:spring-boot-starter-security'
+	implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
+	implementation 'org.springframework.session:spring-session-jdbc:3.2.1'
+	implementation 'org.flywaydb:flyway-core:10.6.0'
+	implementation "org.flywaydb:flyway-database-postgresql:10.6.0"
 	implementation 'commons-lang:commons-lang:2.6'
+	implementation 'commons-beanutils:commons-beanutils:1.9.4'
 	compileOnly 'org.projectlombok:lombok'
 	runtimeOnly 'org.postgresql:postgresql:42.7.1'
 	annotationProcessor 'org.projectlombok:lombok'

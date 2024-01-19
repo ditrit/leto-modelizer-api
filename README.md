@@ -110,19 +110,55 @@ docker-compose down
 
 In order to directly interact with the DB or the API, you can use the dashboard [Leto-Modelizer-Admin](https://github.com/ditrit/leto-modelizer-admin).
 
+### OAuth Authentication Setup
+
+To configure OAuth authentication for Leto-modelizer, you need to set up an OAuth application with specific details. Follow the steps below to ensure proper configuration:
+
+#### Step-by-Step Guide
+
+1. Create an OAuth App:
+
+* Visit the [GitHub tutorial](https://docs.github.com/en/apps/oauth-apps/building-oauth-apps/creating-an-oauth-app) on creating an OAuth app for detailed instructions.
+* Navigate to the OAuth apps settings in your GitHub account.
+
+2. Configure Your OAuth App:
+
+* When setting up your OAuth app, use the following configuration details:
+  * Application Name: `Leto-modelizer-api`
+This is the name that will be displayed to users during the OAuth flow.
+  * Homepage URL: `https://localhost:8443/`
+Replace `https://localhost:8443/` with the URL of your hosted application if it's not running locally.
+  * Authorization Callback URL: `https://localhost:8443/api/`
+Similarly, update this URL if your application is hosted at a different address.
+
+#### Important Notes
+
+* The URLs provided are for a local development environment. Ensure you replace them with your actual application URLs in a production setup.
+* The Authorization Callback URL should point to the specific API endpoint in your application that handles OAuth callbacks.
+
+By following these guidelines, you will set up OAuth authentication correctly for the Leto-modelizer application, enabling secure and streamlined user authentication.
+
 ### Configuration
 
-| Variable                | Required                               | Description                                                                                                                         |
-|-------------------------|----------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------|
-| DATABASE_HOST           | No, default: `localhost`               | A configuration parameter that specifies the hostname or IP address of the server where the database is hosted.                     |
-| DATABASE_PORT           | No, default: `5432`                    | A configuration parameter that defines the port number on which the database server is listening for connections.                   |
-| DATABASE_NAME           | No, default: `leto_db`                 | A configuration parameter that specifies the name of the specific database to be accessed on the server.                            |
-| DATABASE_USER           | No, default: `leto_admin`              | A configuration parameter indicating the username used to authenticate with the database server.                                    |
-| DATABASE_PASSWORD       | No, default: `password`                | A configuration parameter that specifies the password for authenticating the designated user with the database server.              |
-| SSL_KEY_STORE           | No, default: `classpath:keystore.jks`  | A configuration parameter specifying the file path to the keystore containing SSL/TLS certificates and keys for secure connections. |
-| SSL_KEY_STORE_PASSWORD  | No, default: `password`                | A configuration parameter that defines the password for accessing the SSL key store file.                                           |
-| SSL_KEY_PASSWORD        | No, default: `password`                | A configuration parameter that specifies the password for the individual SSL key within the key store.                              |
+| Variable                            | Required                                                   | Description                                                                                                                         |
+|-------------------------------------|------------------------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------|
+| DATABASE_HOST                       | No, default: `localhost`                                   | A configuration parameter that specifies the hostname or IP address of the server where the database is hosted.                     |
+| DATABASE_PORT                       | No, default: `5432`                                        | A configuration parameter that defines the port number on which the database server is listening for connections.                   |
+| DATABASE_NAME                       | No, default: `leto_db`                                     | A configuration parameter that specifies the name of the specific database to be accessed on the server.                            |
+| DATABASE_USER                       | No, default: `leto_admin`                                  | A configuration parameter indicating the username used to authenticate with the database server.                                    |
+| DATABASE_PASSWORD                   | No, default: `password`                                    | A configuration parameter that specifies the password for authenticating the designated user with the database server.              |
+| SSL_KEY_STORE                       | No, default: `classpath:keystore.jks`                      | A configuration parameter specifying the file path to the keystore containing SSL/TLS certificates and keys for secure connections. |
+| SSL_KEY_STORE_PASSWORD              | No, default: `password`                                    | A configuration parameter that defines the password for accessing the SSL key store file.                                           |
+| SSL_KEY_PASSWORD                    | No, default: `password`                                    | A configuration parameter that specifies the password for the individual SSL key within the key store.                              |
+| GITHUB_CLIENT_ID                    | Yes                                                        | A configuration parameter used to specify the client ID for OAuth2 authentication with GitHub.                                      |
+| GITHUB_CLIENT_SECRET                | Yes                                                        | A configuration parameter for setting the client secret in OAuth2 authentication with GitHub.                                       |
+| GITHUB_ENTERPRISE_AUTHORIZATION_URL | No, default: `https://github.com/login/oauth/authorize`    | A configuration parameter that specifies the URL for the authorization endpoint in GitHub's OAuth2 service.                         |
+| GITHUB_ENTERPRISE_TOKEN_URL         | No, default: `https://github.com/login/oauth/access_token` | A configuration parameter for defining the URL to obtain tokens from GitHub in OAuth2 authentication.                               |
+| GITHUB_ENTERPRISE_USER_INFO_URL     | No, default: `https://api.github.com/user`                 | A configuration parameter used to set the URL for retrieving user information from GitHub in OAuth2 authentication.                 |
+| LETO_MODELIZER_URL                  | No, default: `http://localhost:8080/`                      | A configuration parameter to set the redirection URL on valid authentication for Leto-modelizer.                                    |
+| LETO_ADMIN_URL                      | No, default: `http://localhost:9000/`                      | A configuration parameter to set the redirection URL on valid authentication for Leto-modelizer-admin.                              | 
 
+> Notes: `GITHUB_ENTERPRISE_*` variables are only required on self-hosted GitHub.
 
 ### Build
 
@@ -135,7 +171,7 @@ POSTGRES_DB=leto_db
 POSTGRES_USER=leto_admin
 POSTGRES_PASSWORD=password
 
-# Default configuration
+# Api configuration
 DATABASE_HOST=localhost
 DATABASE_PORT=5432
 DATABASE_NAME=leto_db
@@ -144,6 +180,10 @@ DATABASE_PASSWORD=password
 SSL_KEY_STORE=classpath:keystore.jks
 SSL_KEY_STORE_PASSWORD=password
 SSL_KEY_PASSWORD=password
+GITHUB_CLIENT_ID=YOUR_CLIENT_ID
+GITHUB_CLIENT_SECRET=YOUR_CLIENT_SECRET
+LETO_MODELIZER_URL=http://localhost:8080/
+LETO_ADMIN_URL=http://localhost:9000/
 ```
 
 See Configuration section for more details.
