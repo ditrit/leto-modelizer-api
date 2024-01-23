@@ -1,6 +1,9 @@
 package com.ditrit.letomodelizerapi.persistence.repository;
 
 import com.ditrit.letomodelizerapi.persistence.model.User;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;
@@ -22,4 +25,15 @@ public interface UserRepository extends JpaRepository<User, Long> {
      * @return an Optional containing the User if found, or an empty Optional otherwise.
      */
     Optional<User> findByLogin(String login);
+
+    /**
+     * Finds all users matching the given specification with pagination support.
+     * This method allows for complex queries and dynamic filtering of User entities,
+     * utilizing the JPA criteria API encapsulated by the {@link Specification} interface.
+     *
+     * @param specification The criteria for filtering users, encapsulated in a {@link Specification<User>}.
+     * @param pageable The pagination information and sorting criteria.
+     * @return A {@link Page<User>} containing users that match the given specification.
+     */
+    Page<User> findAll(Specification<User> specification, Pageable pageable);
 }
