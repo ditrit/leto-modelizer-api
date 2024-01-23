@@ -15,11 +15,15 @@ import org.mockito.Mock;
 import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 
 import java.io.IOException;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.util.Map;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -166,5 +170,38 @@ class UserServiceImplTest {
         clientStatic.when(HttpClient::newBuilder).thenReturn(clientBuilder);
 
         assertEquals(expectedResponse, service.getPicture(user));
+    }
+
+    @Test
+    @DisplayName("Test findAll: should retrieve all paginated users")
+    void testFindAll() {
+        Mockito.when(userRepository.findAll(Mockito.any(Specification.class), Mockito.any())).thenReturn(Page.empty());
+        assertEquals(Page.empty(), service.findAll(Map.of(), Pageable.ofSize(10)));
+    }
+
+    @Test
+    @DisplayName("Test findByLogin: should retrieve user.")
+    void testFindByLogin() {
+        User expected = new User();
+        Mockito.when(userRepository.findByLogin(Mockito.any())).thenReturn(Optional.of(expected));
+        assertEquals(expected, service.findByLogin("test"));
+    }
+
+    @Test
+    @DisplayName("Test findByLogin: should throw exception on unknown user.")
+    void testFindByLoginUnknown() {
+        Mockito.when(userRepository.findByLogin(Mockito.any())).thenReturn(Optional.empty());
+        ApiException exception = null;
+
+        try {
+            service.findByLogin("test");
+        } catch (ApiException e) {
+            exception = e;
+        }
+
+        assertNotNull(exception);
+        assertEquals(ErrorType.ENTITY_NOT_FOUND.getStatus(), exception.getStatus());
+        assertEquals("login", exception.getError().getField());
+        assertEquals("test", exception.getError().getValue());
     }
 }
