@@ -104,4 +104,42 @@ class CurrentUserControllerTest {
         assertNotNull(response);
         assertEquals(HttpStatus.OK.value(), response.getStatus());
     }
+
+    @Test
+    @DisplayName("Test getMyPermissions: should return valid response.")
+    void testGetMyPermissions() {
+        User user = new User();
+        user.setId(1L);
+
+        UserPermission permission = new UserPermission();
+        permission.setId("id");
+        permission.setEntity(EntityPermission.ADMIN.name());
+        permission.setAction(ActionPermission.ACCESS.name());
+
+        List<UserPermission> permissions = List.of(permission);
+
+        HttpSession session = Mockito.mock(HttpSession.class);
+        HttpServletRequest request = Mockito.mock(HttpServletRequest.class);
+
+        Mockito
+                .when(request.getSession())
+                .thenReturn(session);
+        Mockito
+                .when(userService.getFromSession(Mockito.any()))
+                .thenReturn(user);
+        Mockito
+                .when(userPermissionService.getAllPermissions(Mockito.any()))
+                .thenReturn(permissions);
+
+        UserPermissionDTO expectedPermission = new UserPermissionDTO();
+        expectedPermission.setEntity("ADMIN");
+        expectedPermission.setAction("ACCESS");
+        List<UserPermissionDTO> expectedPermissions = List.of(expectedPermission);
+
+        Response response = controller.getMyPermissions(request);
+
+        assertNotNull(response);
+        assertEquals(HttpStatus.OK.value(), response.getStatus());
+        assertEquals(expectedPermissions, response.getEntity());
+    }
 }

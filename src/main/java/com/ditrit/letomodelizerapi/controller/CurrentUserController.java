@@ -73,4 +73,22 @@ public class CurrentUserController {
 
         return Response.ok(response.body(), contentType).build();
     }
+
+    /**
+     * Endpoint to retrieve all permissions of current user.
+     * @param request Http request to get session.
+     * @return Response with permissions.
+     */
+    @GET
+    @Path("/permissions")
+    public Response getMyPermissions(final @Context HttpServletRequest request) {
+        HttpSession session = request.getSession();
+        User user = userService.getFromSession(session);
+        List<UserPermissionDTO> permissions = userPermissionService.getAllPermissions(user)
+                .stream()
+                .map(new BeanMapper<>(UserPermissionDTO.class))
+                .toList();
+
+        return Response.ok(permissions).build();
+    }
 }
