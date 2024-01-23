@@ -1,7 +1,12 @@
 package com.ditrit.letomodelizerapi.controller;
 
+import com.ditrit.letomodelizerapi.model.permission.ActionPermission;
+import com.ditrit.letomodelizerapi.model.permission.EntityPermission;
 import com.ditrit.letomodelizerapi.model.user.UserDTO;
+import com.ditrit.letomodelizerapi.model.user.permission.UserPermissionDTO;
 import com.ditrit.letomodelizerapi.persistence.model.User;
+import com.ditrit.letomodelizerapi.persistence.model.UserPermission;
+import com.ditrit.letomodelizerapi.service.UserPermissionService;
 import com.ditrit.letomodelizerapi.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
@@ -27,14 +32,17 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 @Tag("unit")
 @ExtendWith(MockitoExtension.class)
-@DisplayName("Test class: UserController")
-class UserControllerTest {
+@DisplayName("Test class: CurrentUserController")
+class CurrentUserControllerTest {
 
     @Mock
     UserService userService;
 
+    @Mock
+    UserPermissionService userPermissionService;
+
     @InjectMocks
-    UserController controller;
+    CurrentUserController controller;
 
     @Test
     @DisplayName("Test getMyInformation: should return valid response.")
@@ -95,5 +103,43 @@ class UserControllerTest {
 
         assertNotNull(response);
         assertEquals(HttpStatus.OK.value(), response.getStatus());
+    }
+
+    @Test
+    @DisplayName("Test getMyPermissions: should return valid response.")
+    void testGetMyPermissions() {
+        User user = new User();
+        user.setId(1L);
+
+        UserPermission permission = new UserPermission();
+        permission.setId("id");
+        permission.setEntity(EntityPermission.ADMIN.name());
+        permission.setAction(ActionPermission.ACCESS.name());
+
+        List<UserPermission> permissions = List.of(permission);
+
+        HttpSession session = Mockito.mock(HttpSession.class);
+        HttpServletRequest request = Mockito.mock(HttpServletRequest.class);
+
+        Mockito
+                .when(request.getSession())
+                .thenReturn(session);
+        Mockito
+                .when(userService.getFromSession(Mockito.any()))
+                .thenReturn(user);
+        Mockito
+                .when(userPermissionService.getAllPermissions(Mockito.any()))
+                .thenReturn(permissions);
+
+        UserPermissionDTO expectedPermission = new UserPermissionDTO();
+        expectedPermission.setEntity("ADMIN");
+        expectedPermission.setAction("ACCESS");
+        List<UserPermissionDTO> expectedPermissions = List.of(expectedPermission);
+
+        Response response = controller.getMyPermissions(request);
+
+        assertNotNull(response);
+        assertEquals(HttpStatus.OK.value(), response.getStatus());
+        assertEquals(expectedPermissions, response.getEntity());
     }
 }

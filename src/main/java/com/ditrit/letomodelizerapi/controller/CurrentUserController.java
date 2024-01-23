@@ -2,7 +2,9 @@ package com.ditrit.letomodelizerapi.controller;
 
 import com.ditrit.letomodelizerapi.model.BeanMapper;
 import com.ditrit.letomodelizerapi.model.user.UserDTO;
+import com.ditrit.letomodelizerapi.model.user.permission.UserPermissionDTO;
 import com.ditrit.letomodelizerapi.persistence.model.User;
+import com.ditrit.letomodelizerapi.service.UserPermissionService;
 import com.ditrit.letomodelizerapi.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
@@ -18,20 +20,25 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 
 import java.net.http.HttpResponse;
+import java.util.List;
 
 /**
  * Controller to manage all users endpoints.
  */
-@Path("/users")
+@Path("/users/me")
 @Produces(MediaType.APPLICATION_JSON)
 @Controller
 @AllArgsConstructor(onConstructor = @__(@Autowired))
-public class UserController {
+public class CurrentUserController {
 
     /**
      * Service to manage user.
      */
     private UserService userService;
+    /**
+     * Service to manage user permissions.
+     */
+    private UserPermissionService userPermissionService;
 
     /**
      * Endpoint to retrieve all information of current user.
@@ -39,7 +46,6 @@ public class UserController {
      * @return Response with user information.
      */
     @GET
-    @Path("/me")
     public Response getMyInformation(final @Context HttpServletRequest request) {
         HttpSession session = request.getSession();
         User user = userService.getFromSession(session);
@@ -62,9 +68,27 @@ public class UserController {
         User user = userService.getFromSession(session);
         HttpResponse<byte[]> response = userService.getPicture(user);
         String contentType = response.headers()
-            .firstValue("Content-Type")
-            .orElse("application/octet-stream");
+                .firstValue("Content-Type")
+                .orElse("application/octet-stream");
 
         return Response.ok(response.body(), contentType).build();
+    }
+
+    /**
+     * Endpoint to retrieve all permissions of current user.
+     * @param request Http request to get session.
+     * @return Response with permissions.
+     */
+    @GET
+    @Path("/permissions")
+    public Response getMyPermissions(final @Context HttpServletRequest request) {
+        HttpSession session = request.getSession();
+        User user = userService.getFromSession(session);
+        List<UserPermissionDTO> permissions = userPermissionService.getAllPermissions(user)
+                .stream()
+                .map(new BeanMapper<>(UserPermissionDTO.class))
+                .toList();
+
+        return Response.ok(permissions).build();
     }
 }
