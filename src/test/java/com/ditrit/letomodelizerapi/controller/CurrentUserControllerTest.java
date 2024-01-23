@@ -1,7 +1,12 @@
 package com.ditrit.letomodelizerapi.controller;
 
+import com.ditrit.letomodelizerapi.model.permission.ActionPermission;
+import com.ditrit.letomodelizerapi.model.permission.EntityPermission;
 import com.ditrit.letomodelizerapi.model.user.UserDTO;
+import com.ditrit.letomodelizerapi.model.user.permission.UserPermissionDTO;
 import com.ditrit.letomodelizerapi.persistence.model.User;
+import com.ditrit.letomodelizerapi.persistence.model.UserPermission;
+import com.ditrit.letomodelizerapi.service.UserPermissionService;
 import com.ditrit.letomodelizerapi.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
@@ -27,14 +32,17 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 @Tag("unit")
 @ExtendWith(MockitoExtension.class)
-@DisplayName("Test class: UserController")
-class UserControllerTest {
+@DisplayName("Test class: CurrentUserController")
+class CurrentUserControllerTest {
 
     @Mock
     UserService userService;
 
+    @Mock
+    UserPermissionService userPermissionService;
+
     @InjectMocks
-    UserController controller;
+    CurrentUserController controller;
 
     @Test
     @DisplayName("Test getMyInformation: should return valid response.")
