@@ -2,6 +2,8 @@ package com.ditrit.letomodelizerapi.helper;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.criteria.*;
+import jakarta.ws.rs.core.MultivaluedHashMap;
+import jakarta.ws.rs.core.UriInfo;
 import org.mockito.Mockito;
 
 import java.util.Collection;
@@ -9,6 +11,11 @@ import java.util.Date;
 
 public abstract class MockHelper {
 
+    public UriInfo mockUriInfo() {
+        UriInfo mock = Mockito.mock(UriInfo.class);
+        Mockito.when(mock.getQueryParameters()).thenReturn(new MultivaluedHashMap<>());
+        return mock;
+    }
     public <T> EntityManager mockEntityManager(Class<T> entityClass) {
         return mockEntityManager(entityClass, Mockito.mock(EntityManager.class));
     }
