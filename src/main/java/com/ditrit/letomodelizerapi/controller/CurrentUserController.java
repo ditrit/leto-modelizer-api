@@ -23,7 +23,7 @@ import java.net.http.HttpResponse;
 import java.util.List;
 
 /**
- * Controller to manage all users endpoints.
+ * Controller to manage all current user endpoints.
  */
 @Path("/users/me")
 @Produces(MediaType.APPLICATION_JSON)

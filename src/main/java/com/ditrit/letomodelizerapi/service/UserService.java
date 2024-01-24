@@ -3,8 +3,11 @@ package com.ditrit.letomodelizerapi.service;
 import com.ditrit.letomodelizerapi.model.user.UserRecord;
 import com.ditrit.letomodelizerapi.persistence.model.User;
 import jakarta.servlet.http.HttpSession;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import java.net.http.HttpResponse;
+import java.util.Map;
 
 /**
  * The UserService interface defines the operations for managing user data within the application.
@@ -36,4 +39,24 @@ public interface UserService {
      * @return An HttpResponse object containing the byte array of the user's profile picture.
      */
     HttpResponse<byte[]> getPicture(User user);
+
+    /**
+     * Retrieves a paginated list of users that match the given filter criteria.
+     * This method allows for dynamic querying of users based on specified filters
+     * and includes pagination and sorting functionality.
+     *
+     * @param filters A map of string key-value pairs representing the filtering criteria.
+     * @param pageable The pagination and sorting information.
+     * @return A {@link Page<User>} containing users that match the filtering criteria.
+     */
+    Page<User> findAll(Map<String, String> filters, Pageable pageable);
+
+    /**
+     * Retrieves a user by their login identifier.
+     * This method is used to find a user based on their unique login.
+     *
+     * @param login The login identifier of the user to be retrieved.
+     * @return The User object if found, or {@code null} if no user exists with the given login.
+     */
+    User findByLogin(String login);
 }

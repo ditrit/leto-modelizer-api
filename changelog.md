@@ -14,8 +14,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * Setup user permissions.
 * Add api endpoints:
   * For current user:
-    * `/api/user/me`, to get all its information.
-    * `/api/user/me/permissions`, to get all its permissions.
-    * `/api/user/me/picture`, to get its picture.
+    * `GET /api/user/me`, to get all its information.
+    * `GET /api/user/me/permissions`, to get all its permissions.
+    * `GET /api/user/me/picture`, to get its picture.
+  * For all users:
+    * `GET /api/users`, to get all users.
+    * `GET /api/users/{login}`, to get user by login.
   * `/api/login`, to login.
   * `/api/redirect`, to redirect with token on leto-modelizer/leto-modelizer-admin.
