@@ -44,5 +44,9 @@ public @interface FilterType {
          * Token.
          */
         TOKEN,
+        /**
+         * Enum.
+         */
+        ENUM,
     }
 }

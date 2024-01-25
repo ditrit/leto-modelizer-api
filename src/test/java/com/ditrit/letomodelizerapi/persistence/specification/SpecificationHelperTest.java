@@ -29,17 +29,19 @@ class SpecificationHelperTest extends MockHelper {
                 "aString", "test",
                 "aDate", "null",
                 "aBoolean", "true",
-                "aToken", "a"
+                "aToken", "a",
+                "aEnum", "b"
         ));
 
         List<IPredicateFilter> filters = helper.getFilters();
         assertNotNull(filters);
-        assertEquals(5, filters.size());
+        assertEquals(6, filters.size());
         assertEquals(NumberPredicateFilter.class, filters.get(0).getClass());
         assertEquals(TextPredicateFilter.class, filters.get(1).getClass());
         assertEquals(BooleanPredicateFilter.class, filters.get(2).getClass());
         assertEquals(TokenPredicateFilter.class, filters.get(3).getClass());
         assertEquals(DatePredicateFilter.class, filters.get(4).getClass());
+        assertEquals(EnumPredicateFilter.class, filters.get(5).getClass());
     }
 
     @Test
@@ -66,5 +68,7 @@ class SpecificationHelperTest extends MockHelper {
         private String aToken;
         @FilterType(type = FilterType.Type.DATE)
         private Date aDate;
+        @FilterType(type = FilterType.Type.ENUM)
+        private String aEnum;
     }
 }
