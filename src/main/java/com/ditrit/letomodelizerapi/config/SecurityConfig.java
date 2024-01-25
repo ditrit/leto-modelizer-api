@@ -49,6 +49,7 @@ public class SecurityConfig {
                 .successHandler(new AuthenticationSuccessHandler())
             )
             .exceptionHandling(handler -> handler.authenticationEntryPoint(new DefaultAuthenticationEntryPoint()));
+        http.csrf(csrf -> csrf.disable());
         return http.build();
     }
 }
