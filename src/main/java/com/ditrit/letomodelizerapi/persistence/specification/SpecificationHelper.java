@@ -2,6 +2,7 @@ package com.ditrit.letomodelizerapi.persistence.specification;
 
 import com.ditrit.letomodelizerapi.persistence.specification.filter.BooleanPredicateFilter;
 import com.ditrit.letomodelizerapi.persistence.specification.filter.DatePredicateFilter;
+import com.ditrit.letomodelizerapi.persistence.specification.filter.EnumPredicateFilter;
 import com.ditrit.letomodelizerapi.persistence.specification.filter.FilterType;
 import com.ditrit.letomodelizerapi.persistence.specification.filter.IPredicateFilter;
 import com.ditrit.letomodelizerapi.persistence.specification.filter.NumberPredicateFilter;
@@ -74,6 +75,7 @@ public class SpecificationHelper<T> implements Specification<T> {
             final FilterType filterType = field.getAnnotation(FilterType.class);
 
             IPredicateFilter filter;
+
             if (FilterType.Type.DATE.equals(filterType.type())) {
                 filter = new DatePredicateFilter(name, value);
             } else if (FilterType.Type.NUMBER.equals(filterType.type())) {
@@ -82,6 +84,8 @@ public class SpecificationHelper<T> implements Specification<T> {
                 filter = new BooleanPredicateFilter(name, value);
             } else if (FilterType.Type.TOKEN.equals(filterType.type())) {
                 filter = new TokenPredicateFilter(name, value);
+            } else if (FilterType.Type.ENUM.equals(filterType.type())) {
+                filter = new EnumPredicateFilter(name, value);
             } else {
                 filter = new TextPredicateFilter(name, value);
             }
