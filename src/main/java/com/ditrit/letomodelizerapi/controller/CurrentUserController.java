@@ -1,26 +1,35 @@
 package com.ditrit.letomodelizerapi.controller;
 
+import com.ditrit.letomodelizerapi.controller.model.QueryFilter;
 import com.ditrit.letomodelizerapi.model.BeanMapper;
+import com.ditrit.letomodelizerapi.model.accesscontrol.AccessControlDTO;
+import com.ditrit.letomodelizerapi.model.accesscontrol.AccessControlType;
 import com.ditrit.letomodelizerapi.model.user.UserDTO;
 import com.ditrit.letomodelizerapi.model.user.permission.UserPermissionDTO;
 import com.ditrit.letomodelizerapi.persistence.model.User;
+import com.ditrit.letomodelizerapi.service.AccessControlService;
 import com.ditrit.letomodelizerapi.service.UserPermissionService;
 import com.ditrit.letomodelizerapi.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
+import jakarta.validation.Valid;
+import jakarta.ws.rs.BeanParam;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+import jakarta.ws.rs.core.UriInfo;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 
 import java.net.http.HttpResponse;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Controller to manage all current user endpoints.
@@ -29,7 +38,7 @@ import java.util.List;
 @Produces(MediaType.APPLICATION_JSON)
 @Controller
 @AllArgsConstructor(onConstructor = @__(@Autowired))
-public class CurrentUserController {
+public class CurrentUserController implements DefaultController {
 
     /**
      * Service to manage user.
@@ -39,6 +48,10 @@ public class CurrentUserController {
      * Service to manage user permissions.
      */
     private UserPermissionService userPermissionService;
+    /**
+     * Service to manage access control.
+     */
+    private AccessControlService accessControlService;
 
     /**
      * Endpoint to retrieve all information of current user.
@@ -90,5 +103,36 @@ public class CurrentUserController {
                 .toList();
 
         return Response.ok(permissions).build();
+    }
+
+    /**
+     * Retrieves all roles associated to the current user.
+     * This endpoint provides a paginated list of roles that the current user has, based on the provided query filters.
+     * The method uses the session information from the HttpServletRequest to identify the current user and
+     * then fetches their roles using the AccessControlService.
+     *
+     * @param request      HttpServletRequest to access the HTTP session and thereby identify the current user.
+     * @param uriInfo      UriInfo to extract query parameters for additional filtering.
+     * @param queryFilter  BeanParam object for pagination and filtering purposes.
+     * @return a Response containing a paginated list of AccessControlDTO objects representing the roles of the current
+     * user.
+     */
+    @GET
+    @Path("/roles")
+    public Response getMyRoles(final @Context HttpServletRequest request,
+                               final @Context UriInfo uriInfo,
+                               final @BeanParam @Valid QueryFilter queryFilter) {
+        HttpSession session = request.getSession();
+        User user = userService.getFromSession(session);
+        Map<String, String> filters = this.getFilters(uriInfo);
+
+        Page<AccessControlDTO> resources = accessControlService.findAll(
+                AccessControlType.ROLE,
+                user,
+                filters,
+                queryFilter.getPagination()
+            ).map(new BeanMapper<>(AccessControlDTO.class));
+
+        return Response.status(this.getStatus(resources)).entity(resources).build();
     }
 }
