@@ -21,10 +21,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     * `GET /api/users`, to get all users.
     * `GET /api/users/{login}`, to get user by login.
   * For all roles:
-    * `GET /api/roles`, to get all roles.
-    * `POST /api/roles`, to create a role.
-    * `GET /api/roles/[ROLE_ID]`, to get role by id.
-    * `PUT /api/roles/[ROLE_ID]`, to update a role.
-    * `DELETE /api/roles/[ROLE_ID]`, to delete a role. 
+    * `GET    /api/roles`, to get all roles.
+    * `POST   /api/roles`, to create a role.
+    * `GET    /api/roles/[ROLE_ID]`, to get role by id.
+    * `PUT    /api/roles/[ROLE_ID]`, to update a role.
+    * `DELETE /api/roles/[ROLE_ID]`, to delete a role.
+    * `GET    /api/roles/[ROLE_ID]/users`, to get all users associated to the role.
+    * `POST   /api/roles/[ROLE_ID]/users`, to associate role and user.
+    * `DELETE /api/roles/[ROLE_ID]/users/[USER_LOGIN]`, to dissociate role and user.
   * `/api/login`, to login.
   * `/api/redirect`, to redirect with token on leto-modelizer/leto-modelizer-admin.
