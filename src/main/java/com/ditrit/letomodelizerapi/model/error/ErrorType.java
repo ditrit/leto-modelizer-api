@@ -45,6 +45,10 @@ public enum ErrorType {
      */
     UNKNOWN_FIELD(207, "Field is not an attribute of model.", HttpStatus.BAD_REQUEST),
     /**
+     * Error to call when entity is not found in database.
+     */
+    ENTITY_ALREADY_EXISTS(208, "Entity already exists.", HttpStatus.BAD_REQUEST),
+    /**
      * Error to call when an internal error occurred.
      */
     INTERNAL_ERROR(301, "Internal error occurred, please contact your administrator.",
