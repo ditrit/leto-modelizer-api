@@ -5,8 +5,15 @@ import com.ditrit.letomodelizerapi.model.accesscontrol.AccessControlRecord;
 import com.ditrit.letomodelizerapi.model.accesscontrol.AccessControlType;
 import com.ditrit.letomodelizerapi.model.error.ApiException;
 import com.ditrit.letomodelizerapi.model.error.ErrorType;
+import com.ditrit.letomodelizerapi.persistence.function.UserAccesControlViewToAccessControlFunction;
+import com.ditrit.letomodelizerapi.persistence.function.UserAccesControlViewToUserFunction;
 import com.ditrit.letomodelizerapi.persistence.model.AccessControl;
+import com.ditrit.letomodelizerapi.persistence.model.User;
+import com.ditrit.letomodelizerapi.persistence.model.UserAccessControl;
+import com.ditrit.letomodelizerapi.persistence.model.UserAccessControlView;
 import com.ditrit.letomodelizerapi.persistence.repository.AccessControlRepository;
+import com.ditrit.letomodelizerapi.persistence.repository.UserAccessControlRepository;
+import com.ditrit.letomodelizerapi.persistence.repository.UserAccessControlViewRepository;
 import com.ditrit.letomodelizerapi.persistence.specification.SpecificationHelper;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
@@ -20,6 +27,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * Implementation of the AccessControlService interface.
@@ -42,16 +50,72 @@ public class AccessControlServiceImpl implements AccessControlService {
      */
     private AccessControlRepository accessControlRepository;
 
+    /**
+     * The UserAccessControlRepository instance is injected by Spring's dependency injection mechanism.
+     * This repository is used for performing database operations related to UserAccessControl entities, such as
+     * querying, saving, and updating user access control data.
+     */
+    private UserAccessControlViewRepository userAccessControlViewRepository;
+
+    /**
+     * The UserAccessControlRepository instance is injected by Spring's dependency injection mechanism.
+     * This repository is used for performing database operations related to UserAccessControl entities, such as
+     * querying, saving, and updating user access control data.
+     */
+    private UserAccessControlRepository userAccessControlRepository;
+
+    /**
+     * The UserService instance is injected by Spring's dependency injection mechanism.
+     * This service is responsible for handling all user-related business logic and operations.
+     * It typically includes functionalities such as user authentication, user data retrieval,
+     * user profile updates, and other user-centric business processes.
+     */
+    private UserService userService;
+
     @Override
     public Page<AccessControl> findAll(final AccessControlType type,
                                        final Map<String, String> immutableFilters,
                                        final Pageable pageable) {
         Map<String, String> filters = new HashMap<>(immutableFilters);
         filters.put("type", type.name());
+
         return accessControlRepository.findAll(new SpecificationHelper<>(AccessControl.class, filters), PageRequest.of(
                 pageable.getPageNumber(),
                 pageable.getPageSize(),
                 pageable.getSortOr(Sort.by(Sort.Direction.ASC, "name"))));
+    }
+
+    @Override
+    public Page<AccessControl> findAll(final AccessControlType type,
+                                       final User user,
+                                       final Map<String, String> immutableFilters,
+                                       final Pageable pageable) {
+        Map<String, String> filters = new HashMap<>(immutableFilters);
+        filters.put("type", type.name());
+        filters.put("userId", user.getId().toString());
+
+        return userAccessControlViewRepository.findAll(
+                new SpecificationHelper<>(UserAccessControlView.class, filters),
+                PageRequest.of(
+                    pageable.getPageNumber(),
+                    pageable.getPageSize(),
+                    pageable.getSortOr(Sort.by(Sort.Direction.ASC, "accessControlName"))
+                )
+            ).map(new UserAccesControlViewToAccessControlFunction());
+    }
+
+    @Override
+    public Page<User> findAllUsers(final Long id,
+                                   final Map<String, String> immutableFilters,
+                                   final Pageable pageable) {
+        Map<String, String> filters = new HashMap<>(immutableFilters);
+        filters.put("accessControlId", id.toString());
+        return userAccessControlViewRepository.findAll(new SpecificationHelper<>(UserAccessControlView.class, filters),
+                PageRequest.of(
+                    pageable.getPageNumber(),
+                    pageable.getPageSize(),
+                    pageable.getSortOr(Sort.by(Sort.Direction.ASC, "userName")))
+        ).map(new UserAccesControlViewToUserFunction());
     }
 
     @Override
@@ -83,5 +147,34 @@ public class AccessControlServiceImpl implements AccessControlService {
     public void delete(final AccessControlType type, final Long id) {
         AccessControl accessControl = findById(type, id);
         accessControlRepository.deleteById(accessControl.getId());
+    }
+
+    @Override
+    public void associate(final AccessControlType type, final Long id, final String login) {
+        AccessControl accessControl = findById(type, id);
+        User user = userService.findByLogin(login);
+        Optional<UserAccessControl> userAccessControlOptional = userAccessControlRepository
+                .findByAccessControlIdAndUserId(accessControl.getId(), user.getId());
+
+        if (userAccessControlOptional.isPresent()) {
+            throw new ApiException(ErrorType.ENTITY_ALREADY_EXISTS, "association");
+        }
+
+        UserAccessControl userAccessControl = new UserAccessControl();
+        userAccessControl.setAccessControlId(accessControl.getId());
+        userAccessControl.setUserId(user.getId());
+
+        userAccessControlRepository.save(userAccessControl);
+    }
+
+    @Override
+    public void dissociate(final AccessControlType type, final Long id, final String login) {
+        AccessControl accessControl = findById(type, id);
+        User user = userService.findByLogin(login);
+        UserAccessControl userAccessControl = userAccessControlRepository
+                .findByAccessControlIdAndUserId(accessControl.getId(), user.getId())
+                .orElseThrow(() -> new ApiException(ErrorType.ENTITY_NOT_FOUND, "association"));
+
+        userAccessControlRepository.delete(userAccessControl);
     }
 }

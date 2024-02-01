@@ -5,6 +5,7 @@ import com.ditrit.letomodelizerapi.model.BeanMapper;
 import com.ditrit.letomodelizerapi.model.accesscontrol.AccessControlDTO;
 import com.ditrit.letomodelizerapi.model.accesscontrol.AccessControlRecord;
 import com.ditrit.letomodelizerapi.model.accesscontrol.AccessControlType;
+import com.ditrit.letomodelizerapi.model.user.UserDTO;
 import com.ditrit.letomodelizerapi.persistence.model.User;
 import com.ditrit.letomodelizerapi.service.AccessControlService;
 import com.ditrit.letomodelizerapi.service.UserPermissionService;
@@ -12,6 +13,7 @@ import com.ditrit.letomodelizerapi.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.ws.rs.BeanParam;
 import jakarta.ws.rs.Consumes;
@@ -178,6 +180,88 @@ public class RoleController implements DefaultController {
 
         log.info("Received DELETE request to delete role with id {}", id);
         accessControlService.delete(AccessControlType.ROLE, id);
+
+        return Response.noContent().build();
+    }
+
+    /**
+     * Retrieves users associated to a specific role.
+     * This endpoint fetches and returns a paginated list of users associated with the given role ID.
+     * The method is accessible only to users with administrative permissions.
+     *
+     * @param request      HttpServletRequest to access the HTTP session for authentication and authorization.
+     * @param id           the ID of the role for which users are to be retrieved.
+     * @param uriInfo      UriInfo to extract query parameters for additional filtering.
+     * @param queryFilter  BeanParam object for pagination and filtering purposes.
+     * @return a Response containing a paginated list of UserDTO objects associated with the role.
+     */
+    @GET
+    @Path("/{id}/users")
+    public Response getUsersByRole(final @Context HttpServletRequest request,
+                                   final @PathParam("id") @Valid @NotNull Long id,
+                                   final @Context UriInfo uriInfo,
+                                   final @BeanParam @Valid QueryFilter queryFilter) {
+        HttpSession session = request.getSession();
+        User user = userService.getFromSession(session);
+        userPermissionService.checkIsAdmin(user, null);
+
+        Map<String, String> filters = this.getFilters(uriInfo);
+        log.info("Received GET request to get users of role {} with the following filters: {}", id, filters);
+        Page<UserDTO> resources = accessControlService
+                .findAllUsers(id, filters, queryFilter.getPagination())
+                .map(new BeanMapper<>(UserDTO.class));
+
+        return Response.status(this.getStatus(resources)).entity(resources).build();
+    }
+
+    /**
+     * Associates a user to a specified role.
+     * This endpoint allows an administrative user to associate another user, identified by their login,
+     * with a specific role, identified by its ID.
+     *
+     * @param request HttpServletRequest to access the HTTP session for authentication and authorization.
+     * @param id      the ID of the role to which the user is to be associated.
+     * @param login   the login identifier of the user to associate with the role.
+     * @return a Response indicating the outcome of the association operation.
+     */
+    @POST
+    @Consumes(MediaType.TEXT_PLAIN)
+    @Path("/{id}/users")
+    public Response associateUser(final @Context HttpServletRequest request,
+                                  final @PathParam("id") @Valid @NotNull Long id,
+                                  final @Valid @NotBlank String login) {
+        HttpSession session = request.getSession();
+        User user = userService.getFromSession(session);
+        userPermissionService.checkIsAdmin(user, null);
+
+        log.info("Received POST request to associate role {} with user {}", id, login);
+        accessControlService.associate(AccessControlType.ROLE, id, login);
+
+        return Response.status(HttpStatus.CREATED.value()).build();
+    }
+
+    /**
+     * Dissociates a user from a specified role.
+     * This endpoint allows an administrative user to remove the association of a user, identified by their login,
+     * from a specific role, identified by its ID.
+     *
+     * @param request HttpServletRequest to access the HTTP session for authentication and authorization.
+     * @param id      the ID of the role from which the user is to be dissociated.
+     * @param login   the login identifier of the user to dissociate from the role.
+     * @return a Response indicating the outcome of the dissociation operation.
+     */
+    @DELETE
+    @Path("/{id}/users/{login}")
+    @Consumes(MediaType.APPLICATION_JSON)
+    public Response dissociateUser(final @Context HttpServletRequest request,
+                                  final @PathParam("id") @Valid @NotNull Long id,
+                                  final @PathParam("login") @Valid @NotBlank String login) {
+        HttpSession session = request.getSession();
+        User user = userService.getFromSession(session);
+        userPermissionService.checkIsAdmin(user, null);
+
+        log.info("Received DELETE request to dissociate role {} with user {}", id, login);
+        accessControlService.dissociate(AccessControlType.ROLE, id, login);
 
         return Response.noContent().build();
     }
