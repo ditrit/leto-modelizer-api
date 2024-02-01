@@ -21,3 +21,5 @@ INSERT INTO access_controls(aco_id, name, type) VALUES
 (1, 'Super administrator', 'ROLE'),
 (2, 'Administrator', 'ROLE'),
 (3, 'Developer', 'ROLE');
+
+ALTER SEQUENCE access_controls_aco_id_seq RESTART WITH 4;
