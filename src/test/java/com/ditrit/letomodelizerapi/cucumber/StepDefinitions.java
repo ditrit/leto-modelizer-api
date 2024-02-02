@@ -237,7 +237,8 @@ public class StepDefinitions {
         if (table == null || table.isEmpty()) {
             return null;
         }
-        String value = table.cell(1, 0);
+        String value = replaceWithContext(table.cell(1, 0));
+        LOGGER.info(value);
 
         if ("NULL".equals(value)) {
             return null;
