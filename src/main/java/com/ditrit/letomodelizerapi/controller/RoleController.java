@@ -3,6 +3,7 @@ package com.ditrit.letomodelizerapi.controller;
 import com.ditrit.letomodelizerapi.controller.model.QueryFilter;
 import com.ditrit.letomodelizerapi.model.BeanMapper;
 import com.ditrit.letomodelizerapi.model.accesscontrol.AccessControlDTO;
+import com.ditrit.letomodelizerapi.model.accesscontrol.AccessControlDirectDTO;
 import com.ditrit.letomodelizerapi.model.accesscontrol.AccessControlRecord;
 import com.ditrit.letomodelizerapi.model.accesscontrol.AccessControlType;
 import com.ditrit.letomodelizerapi.model.user.UserDTO;
@@ -260,6 +261,98 @@ public class RoleController implements DefaultController {
 
         log.info("Received DELETE request to dissociate role {} with user {}", id, login);
         accessControlService.dissociateUser(AccessControlType.ROLE, id, login);
+
+        return Response.noContent().build();
+    }
+
+    /**
+     * Retrieves the sub-roles of a specified role.
+     *
+     * <p>This method processes a GET request to obtain sub-roles associated with a given role ID. It filters the roles
+     * based on the provided query parameters and pagination settings.
+     *
+     * @param request the HttpServletRequest from which to obtain the HttpSession for user validation.
+     * @param id the ID of the role for which to retrieve sub-roles. Must be a valid and non-null Long value.
+     * @param uriInfo UriInfo context to extract query parameters for filtering results.
+     * @param queryFilter bean parameter encapsulating filtering and pagination criteria.
+     * @return a Response object containing the requested page of AccessControlDirectDTO objects representing the
+     * sub-roles of the specified role. The status of the response can vary based on the outcome of the request.
+     */
+    @GET
+    @Path("/{id}/roles")
+    public Response getSubRolesOfRole(final @Context HttpServletRequest request,
+                                      final @PathParam("id") @Valid @NotNull Long id,
+                                      final @Context UriInfo uriInfo,
+                                      final @BeanParam @Valid QueryFilter queryFilter) {
+        HttpSession session = request.getSession();
+        User user = userService.getFromSession(session);
+        userPermissionService.checkIsAdmin(user, null);
+
+        Map<String, String> filters = this.getFilters(uriInfo);
+        log.info("Received GET request to get sub roles of role {} with the following filters: {}", id, filters);
+        Page<AccessControlDirectDTO> resources = accessControlService
+                .findAllAccessControls(id, AccessControlType.ROLE, filters, queryFilter.getPagination());
+
+        return Response.status(this.getStatus(resources)).entity(resources).build();
+    }
+
+    /**
+     * Associates a role with another role.
+     *
+     * <p>This method handles a POST request to create an association between two roles, specified by their IDs.
+     * It validates the user's session and ensures the user has administrative privileges before proceeding with the
+     * association.
+     *
+     * @param request the HttpServletRequest from which to obtain the HttpSession for user validation.
+     * @param id the ID of the first role to which the second role will be associated. Must be a valid and non-null
+     *           Long value.
+     * @param roleId the ID of the second role to be associated with the first role. Must be a valid and non-null
+     *               Long value.
+     * @return a Response object indicating the outcome of the association operation. A successful operation returns
+     * a status of CREATED.
+     */
+    @POST
+    @Consumes(MediaType.TEXT_PLAIN)
+    @Path("/{id}/roles")
+    public Response associate(final @Context HttpServletRequest request,
+                              final @PathParam("id") @Valid @NotNull Long id,
+                              final @Valid @NotNull Long roleId) {
+        HttpSession session = request.getSession();
+        User user = userService.getFromSession(session);
+        userPermissionService.checkIsAdmin(user, null);
+
+        log.info("Received POST request to associate role {} with role {}", id, roleId);
+        accessControlService.associate(AccessControlType.ROLE, id, AccessControlType.ROLE, roleId);
+
+        return Response.status(HttpStatus.CREATED.value()).build();
+    }
+
+    /**
+     * Dissociates a role from another role.
+     *
+     * <p>This method facilitates the handling of a DELETE request to remove the association between two roles,
+     * identified by their respective IDs. The operation is secured, requiring validation of the user's session and
+     * administrative privileges.
+     *
+     * @param request the HttpServletRequest used to validate the user's session.
+     * @param id the ID of the first role from which the second role will be dissociated. Must be a valid and non-null
+     *           Long value.
+     * @param roleId the ID of the second role to be dissociated from the first role. Must be a valid and non-null Long
+     *               value.
+     * @return a Response object with a status indicating the outcome of the dissociation operation. A successful
+     * operation returns a status of NO_CONTENT.
+     */
+    @DELETE
+    @Path("/{id}/roles/{roleId}")
+    public Response dissociate(final @Context HttpServletRequest request,
+                               final @PathParam("id") @Valid @NotNull Long id,
+                               final @PathParam("roleId") @Valid @NotNull Long roleId) {
+        HttpSession session = request.getSession();
+        User user = userService.getFromSession(session);
+        userPermissionService.checkIsAdmin(user, null);
+
+        log.info("Received DELETE request to dissociate role {} with role {}", id, roleId);
+        accessControlService.dissociate(AccessControlType.ROLE, id, AccessControlType.ROLE, roleId);
 
         return Response.noContent().build();
     }

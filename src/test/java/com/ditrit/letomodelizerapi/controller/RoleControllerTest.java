@@ -176,4 +176,54 @@ class RoleControllerTest extends MockHelper {
         assertNotNull(response);
         assertEquals(HttpStatus.NO_CONTENT.value(), response.getStatus());
     }
+
+    @Test
+    @DisplayName("Test getSubRolesOfRole: should return valid response.")
+    void testGetSubRolesOfRole() {
+        HttpSession session = Mockito.mock(HttpSession.class);
+        HttpServletRequest request = Mockito.mock(HttpServletRequest.class);
+        Mockito
+                .when(request.getSession())
+                .thenReturn(session);
+        Mockito.doNothing().when(userPermissionService).checkIsAdmin(Mockito.any(), Mockito.any());
+        Mockito.when(this.accessControlService.findAllAccessControls(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(Page.empty());
+        final Response response = this.controller.getSubRolesOfRole(request, 1l, mockUriInfo(), new QueryFilter());
+
+        assertNotNull(response);
+        assertEquals(HttpStatus.OK.value(), response.getStatus());
+        assertNotNull(response.getEntity());
+    }
+
+    @Test
+    @DisplayName("Test associate: should return valid response.")
+    void testAssociate() {
+        HttpSession session = Mockito.mock(HttpSession.class);
+        HttpServletRequest request = Mockito.mock(HttpServletRequest.class);
+        Mockito
+                .when(request.getSession())
+                .thenReturn(session);
+        Mockito.doNothing().when(userPermissionService).checkIsAdmin(Mockito.any(), Mockito.any());
+        Mockito.doNothing().when(this.accessControlService).associate(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any());
+        final Response response = this.controller.associate(request, 1l, 2l);
+
+        assertNotNull(response);
+        assertEquals(HttpStatus.CREATED.value(), response.getStatus());
+        assertNull(response.getEntity());
+    }
+
+    @Test
+    @DisplayName("Test dissociate: should return valid response.")
+    void testDissociate() {
+        HttpSession session = Mockito.mock(HttpSession.class);
+        HttpServletRequest request = Mockito.mock(HttpServletRequest.class);
+        Mockito
+                .when(request.getSession())
+                .thenReturn(session);
+        Mockito.doNothing().when(userPermissionService).checkIsAdmin(Mockito.any(), Mockito.any());
+        Mockito.doNothing().when(this.accessControlService).dissociate(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any());
+        final Response response = this.controller.dissociate(request, 1L, 2l);
+
+        assertNotNull(response);
+        assertEquals(HttpStatus.NO_CONTENT.value(), response.getStatus());
+    }
 }
