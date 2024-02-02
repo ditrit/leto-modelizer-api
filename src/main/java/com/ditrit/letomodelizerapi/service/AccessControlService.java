@@ -95,7 +95,7 @@ public interface AccessControlService {
      * @param id     the ID of the AccessControl entity to be associated
      * @param login  the login identifier of the user entity to associate with the AccessControl entity
      */
-    void associate(AccessControlType type, Long id, String login);
+    void associateUser(AccessControlType type, Long id, String login);
 
     /**
      * Dissociates a specific AccessControl entity from a user entity identified by a login string.
@@ -105,5 +105,5 @@ public interface AccessControlService {
      * @param id     the ID of the AccessControl entity to be dissociated
      * @param login  the login identifier of the user entity to dissociate from the AccessControl entity
      */
-    void dissociate(AccessControlType type, Long id, String login);
+    void dissociateUser(AccessControlType type, Long id, String login);
 }

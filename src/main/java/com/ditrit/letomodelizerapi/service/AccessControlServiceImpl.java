@@ -150,7 +150,7 @@ public class AccessControlServiceImpl implements AccessControlService {
     }
 
     @Override
-    public void associate(final AccessControlType type, final Long id, final String login) {
+    public void associateUser(final AccessControlType type, final Long id, final String login) {
         AccessControl accessControl = findById(type, id);
         User user = userService.findByLogin(login);
         Optional<UserAccessControl> userAccessControlOptional = userAccessControlRepository
@@ -168,7 +168,7 @@ public class AccessControlServiceImpl implements AccessControlService {
     }
 
     @Override
-    public void dissociate(final AccessControlType type, final Long id, final String login) {
+    public void dissociateUser(final AccessControlType type, final Long id, final String login) {
         AccessControl accessControl = findById(type, id);
         User user = userService.findByLogin(login);
         UserAccessControl userAccessControl = userAccessControlRepository

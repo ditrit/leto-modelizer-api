@@ -234,7 +234,7 @@ public class RoleController implements DefaultController {
         userPermissionService.checkIsAdmin(user, null);
 
         log.info("Received POST request to associate role {} with user {}", id, login);
-        accessControlService.associate(AccessControlType.ROLE, id, login);
+        accessControlService.associateUser(AccessControlType.ROLE, id, login);
 
         return Response.status(HttpStatus.CREATED.value()).build();
     }
@@ -259,7 +259,7 @@ public class RoleController implements DefaultController {
         userPermissionService.checkIsAdmin(user, null);
 
         log.info("Received DELETE request to dissociate role {} with user {}", id, login);
-        accessControlService.dissociate(AccessControlType.ROLE, id, login);
+        accessControlService.dissociateUser(AccessControlType.ROLE, id, login);
 
         return Response.noContent().build();
     }

@@ -153,7 +153,7 @@ class RoleControllerTest extends MockHelper {
                 .when(request.getSession())
                 .thenReturn(session);
         Mockito.doNothing().when(userPermissionService).checkIsAdmin(Mockito.any(), Mockito.any());
-        Mockito.doNothing().when(this.accessControlService).associate(Mockito.any(), Mockito.any(), Mockito.any());
+        Mockito.doNothing().when(this.accessControlService).associateUser(Mockito.any(), Mockito.any(), Mockito.any());
         final Response response = this.controller.associateUser(request, 1l, "login");
 
         assertNotNull(response);
@@ -170,7 +170,7 @@ class RoleControllerTest extends MockHelper {
                 .when(request.getSession())
                 .thenReturn(session);
         Mockito.doNothing().when(userPermissionService).checkIsAdmin(Mockito.any(), Mockito.any());
-        Mockito.doNothing().when(this.accessControlService).dissociate(Mockito.any(), Mockito.any(), Mockito.any());
+        Mockito.doNothing().when(this.accessControlService).dissociateUser(Mockito.any(), Mockito.any(), Mockito.any());
         final Response response = this.controller.dissociateUser(request, 1L, "login");
 
         assertNotNull(response);
