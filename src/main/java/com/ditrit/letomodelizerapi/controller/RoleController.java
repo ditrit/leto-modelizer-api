@@ -171,7 +171,6 @@ public class RoleController implements DefaultController {
      */
     @DELETE
     @Path("/{id}")
-    @Consumes(MediaType.APPLICATION_JSON)
     public Response deleteRole(final @Context HttpServletRequest request,
                                final @PathParam("id") @Valid @NotNull Long id) {
         HttpSession session = request.getSession();
@@ -252,7 +251,6 @@ public class RoleController implements DefaultController {
      */
     @DELETE
     @Path("/{id}/users/{login}")
-    @Consumes(MediaType.APPLICATION_JSON)
     public Response dissociateUser(final @Context HttpServletRequest request,
                                   final @PathParam("id") @Valid @NotNull Long id,
                                   final @PathParam("login") @Valid @NotBlank String login) {
