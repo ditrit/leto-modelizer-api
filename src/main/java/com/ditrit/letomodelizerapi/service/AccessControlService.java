@@ -1,5 +1,6 @@
 package com.ditrit.letomodelizerapi.service;
 
+import com.ditrit.letomodelizerapi.model.accesscontrol.AccessControlDirectDTO;
 import com.ditrit.letomodelizerapi.model.accesscontrol.AccessControlRecord;
 import com.ditrit.letomodelizerapi.model.accesscontrol.AccessControlType;
 import com.ditrit.letomodelizerapi.persistence.model.AccessControl;
@@ -52,6 +53,33 @@ public interface AccessControlService {
     Page<User> findAllUsers(Long id, Map<String, String> filters, Pageable pageable);
 
     /**
+     * Retrieves all sub-access controls associated with a specific parent access control ID.
+     *
+     * This method is designed to find and return all sub-access controls for a given parent access control, identified
+     * by its ID. It applies a set of filtering criteria and pagination to efficiently manage and return large datasets.
+     * The method is essential for hierarchical access control systems where access controls may have multiple levels
+     * of granularity or inheritance.
+     *
+     * @param id the ID of the parent access control for which sub-access controls are being searched. This ID uniquely
+     *           identifies an access control entity within the system.
+     * @param type the specific type of access control entities to retrieve, which helps in narrowing down the search to
+     *             relevant sub-categories or classifications of access controls.
+     * @param filters a map containing key-value pairs used for filtering the search results. These filters can apply to
+     *                various attributes of the access controls, such as names, statuses, or custom properties, to
+     *                refine the results further.
+     * @param pageable an object that encapsulates pagination and sorting criteria. This parameter allows the method to
+     *                 return a subset of the results in a manageable, paginated format, facilitating easier data
+     *                 handling and user interface rendering.
+     * @return a {@code Page<AccessControlDirectDTO>} object containing the sub-access controls associated with the
+     * specified parent ID. This paginated object includes the subset of access controls that match the search criteria,
+     * along with pagination details such as total results, current page number, and total pages available.
+     */
+    Page<AccessControlDirectDTO> findAllAccessControls(Long id,
+                                                       AccessControlType type,
+                                                       Map<String, String> filters,
+                                                       Pageable pageable);
+
+    /**
      * Finds and returns an AccessControl entity of a specific type by its ID.
      *
      * @param type the AccessControlType of the AccessControl entity
@@ -86,6 +114,30 @@ public interface AccessControlService {
      * @param id   the ID of the AccessControl entity to delete
      */
     void delete(AccessControlType type, Long id);
+
+    /**
+     * Associates a role of a specific type with a parent access control entity, creating a hierarchical relationship.
+     * This method is used for structuring access controls within a hierarchy, specifying parent-child relationships.
+     *
+     * @param parentType the AccessControlType of the parent AccessControl entity
+     * @param id         the ID of the parent AccessControl entity
+     * @param type       the AccessControlType of the child AccessControl entity to associate
+     * @param roleId     the ID of the child AccessControl entity to associate
+     */
+    void associate(AccessControlType parentType, Long id, AccessControlType type, Long roleId);
+
+    /**
+     * Dissociates a role of a specific type from a parent access control entity, removing the hierarchical
+     * relationship.
+     * This method is used to manage and update the structure of access controls within the system, allowing for
+     * the modification of parent-child relationships.
+     *
+     * @param parentType the AccessControlType of the parent AccessControl entity
+     * @param id         the ID of the parent AccessControl entity
+     * @param type       the AccessControlType of the child AccessControl entity to dissociate
+     * @param roleId     the ID of the child AccessControl entity to dissociate
+     */
+    void dissociate(AccessControlType parentType, Long id, AccessControlType type, Long roleId);
 
     /**
      * Associates a specific AccessControl entity with a user entity identified by a login string.
