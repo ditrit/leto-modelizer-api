@@ -3,6 +3,7 @@ package com.ditrit.letomodelizerapi.controller;
 import com.ditrit.letomodelizerapi.controller.model.QueryFilter;
 import com.ditrit.letomodelizerapi.helper.MockHelper;
 import com.ditrit.letomodelizerapi.persistence.model.User;
+import com.ditrit.letomodelizerapi.service.AccessControlService;
 import com.ditrit.letomodelizerapi.service.UserPermissionService;
 import com.ditrit.letomodelizerapi.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -16,6 +17,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.http.HttpStatus;
 
@@ -34,6 +36,9 @@ class UserControllerTest extends MockHelper {
 
     @Mock
     UserPermissionService userPermissionService;
+
+    @Mock
+    AccessControlService accessControlService;
 
     @InjectMocks
     UserController controller;
@@ -66,6 +71,25 @@ class UserControllerTest extends MockHelper {
         Mockito.doNothing().when(userPermissionService).checkIsAdmin(Mockito.any(), Mockito.any());
         Mockito.when(this.userService.findByLogin(Mockito.any())).thenReturn(new User());
         final Response response = this.controller.getUserByLogin(request, "test");
+
+        assertNotNull(response);
+        assertEquals(HttpStatus.OK.value(), response.getStatus());
+        assertNotNull(response.getEntity());
+    }
+
+    @Test
+    @DisplayName("Test getRolesOfUser: should return valid response.")
+    void testGetRolesOfUser() {
+        HttpSession session = Mockito.mock(HttpSession.class);
+        HttpServletRequest request = Mockito.mock(HttpServletRequest.class);
+        Mockito
+                .when(request.getSession())
+                .thenReturn(session);
+        Mockito.doNothing().when(userPermissionService).checkIsAdmin(Mockito.any(), Mockito.any());
+        Mockito.when(this.userService.findByLogin(Mockito.any())).thenReturn(new User());
+        Mockito.when(this.accessControlService.findAll(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any()))
+                .thenReturn(Page.empty());
+        final Response response = this.controller.getRolesOfUser(request, "test", mockUriInfo(), new QueryFilter());
 
         assertNotNull(response);
         assertEquals(HttpStatus.OK.value(), response.getStatus());
