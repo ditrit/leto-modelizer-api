@@ -384,8 +384,13 @@ public class StepDefinitions {
     }
 
     @Given("I clean role {string}")
-    public void cleanProject(String name) throws URISyntaxException, IOException, InterruptedException {
+    public void cleanRole(String name) throws URISyntaxException, IOException, InterruptedException {
         this.clean("roles", String.format("name=%s", name));
+    }
+
+    @Given("I clean group {string}")
+    public void cleanGroup(String name) throws URISyntaxException, IOException, InterruptedException {
+        this.clean("groups", String.format("name=%s", name));
     }
 
     public void clean(String entity, String query) throws URISyntaxException, IOException, InterruptedException {
