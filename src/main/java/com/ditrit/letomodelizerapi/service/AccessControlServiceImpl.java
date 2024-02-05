@@ -1,17 +1,23 @@
 package com.ditrit.letomodelizerapi.service;
 
 import com.ditrit.letomodelizerapi.model.BeanMapper;
+import com.ditrit.letomodelizerapi.model.accesscontrol.AccessControlDirectDTO;
 import com.ditrit.letomodelizerapi.model.accesscontrol.AccessControlRecord;
 import com.ditrit.letomodelizerapi.model.accesscontrol.AccessControlType;
 import com.ditrit.letomodelizerapi.model.error.ApiException;
 import com.ditrit.letomodelizerapi.model.error.ErrorType;
+import com.ditrit.letomodelizerapi.persistence.function.AccessControlTreeViewToAccessControlDirectDTOFunction;
 import com.ditrit.letomodelizerapi.persistence.function.UserAccesControlViewToAccessControlFunction;
 import com.ditrit.letomodelizerapi.persistence.function.UserAccesControlViewToUserFunction;
 import com.ditrit.letomodelizerapi.persistence.model.AccessControl;
+import com.ditrit.letomodelizerapi.persistence.model.AccessControlTree;
+import com.ditrit.letomodelizerapi.persistence.model.AccessControlTreeView;
 import com.ditrit.letomodelizerapi.persistence.model.User;
 import com.ditrit.letomodelizerapi.persistence.model.UserAccessControl;
 import com.ditrit.letomodelizerapi.persistence.model.UserAccessControlView;
 import com.ditrit.letomodelizerapi.persistence.repository.AccessControlRepository;
+import com.ditrit.letomodelizerapi.persistence.repository.AccessControlTreeRepository;
+import com.ditrit.letomodelizerapi.persistence.repository.AccessControlTreeViewRepository;
 import com.ditrit.letomodelizerapi.persistence.repository.UserAccessControlRepository;
 import com.ditrit.letomodelizerapi.persistence.repository.UserAccessControlViewRepository;
 import com.ditrit.letomodelizerapi.persistence.specification.SpecificationHelper;
@@ -49,6 +55,20 @@ public class AccessControlServiceImpl implements AccessControlService {
      * saving, and updating access control data.
      */
     private AccessControlRepository accessControlRepository;
+
+    /**
+     * The AccessControlTreeRepository instance is injected by Spring's dependency injection mechanism.
+     * This repository is used for performing database operations related to AccessControlTree entities, such as
+     * querying, saving, and updating access control data.
+     */
+    private AccessControlTreeRepository accessControlTreeRepository;
+
+    /**
+     * The AccessControlTreeViewRepository instance is injected by Spring's dependency injection mechanism.
+     * This repository is used for performing database operations related to AccessControlTreeView entities, such as
+     * querying, saving, and updating access control data.
+     */
+    private AccessControlTreeViewRepository accessControlTreeViewRepository;
 
     /**
      * The UserAccessControlRepository instance is injected by Spring's dependency injection mechanism.
@@ -110,12 +130,30 @@ public class AccessControlServiceImpl implements AccessControlService {
                                    final Pageable pageable) {
         Map<String, String> filters = new HashMap<>(immutableFilters);
         filters.put("accessControlId", id.toString());
+
         return userAccessControlViewRepository.findAll(new SpecificationHelper<>(UserAccessControlView.class, filters),
                 PageRequest.of(
                     pageable.getPageNumber(),
                     pageable.getPageSize(),
                     pageable.getSortOr(Sort.by(Sort.Direction.ASC, "userName")))
         ).map(new UserAccesControlViewToUserFunction());
+    }
+
+    @Override
+    public Page<AccessControlDirectDTO> findAllAccessControls(final Long id,
+                                                              final AccessControlType type,
+                                                              final Map<String, String> immutableFilters,
+                                                              final Pageable pageable) {
+        Map<String, String> filters = new HashMap<>(immutableFilters);
+        filters.put("accessControlId", id.toString());
+        filters.put("parentAccessControlType", type.name());
+
+        return accessControlTreeViewRepository.findAll(new SpecificationHelper<>(AccessControlTreeView.class, filters),
+                PageRequest.of(
+                        pageable.getPageNumber(),
+                        pageable.getPageSize(),
+                        pageable.getSortOr(Sort.by(Sort.Direction.ASC, "parentAccessControlName")))
+        ).map(new AccessControlTreeViewToAccessControlDirectDTOFunction());
     }
 
     @Override
@@ -150,7 +188,42 @@ public class AccessControlServiceImpl implements AccessControlService {
     }
 
     @Override
-    public void associate(final AccessControlType type, final Long id, final String login) {
+    public void associate(final AccessControlType parentType,
+                          final Long id,
+                          final AccessControlType type,
+                          final Long roleId) {
+        AccessControl parentAccessControl = findById(parentType, id);
+        AccessControl accessControl = findById(type, roleId);
+        Optional<AccessControlTreeView> userAccessControlOptional = accessControlTreeViewRepository
+                .findByAccessControlIdAndParentAccessControlId(parentAccessControl.getId(), accessControl.getId());
+
+        if (userAccessControlOptional.isPresent()) {
+            throw new ApiException(ErrorType.ENTITY_ALREADY_EXISTS, "association");
+        }
+
+        AccessControlTree accessControlTree = new AccessControlTree();
+        accessControlTree.setParent(parentAccessControl.getId());
+        accessControlTree.setCurrent(accessControl.getId());
+
+        accessControlTreeRepository.save(accessControlTree);
+    }
+
+    @Override
+    public void dissociate(final AccessControlType parentType,
+                           final Long id,
+                           final AccessControlType type,
+                           final Long roleId) {
+        AccessControl parentAccessControl = findById(parentType, id);
+        AccessControl accessControl = findById(type, roleId);
+        AccessControlTree accessControlTree = accessControlTreeRepository
+                .findByParentAndCurrent(parentAccessControl.getId(), accessControl.getId())
+                .orElseThrow(() -> new ApiException(ErrorType.ENTITY_NOT_FOUND, "association"));
+
+        accessControlTreeRepository.delete(accessControlTree);
+    }
+
+    @Override
+    public void associateUser(final AccessControlType type, final Long id, final String login) {
         AccessControl accessControl = findById(type, id);
         User user = userService.findByLogin(login);
         Optional<UserAccessControl> userAccessControlOptional = userAccessControlRepository
@@ -168,7 +241,7 @@ public class AccessControlServiceImpl implements AccessControlService {
     }
 
     @Override
-    public void dissociate(final AccessControlType type, final Long id, final String login) {
+    public void dissociateUser(final AccessControlType type, final Long id, final String login) {
         AccessControl accessControl = findById(type, id);
         User user = userService.findByLogin(login);
         UserAccessControl userAccessControl = userAccessControlRepository

@@ -20,6 +20,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   * For all users:
     * `GET /api/users`, to get all users.
     * `GET /api/users/{login}`, to get user by login.
+    * `GET /api/users/{login}/roles`, to get all roles associated to the users.
   * For all roles:
     * `GET    /api/roles`, to get all roles.
     * `POST   /api/roles`, to create a role.

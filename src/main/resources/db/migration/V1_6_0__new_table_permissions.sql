@@ -32,3 +32,5 @@ INSERT INTO permissions(per_id, entity, action, lib_id) VALUES
 (7, 'COMPONENT', 'CREATE', NULL),
 (8, 'COMPONENT_TEMPLATE', 'CREATE', NULL),
 (9, 'LIBRARY', 'ACCESS', NULL);
+
+ALTER SEQUENCE permissions_per_id_seq RESTART WITH 10;
