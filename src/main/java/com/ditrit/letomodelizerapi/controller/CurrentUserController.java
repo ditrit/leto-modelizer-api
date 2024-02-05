@@ -131,7 +131,38 @@ public class CurrentUserController implements DefaultController {
                 user,
                 filters,
                 queryFilter.getPagination()
-            ).map(new BeanMapper<>(AccessControlDTO.class));
+        ).map(new BeanMapper<>(AccessControlDTO.class));
+
+        return Response.status(this.getStatus(resources)).entity(resources).build();
+    }
+
+    /**
+     * Retrieves all groups associated to the current user.
+     * This endpoint provides a paginated list of groups that the current user has, based on the provided query filters.
+     * The method uses the session information from the HttpServletRequest to identify the current user and
+     * then fetches their roles using the AccessControlService.
+     *
+     * @param request      HttpServletRequest to access the HTTP session and thereby identify the current user.
+     * @param uriInfo      UriInfo to extract query parameters for additional filtering.
+     * @param queryFilter  BeanParam object for pagination and filtering purposes.
+     * @return a Response containing a paginated list of AccessControlDTO objects representing the roles of the current
+     * user.
+     */
+    @GET
+    @Path("/groups")
+    public Response getMyGroups(final @Context HttpServletRequest request,
+                               final @Context UriInfo uriInfo,
+                               final @BeanParam @Valid QueryFilter queryFilter) {
+        HttpSession session = request.getSession();
+        User user = userService.getFromSession(session);
+        Map<String, String> filters = this.getFilters(uriInfo);
+
+        Page<AccessControlDTO> resources = accessControlService.findAll(
+                AccessControlType.GROUP,
+                user,
+                filters,
+                queryFilter.getPagination()
+        ).map(new BeanMapper<>(AccessControlDTO.class));
 
         return Response.status(this.getStatus(resources)).entity(resources).build();
     }
