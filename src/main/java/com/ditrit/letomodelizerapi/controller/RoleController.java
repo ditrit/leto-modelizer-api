@@ -208,7 +208,7 @@ public class RoleController implements DefaultController {
         Map<String, String> filters = this.getFilters(uriInfo);
         log.info("Received GET request to get users of role {} with the following filters: {}", id, filters);
         Page<UserDTO> resources = accessControlService
-                .findAllUsers(id, filters, queryFilter.getPagination())
+                .findAllUsers(AccessControlType.ROLE, id, filters, queryFilter.getPagination())
                 .map(new BeanMapper<>(UserDTO.class));
 
         return Response.status(this.getStatus(resources)).entity(resources).build();

@@ -136,7 +136,7 @@ class RoleControllerTest extends MockHelper {
                 .when(request.getSession())
                 .thenReturn(session);
         Mockito.doNothing().when(userPermissionService).checkIsAdmin(Mockito.any(), Mockito.any());
-        Mockito.when(this.accessControlService.findAllUsers(Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(Page.empty());
+        Mockito.when(this.accessControlService.findAllUsers(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(Page.empty());
         final Response response = this.controller.getUsersByRole(request, 1l, mockUriInfo(), new QueryFilter());
 
         assertNotNull(response);
