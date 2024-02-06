@@ -351,4 +351,40 @@ public class GroupController implements DefaultController {
 
         return Response.noContent().build();
     }
+
+    /**
+     * Retrieves the roles associated with a specific group, identified by the group's ID. This method processes a GET
+     * request and returns a paginated list of AccessControlDirectDTO objects representing the roles. It supports
+     * filtering based on query parameters to allow for refined searches within the group's associated roles.
+     *
+     * This endpoint is secured to ensure that only users with administrative permissions can access role information
+     * for a group. It is particularly useful for managing and reviewing the roles and permissions assigned to a group
+     * within an access control system.
+     *
+     * @param request The HttpServletRequest providing context to access the HTTP session.
+     * @param id The unique identifier of the group whose roles are being retrieved.
+     * @param uriInfo URI information for extracting query parameters to apply as filters.
+     * @param queryFilter A BeanParam object encapsulating pagination and filtering criteria to manage result set size
+     *                    and relevance.
+     * @return A Response object containing a paginated list of AccessControlDirectDTO objects representing the roles
+     *         associated with the specified group. The response includes pagination details and adheres to the
+     *         HTTP status code conventions to indicate the outcome of the request.
+     */
+    @GET
+    @Path("/{id}/roles")
+    public Response getRolesOfGroup(final @Context HttpServletRequest request,
+                                    final @PathParam("id") @Valid @NotNull Long id,
+                                    final @Context UriInfo uriInfo,
+                                    final @BeanParam @Valid QueryFilter queryFilter) {
+        HttpSession session = request.getSession();
+        User user = userService.getFromSession(session);
+        userPermissionService.checkIsAdmin(user, null);
+
+        Map<String, String> filters = this.getFilters(uriInfo);
+        log.info("Received GET request to get roles of group {} with the following filters: {}", id, filters);
+        Page<AccessControlDirectDTO> resources = accessControlService
+                .findAllAccessControls(id, AccessControlType.ROLE, filters, queryFilter.getPagination());
+
+        return Response.status(this.getStatus(resources)).entity(resources).build();
+    }
 }
