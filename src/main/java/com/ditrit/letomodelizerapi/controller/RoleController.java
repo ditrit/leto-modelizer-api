@@ -36,6 +36,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -353,6 +354,102 @@ public class RoleController implements DefaultController {
 
         log.info("Received DELETE request to dissociate role {} with role {}", id, roleId);
         accessControlService.dissociate(AccessControlType.ROLE, id, AccessControlType.ROLE, roleId);
+
+        return Response.noContent().build();
+    }
+
+    /**
+     * Retrieves the groups of a specified role.
+     *
+     * <p>This method processes a GET request to obtain groups associated with a given role ID. It filters the groups
+     * based on the provided query parameters and pagination settings.
+     *
+     * @param request the HttpServletRequest from which to obtain the HttpSession for user validation.
+     * @param id the ID of the role for which to retrieve sub-roles. Must be a valid and non-null Long value.
+     * @param uriInfo UriInfo context to extract query parameters for filtering results.
+     * @param queryFilter bean parameter encapsulating filtering and pagination criteria.
+     * @return a Response object containing the requested page of AccessControlDirectDTO objects representing the
+     * groups of the specified role. The status of the response can vary based on the outcome of the request.
+     */
+    @GET
+    @Path("/{id}/groups")
+    public Response getGroupsOfRole(final @Context HttpServletRequest request,
+                                      final @PathParam("id") @Valid @NotNull Long id,
+                                      final @Context UriInfo uriInfo,
+                                      final @BeanParam @Valid QueryFilter queryFilter) {
+        HttpSession session = request.getSession();
+        User user = userService.getFromSession(session);
+        userPermissionService.checkIsAdmin(user, null);
+
+        Map<String, String> filters = new HashMap<>(this.getFilters(uriInfo));
+        filters.put("parentAccessControlId", id.toString());
+        filters.put("parentAccessControlType", AccessControlType.ROLE.name());
+        log.info("Received GET request to get groups of role {} with the following filters: {}", id, filters);
+        Page<AccessControlDirectDTO> resources = accessControlService
+                .findAllChildren(
+                        AccessControlType.ROLE,
+                        id,
+                        AccessControlType.GROUP,
+                        filters,
+                        queryFilter.getPagination()
+                );
+
+        return Response.status(this.getStatus(resources)).entity(resources).build();
+    }
+
+    /**
+     * Associates a group with a role.
+     *
+     * <p>This method handles a POST request to create an association between group and role, specified by their IDs.
+     * It validates the user's session and ensures the user has administrative privileges before proceeding with the
+     * association.
+     *
+     * @param request the HttpServletRequest from which to obtain the HttpSession for user validation.
+     * @param id the ID of the role to which the group will be associated. Must be a valid and non-null Long value.
+     * @param groupId the ID of the group to be associated to the role. Must be a valid and non-null Long value.
+     * @return a Response object indicating the outcome of the association operation. A successful operation returns
+     * a status of CREATED.
+     */
+    @POST
+    @Consumes(MediaType.TEXT_PLAIN)
+    @Path("/{id}/groups")
+    public Response associateGroup(final @Context HttpServletRequest request,
+                              final @PathParam("id") @Valid @NotNull Long id,
+                              final @Valid @NotNull Long groupId) {
+        HttpSession session = request.getSession();
+        User user = userService.getFromSession(session);
+        userPermissionService.checkIsAdmin(user, null);
+
+        log.info("Received POST request to associate role {} with group {}", id, groupId);
+        accessControlService.associate(AccessControlType.ROLE, id, AccessControlType.GROUP, groupId);
+
+        return Response.status(HttpStatus.CREATED.value()).build();
+    }
+
+    /**
+     * Dissociates a group from role.
+     *
+     * <p>This method facilitates the handling of a DELETE request to remove the association between group and role,
+     * identified by their respective IDs. The operation is secured, requiring validation of the user's session and
+     * administrative privileges.
+     *
+     * @param request the HttpServletRequest used to validate the user's session.
+     * @param id the ID of the role from which the group will be dissociated. Must be a valid and non-null Long value.
+     * @param groupId the ID of the group to be dissociated from the role. Must be a valid and non-null Long value.
+     * @return a Response object with a status indicating the outcome of the dissociation operation. A successful
+     * operation returns a status of NO_CONTENT.
+     */
+    @DELETE
+    @Path("/{id}/groups/{groupId}")
+    public Response dissociateGroup(final @Context HttpServletRequest request,
+                               final @PathParam("id") @Valid @NotNull Long id,
+                               final @PathParam("groupId") @Valid @NotNull Long groupId) {
+        HttpSession session = request.getSession();
+        User user = userService.getFromSession(session);
+        userPermissionService.checkIsAdmin(user, null);
+
+        log.info("Received DELETE request to dissociate role {} with group {}", id, groupId);
+        accessControlService.dissociate(AccessControlType.ROLE, id, AccessControlType.GROUP, groupId);
 
         return Response.noContent().build();
     }
