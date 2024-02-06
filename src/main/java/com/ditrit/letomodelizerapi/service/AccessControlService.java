@@ -27,6 +27,30 @@ public interface AccessControlService {
     Page<AccessControl> findAll(AccessControlType type, Map<String, String> filters, Pageable pageable);
 
     /**
+     * Finds and returns a paginated list of AccessControlDirectDTOs representing the children access controls of a
+     * specified parent access control, filtered by the children's type.
+     *
+     * <p>This method is designed to retrieve all direct children access controls associated with a given parent access
+     * control ID, applying the specified type for children access controls as a filter for further refinement. It
+     * supports pagination for handling large result sets and applies additional filters provided in the parameters.
+     * This is particularly useful in hierarchical access control systems where parent-child relationships are defined
+     * and different types of access controls need to be distinguished.
+     *
+     * @param type          the AccessControlType of the parent AccessControl entity whose children are to be found
+     * @param id            the ID of the parent AccessControl entity
+     * @param childrenType  the AccessControlType to filter the children AccessControl entities by their specific type
+     * @param filters       a Map of strings representing additional filtering criteria to apply
+     * @param pageable      a Pageable object for pagination information
+     * @return a Page of AccessControlDirectDTOs representing the filtered children of the specified parent access
+     * control
+     */
+    Page<AccessControlDirectDTO> findAllChildren(AccessControlType type,
+                                                 Long id,
+                                                 AccessControlType childrenType,
+                                                 Map<String, String> filters,
+                                                 Pageable pageable);
+
+    /**
      * Finds and returns a paginated list of AccessControl entities of a specific type associated with a given User,
      * filtered by provided criteria. This method allows for retrieving AccessControl entities linked to a specific
      * user.

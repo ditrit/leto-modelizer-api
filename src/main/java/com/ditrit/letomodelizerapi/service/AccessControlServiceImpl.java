@@ -117,11 +117,32 @@ public class AccessControlServiceImpl implements AccessControlService {
         return userAccessControlViewRepository.findAll(
                 new SpecificationHelper<>(UserAccessControlView.class, filters),
                 PageRequest.of(
-                    pageable.getPageNumber(),
-                    pageable.getPageSize(),
-                    pageable.getSortOr(Sort.by(Sort.Direction.ASC, "accessControlName"))
+                        pageable.getPageNumber(),
+                        pageable.getPageSize(),
+                        pageable.getSortOr(Sort.by(Sort.Direction.ASC, "accessControlName"))
                 )
-            ).map(new UserAccesControlViewToAccessControlFunction());
+        ).map(new UserAccesControlViewToAccessControlFunction());
+    }
+
+    @Override
+    public Page<AccessControlDirectDTO> findAllChildren(final AccessControlType type,
+                                                        final Long id,
+                                                        final AccessControlType childrenType,
+                                                        final Map<String, String> immutableFilters,
+                                                        final Pageable pageable) {
+        AccessControl accessControl = findById(type, id);
+        Map<String, String> filters = new HashMap<>(immutableFilters);
+        filters.put("type", childrenType.name());
+        filters.put("parentAccessControlId", accessControl.getId().toString());
+
+        return accessControlTreeViewRepository.findAll(
+                new SpecificationHelper<>(AccessControlTreeView.class, filters),
+                PageRequest.of(
+                        pageable.getPageNumber(),
+                        pageable.getPageSize(),
+                        pageable.getSortOr(Sort.by(Sort.Direction.ASC, "parentAccessControlName"))
+                )
+        ).map(new AccessControlTreeViewToAccessControlDirectDTOFunction(false));
     }
 
     @Override
