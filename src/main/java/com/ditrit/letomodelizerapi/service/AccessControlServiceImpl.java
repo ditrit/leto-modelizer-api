@@ -125,11 +125,13 @@ public class AccessControlServiceImpl implements AccessControlService {
     }
 
     @Override
-    public Page<User> findAllUsers(final Long id,
+    public Page<User> findAllUsers(final AccessControlType type,
+                                   final Long id,
                                    final Map<String, String> immutableFilters,
                                    final Pageable pageable) {
+        AccessControl accessControl = findById(type, id);
         Map<String, String> filters = new HashMap<>(immutableFilters);
-        filters.put("accessControlId", id.toString());
+        filters.put("accessControlId", accessControl.getId().toString());
 
         return userAccessControlViewRepository.findAll(new SpecificationHelper<>(UserAccessControlView.class, filters),
                 PageRequest.of(

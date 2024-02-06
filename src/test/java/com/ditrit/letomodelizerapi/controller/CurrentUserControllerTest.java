@@ -175,4 +175,30 @@ class CurrentUserControllerTest extends MockHelper {
         assertEquals(HttpStatus.OK.value(), response.getStatus());
         assertNotNull(response.getEntity());
     }
+
+    @Test
+    @DisplayName("Test getMyGroups: should return valid response.")
+    void testGetMyGroups() {
+        User user = new User();
+        user.setId(1L);
+
+        HttpSession session = Mockito.mock(HttpSession.class);
+        HttpServletRequest request = Mockito.mock(HttpServletRequest.class);
+
+        Mockito
+                .when(request.getSession())
+                .thenReturn(session);
+        Mockito
+                .when(userService.getFromSession(Mockito.any()))
+                .thenReturn(user);
+        Mockito
+                .when(accessControlService.findAll(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any()))
+                .thenReturn(Page.empty());
+
+        Response response = controller.getMyGroups(request, mockUriInfo(), new QueryFilter());
+
+        assertNotNull(response);
+        assertEquals(HttpStatus.OK.value(), response.getStatus());
+        assertNotNull(response.getEntity());
+    }
 }

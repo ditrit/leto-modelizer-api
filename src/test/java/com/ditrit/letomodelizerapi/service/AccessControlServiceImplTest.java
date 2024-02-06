@@ -94,11 +94,18 @@ class AccessControlServiceImplTest {
     @Test
     @DisplayName("Test findAllUsers: should return all users of access control")
     void testFindAllUsers() {
+        AccessControl expectedAccessControl = new AccessControl();
+        expectedAccessControl.setId(1L);
+        expectedAccessControl.setType(AccessControlType.ROLE);
+        expectedAccessControl.setName("name");
+        Mockito
+                .when(accessControlRepository.findOne(Mockito.any(Specification.class)))
+                .thenReturn(Optional.of(expectedAccessControl));
         Mockito
                 .when(userAccessControlViewRepository.findAll(Mockito.any(Specification.class), Mockito.any()))
                 .thenReturn(Page.empty());
 
-        assertEquals(Page.empty(), service.findAllUsers(1l, Map.of(), Pageable.ofSize(10)));
+        assertEquals(Page.empty(), service.findAllUsers(AccessControlType.ROLE, 1l, Map.of(), Pageable.ofSize(10)));
     }
 
     @Test

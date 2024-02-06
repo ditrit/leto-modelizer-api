@@ -45,12 +45,13 @@ public interface AccessControlService {
      * This method can be used to find users who have a certain type of access control, as identified by the access
      * control ID.
      *
+     * @param type     the AccessControlType to filter the AccessControl entities
      * @param id       the ID of the AccessControl entity
      * @param filters  a Map of strings representing the filtering criteria
      * @param pageable a Pageable object for pagination information
      * @return a Page of Users associated with the specified AccessControl entity
      */
-    Page<User> findAllUsers(Long id, Map<String, String> filters, Pageable pageable);
+    Page<User> findAllUsers(AccessControlType type, Long id, Map<String, String> filters, Pageable pageable);
 
     /**
      * Retrieves all sub-access controls associated with a specific parent access control ID.

@@ -28,8 +28,8 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @Tag("unit")
 @ExtendWith(MockitoExtension.class)
-@DisplayName("Test class: RoleController")
-class RoleControllerTest extends MockHelper {
+@DisplayName("Test class: GroupController")
+class GroupControllerTest extends MockHelper {
 
     @Mock
     UserService userService;
@@ -41,7 +41,7 @@ class RoleControllerTest extends MockHelper {
     AccessControlService accessControlService;
 
     @InjectMocks
-    RoleController controller;
+    GroupController controller;
 
     @Test
     @DisplayName("Test findAll: should return valid response.")
@@ -61,8 +61,8 @@ class RoleControllerTest extends MockHelper {
     }
 
     @Test
-    @DisplayName("Test getRoleById: should return valid response.")
-    void testGetRoleById() {
+    @DisplayName("Test getGroupById: should return valid response.")
+    void testGetGroupById() {
         HttpSession session = Mockito.mock(HttpSession.class);
         HttpServletRequest request = Mockito.mock(HttpServletRequest.class);
         Mockito
@@ -70,7 +70,7 @@ class RoleControllerTest extends MockHelper {
                 .thenReturn(session);
         Mockito.doNothing().when(userPermissionService).checkIsAdmin(Mockito.any(), Mockito.any());
         Mockito.when(this.accessControlService.findById(Mockito.any(), Mockito.any())).thenReturn(new AccessControl());
-        final Response response = this.controller.getRoleById(request, 1l);
+        final Response response = this.controller.getGroupById(request, 1l);
 
         assertNotNull(response);
         assertEquals(HttpStatus.OK.value(), response.getStatus());
@@ -78,8 +78,8 @@ class RoleControllerTest extends MockHelper {
     }
 
     @Test
-    @DisplayName("Test createRole: should return valid response.")
-    void testCreateRole() {
+    @DisplayName("Test createGroup: should return valid response.")
+    void testCreateGroup() {
         HttpSession session = Mockito.mock(HttpSession.class);
         HttpServletRequest request = Mockito.mock(HttpServletRequest.class);
         Mockito
@@ -87,7 +87,7 @@ class RoleControllerTest extends MockHelper {
                 .thenReturn(session);
         Mockito.doNothing().when(userPermissionService).checkIsAdmin(Mockito.any(), Mockito.any());
         Mockito.when(this.accessControlService.create(Mockito.any(), Mockito.any())).thenReturn(new AccessControl());
-        final Response response = this.controller.createRole(request, new AccessControlRecord("test"));
+        final Response response = this.controller.createGroup(request, new AccessControlRecord("test"));
 
         assertNotNull(response);
         assertEquals(HttpStatus.CREATED.value(), response.getStatus());
@@ -95,8 +95,8 @@ class RoleControllerTest extends MockHelper {
     }
 
     @Test
-    @DisplayName("Test updateRole: should return valid response.")
-    void testUpdateRole() {
+    @DisplayName("Test updateGroup: should return valid response.")
+    void testUpdateGroup() {
         HttpSession session = Mockito.mock(HttpSession.class);
         HttpServletRequest request = Mockito.mock(HttpServletRequest.class);
         Mockito
@@ -104,7 +104,7 @@ class RoleControllerTest extends MockHelper {
                 .thenReturn(session);
         Mockito.doNothing().when(userPermissionService).checkIsAdmin(Mockito.any(), Mockito.any());
         Mockito.when(this.accessControlService.update(Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(new AccessControl());
-        final Response response = this.controller.updateRole(request, 1L, new AccessControlRecord("test"));
+        final Response response = this.controller.updateGroup(request, 1L, new AccessControlRecord("test"));
 
         assertNotNull(response);
         assertEquals(HttpStatus.OK.value(), response.getStatus());
@@ -112,8 +112,8 @@ class RoleControllerTest extends MockHelper {
     }
 
     @Test
-    @DisplayName("Test deleteRole: should return valid response.")
-    void testDeleteRole() {
+    @DisplayName("Test deleteGroup: should return valid response.")
+    void testDeleteGroup() {
         HttpSession session = Mockito.mock(HttpSession.class);
         HttpServletRequest request = Mockito.mock(HttpServletRequest.class);
         Mockito
@@ -121,15 +121,15 @@ class RoleControllerTest extends MockHelper {
                 .thenReturn(session);
         Mockito.doNothing().when(userPermissionService).checkIsAdmin(Mockito.any(), Mockito.any());
         Mockito.doNothing().when(this.accessControlService).delete(Mockito.any(), Mockito.any());
-        final Response response = this.controller.deleteRole(request, 1L);
+        final Response response = this.controller.deleteGroup(request, 1L);
 
         assertNotNull(response);
         assertEquals(HttpStatus.NO_CONTENT.value(), response.getStatus());
     }
 
     @Test
-    @DisplayName("Test getUsersByRole: should return valid response.")
-    void testGetUsersByRole() {
+    @DisplayName("Test getUsersByGroup: should return valid response.")
+    void testGetUsersByGroup() {
         HttpSession session = Mockito.mock(HttpSession.class);
         HttpServletRequest request = Mockito.mock(HttpServletRequest.class);
         Mockito
@@ -137,7 +137,7 @@ class RoleControllerTest extends MockHelper {
                 .thenReturn(session);
         Mockito.doNothing().when(userPermissionService).checkIsAdmin(Mockito.any(), Mockito.any());
         Mockito.when(this.accessControlService.findAllUsers(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(Page.empty());
-        final Response response = this.controller.getUsersByRole(request, 1l, mockUriInfo(), new QueryFilter());
+        final Response response = this.controller.getUsersByGroup(request, 1l, mockUriInfo(), new QueryFilter());
 
         assertNotNull(response);
         assertEquals(HttpStatus.OK.value(), response.getStatus());
@@ -178,8 +178,8 @@ class RoleControllerTest extends MockHelper {
     }
 
     @Test
-    @DisplayName("Test getSubRolesOfRole: should return valid response.")
-    void testGetSubRolesOfRole() {
+    @DisplayName("Test getSubGroupsOfGroup: should return valid response.")
+    void testGetSubGroupsOfGroup() {
         HttpSession session = Mockito.mock(HttpSession.class);
         HttpServletRequest request = Mockito.mock(HttpServletRequest.class);
         Mockito
@@ -187,7 +187,7 @@ class RoleControllerTest extends MockHelper {
                 .thenReturn(session);
         Mockito.doNothing().when(userPermissionService).checkIsAdmin(Mockito.any(), Mockito.any());
         Mockito.when(this.accessControlService.findAllAccessControls(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(Page.empty());
-        final Response response = this.controller.getSubRolesOfRole(request, 1l, mockUriInfo(), new QueryFilter());
+        final Response response = this.controller.getSubGroupsOfGroup(request, 1l, mockUriInfo(), new QueryFilter());
 
         assertNotNull(response);
         assertEquals(HttpStatus.OK.value(), response.getStatus());
