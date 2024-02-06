@@ -45,6 +45,13 @@ public class AccessControlTreeView {
     private String accessControlType;
 
     /**
+     * Name of the current access control.
+     */
+    @Column(name = "name")
+    @FilterType(type = FilterType.Type.TEXT)
+    private String accessControlName;
+
+    /**
      * Identifier of the parent access control in the tree structure.
      */
     @Column(name = "parent")
