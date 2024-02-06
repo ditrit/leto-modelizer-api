@@ -26,6 +26,7 @@ WITH RECURSIVE all_access_controls AS (
 SELECT
     encode(digest(concat(all_access_controls.aco_id::text, all_access_controls.parent::text), 'sha256'), 'hex') AS "aca_id",
     all_access_controls.aco_id,
+    access_controls.name,
     access_controls.type::text,
     all_access_controls.parent,
     parent_access_controls.name as "parent_name",

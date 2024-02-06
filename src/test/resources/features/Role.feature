@@ -237,3 +237,74 @@ Feature: Role feature
     And  I expect one resource contains "id" equals to "[role_test_2_id]"
     And  I expect one resource contains "name" equals to "test_2"
     And  I expect one resource contains "isDirect" equals to "true" as "boolean"
+
+  Scenario: Should add group to a role
+    Given I initialize the admin user
+    And   I clean role "role"
+    And   I clean group "group"
+
+    # Create all role
+    When I request "/roles" with method "POST" with json
+      | key  | value |
+      | name | role  |
+    Then I expect "201" as status code
+    And  I set response field "id" to context "role_id"
+
+    # Create all group
+    When I request "/groups" with method "POST" with json
+      | key  | value |
+      | name | group |
+    Then I expect "201" as status code
+    And  I set response field "id" to context "group_id"
+
+    # Role shouldn't have group
+    When I request "/roles/[role_id]/groups" with method "GET"
+    Then I expect "200" as status code
+    And  I extract resources from response
+    And  I expect response resources length is "0"
+
+    # Group shouldn't have role
+    When I request "/groups/[group_id]/roles" with method "GET"
+    Then I expect "200" as status code
+    And  I extract resources from response
+    And  I expect response resources length is "0"
+
+    # Associate group and role
+    When I request "/roles/[role_id]/groups" with method "POST" with body
+      | value      | type |
+      | [group_id] | text |
+    Then I expect "201" as status code
+
+    # Verify all groups of role
+    When I request "/roles/[role_id]/groups" with method "GET"
+    Then I expect "200" as status code
+    And  I extract resources from response
+    And  I expect response resources length is "1"
+    And  I expect one resource contains "id" equals to "[group_id]"
+    And  I expect one resource contains "name" equals to "group"
+    And  I expect one resource contains "isDirect" equals to "true" as "boolean"
+
+    # Verify all roles of group
+    When I request "/groups/[group_id]/roles" with method "GET"
+    Then I expect "200" as status code
+    And  I extract resources from response
+    And  I expect response resources length is "1"
+    And  I expect one resource contains "id" equals to "[role_id]"
+    And  I expect one resource contains "name" equals to "role"
+    And  I expect one resource contains "isDirect" equals to "true" as "boolean"
+
+    # Dissociate group and role
+    When I request "/roles/[role_id]/groups/[group_id]" with method "DELETE"
+    Then I expect "204" as status code
+
+    # Role shouldn't have group
+    When I request "/roles/[role_id]/groups" with method "GET"
+    Then I expect "200" as status code
+    And  I extract resources from response
+    And  I expect response resources length is "0"
+
+    # Group shouldn't have role
+    When I request "/groups/[group_id]/roles" with method "GET"
+    Then I expect "200" as status code
+    And  I extract resources from response
+    And  I expect response resources length is "0"

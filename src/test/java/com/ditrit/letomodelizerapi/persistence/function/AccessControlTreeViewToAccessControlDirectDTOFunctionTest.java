@@ -14,11 +14,12 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class AccessControlTreeViewToAccessControlDirectDTOFunctionTest {
 
     @Test
-    @DisplayName("Test apply: should transform AccessControlTreeView to AccessControlDirectDTO")
+    @DisplayName("Test apply: should transform AccessControlTreeView to AccessControlDirectDTO with parent")
     void testApply() {
         AccessControlTreeView accessControlTreeView = new AccessControlTreeView();
         accessControlTreeView.setAccessControlId(1L);
-        accessControlTreeView.setAccessControlType("ROLE");
+        accessControlTreeView.setAccessControlName("current");
+        accessControlTreeView.setAccessControlType("current_Type");
         accessControlTreeView.setParentAccessControlId(2L);
         accessControlTreeView.setParentAccessControlName("parent");
         accessControlTreeView.setParentAccessControlType("parent_type");
@@ -29,6 +30,26 @@ class AccessControlTreeViewToAccessControlDirectDTOFunctionTest {
 
         assertEquals(2L, accessControl.getId());
         assertEquals("parent", accessControl.getName());
+        assertTrue(accessControl.getIsDirect());
+    }
+
+    @Test
+    @DisplayName("Test apply: should transform AccessControlTreeView to AccessControlDirectDTO with current")
+    void testApplyNotFromParent() {
+        AccessControlTreeView accessControlTreeView = new AccessControlTreeView();
+        accessControlTreeView.setAccessControlId(1L);
+        accessControlTreeView.setAccessControlName("current");
+        accessControlTreeView.setAccessControlType("current_Type");
+        accessControlTreeView.setParentAccessControlId(2L);
+        accessControlTreeView.setParentAccessControlName("parent");
+        accessControlTreeView.setParentAccessControlType("parent_type");
+        accessControlTreeView.setIsDirect(true);
+
+        AccessControlDirectDTO accessControl = new AccessControlTreeViewToAccessControlDirectDTOFunction(false)
+                .apply(accessControlTreeView);
+
+        assertEquals(1L, accessControl.getId());
+        assertEquals("current", accessControl.getName());
         assertTrue(accessControl.getIsDirect());
     }
 }

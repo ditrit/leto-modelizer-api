@@ -226,4 +226,21 @@ class GroupControllerTest extends MockHelper {
         assertNotNull(response);
         assertEquals(HttpStatus.NO_CONTENT.value(), response.getStatus());
     }
+
+    @Test
+    @DisplayName("Test getRolesOfGroup: should return valid response.")
+    void testGetRolesOfGroup() {
+        HttpSession session = Mockito.mock(HttpSession.class);
+        HttpServletRequest request = Mockito.mock(HttpServletRequest.class);
+        Mockito
+                .when(request.getSession())
+                .thenReturn(session);
+        Mockito.doNothing().when(userPermissionService).checkIsAdmin(Mockito.any(), Mockito.any());
+        Mockito.when(this.accessControlService.findAllAccessControls(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(Page.empty());
+        final Response response = this.controller.getRolesOfGroup(request, 1l, mockUriInfo(), new QueryFilter());
+
+        assertNotNull(response);
+        assertEquals(HttpStatus.OK.value(), response.getStatus());
+        assertNotNull(response.getEntity());
+    }
 }
