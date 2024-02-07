@@ -6,8 +6,11 @@ import com.ditrit.letomodelizerapi.model.accesscontrol.AccessControlDTO;
 import com.ditrit.letomodelizerapi.model.accesscontrol.AccessControlDirectDTO;
 import com.ditrit.letomodelizerapi.model.accesscontrol.AccessControlRecord;
 import com.ditrit.letomodelizerapi.model.accesscontrol.AccessControlType;
+import com.ditrit.letomodelizerapi.model.permission.PermissionDirectDTO;
 import com.ditrit.letomodelizerapi.model.user.UserDTO;
+import com.ditrit.letomodelizerapi.persistence.model.AccessControl;
 import com.ditrit.letomodelizerapi.persistence.model.User;
+import com.ditrit.letomodelizerapi.service.AccessControlPermissionService;
 import com.ditrit.letomodelizerapi.service.AccessControlService;
 import com.ditrit.letomodelizerapi.service.UserPermissionService;
 import com.ditrit.letomodelizerapi.service.UserService;
@@ -65,6 +68,11 @@ public class GroupController implements DefaultController {
      * Service to manage access controls.
      */
     private AccessControlService accessControlService;
+
+    /**
+     * Service to manage permissions of access controls.
+     */
+    private AccessControlPermissionService accessControlPermissionService;
 
     /**
      * Finds and returns all groups based on the provided query filters.
@@ -384,6 +392,39 @@ public class GroupController implements DefaultController {
         log.info("Received GET request to get roles of group {} with the following filters: {}", id, filters);
         Page<AccessControlDirectDTO> resources = accessControlService
                 .findAllAccessControls(id, AccessControlType.ROLE, filters, queryFilter.getPagination());
+
+        return Response.status(this.getStatus(resources)).entity(resources).build();
+    }
+
+    /**
+     * Retrieves the permissions of a specified group.
+     *
+     * <p>This method processes a GET request to obtain permissions associated with a given group ID. It filters the
+     * permissions based on the provided query parameters and pagination settings.
+     *
+     * @param request the HttpServletRequest from which to obtain the HttpSession for user validation.
+     * @param id the ID of the groups for which to retrieve permissions. Must be a valid and non-null Long value.
+     * @param uriInfo UriInfo context to extract query parameters for filtering results.
+     * @param queryFilter bean parameter encapsulating filtering and pagination criteria.
+     * @return a Response object containing the requested page of PermissionDirectDTO objects representing the
+     * permissions of the specified group. The status of the response can vary based on the outcome of the request.
+     */
+    @GET
+    @Path("/{id}/permissions")
+    public Response getPermissionsOfGroup(final @Context HttpServletRequest request,
+                                          final @PathParam("id") @Valid @NotNull Long id,
+                                          final @Context UriInfo uriInfo,
+                                          final @BeanParam @Valid QueryFilter queryFilter) {
+        HttpSession session = request.getSession();
+        User user = userService.getFromSession(session);
+        userPermissionService.checkIsAdmin(user, null);
+
+        Map<String, String> filters = this.getFilters(uriInfo);
+        log.info("Received GET request to get permissions of group {} with the following filters: {}", id, filters);
+        AccessControl accessControl = accessControlService.findById(AccessControlType.GROUP, id);
+        Page<PermissionDirectDTO> resources = accessControlPermissionService
+                .findAll(accessControl.getId(), filters, queryFilter.getPagination())
+                .map(new BeanMapper<>(PermissionDirectDTO.class));
 
         return Response.status(this.getStatus(resources)).entity(resources).build();
     }

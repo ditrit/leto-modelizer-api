@@ -6,9 +6,14 @@ import com.ditrit.letomodelizerapi.model.accesscontrol.AccessControlDTO;
 import com.ditrit.letomodelizerapi.model.accesscontrol.AccessControlDirectDTO;
 import com.ditrit.letomodelizerapi.model.accesscontrol.AccessControlRecord;
 import com.ditrit.letomodelizerapi.model.accesscontrol.AccessControlType;
+import com.ditrit.letomodelizerapi.model.permission.PermissionDirectDTO;
 import com.ditrit.letomodelizerapi.model.user.UserDTO;
+import com.ditrit.letomodelizerapi.persistence.model.AccessControl;
+import com.ditrit.letomodelizerapi.persistence.model.Permission;
 import com.ditrit.letomodelizerapi.persistence.model.User;
+import com.ditrit.letomodelizerapi.service.AccessControlPermissionService;
 import com.ditrit.letomodelizerapi.service.AccessControlService;
+import com.ditrit.letomodelizerapi.service.PermissionService;
 import com.ditrit.letomodelizerapi.service.UserPermissionService;
 import com.ditrit.letomodelizerapi.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -66,6 +71,16 @@ public class RoleController implements DefaultController {
      * Service to manage access controls.
      */
     private AccessControlService accessControlService;
+
+    /**
+     * Service to manage permissions.
+     */
+    private PermissionService permissionService;
+
+    /**
+     * Service to manage permissions of access controls.
+     */
+    private AccessControlPermissionService accessControlPermissionService;
 
     /**
      * Finds and returns all roles based on the provided query filters.
@@ -374,9 +389,9 @@ public class RoleController implements DefaultController {
     @GET
     @Path("/{id}/groups")
     public Response getGroupsOfRole(final @Context HttpServletRequest request,
-                                      final @PathParam("id") @Valid @NotNull Long id,
-                                      final @Context UriInfo uriInfo,
-                                      final @BeanParam @Valid QueryFilter queryFilter) {
+                                    final @PathParam("id") @Valid @NotNull Long id,
+                                    final @Context UriInfo uriInfo,
+                                    final @BeanParam @Valid QueryFilter queryFilter) {
         HttpSession session = request.getSession();
         User user = userService.getFromSession(session);
         userPermissionService.checkIsAdmin(user, null);
@@ -414,8 +429,8 @@ public class RoleController implements DefaultController {
     @Consumes(MediaType.TEXT_PLAIN)
     @Path("/{id}/groups")
     public Response associateGroup(final @Context HttpServletRequest request,
-                              final @PathParam("id") @Valid @NotNull Long id,
-                              final @Valid @NotNull Long groupId) {
+                                   final @PathParam("id") @Valid @NotNull Long id,
+                                   final @Valid @NotNull Long groupId) {
         HttpSession session = request.getSession();
         User user = userService.getFromSession(session);
         userPermissionService.checkIsAdmin(user, null);
@@ -442,14 +457,122 @@ public class RoleController implements DefaultController {
     @DELETE
     @Path("/{id}/groups/{groupId}")
     public Response dissociateGroup(final @Context HttpServletRequest request,
-                               final @PathParam("id") @Valid @NotNull Long id,
-                               final @PathParam("groupId") @Valid @NotNull Long groupId) {
+                                    final @PathParam("id") @Valid @NotNull Long id,
+                                    final @PathParam("groupId") @Valid @NotNull Long groupId) {
         HttpSession session = request.getSession();
         User user = userService.getFromSession(session);
         userPermissionService.checkIsAdmin(user, null);
 
         log.info("Received DELETE request to dissociate role {} with group {}", id, groupId);
         accessControlService.dissociate(AccessControlType.ROLE, id, AccessControlType.GROUP, groupId);
+
+        return Response.noContent().build();
+    }
+
+    /**
+     * Retrieves the permissions of a specified role.
+     *
+     * <p>This method processes a GET request to obtain permissions associated with a given role ID. It filters the
+     * permissions based on the provided query parameters and pagination settings.
+     *
+     * @param request the HttpServletRequest from which to obtain the HttpSession for user validation.
+     * @param id the ID of the role for which to retrieve sub-roles. Must be a valid and non-null Long value.
+     * @param uriInfo UriInfo context to extract query parameters for filtering results.
+     * @param queryFilter bean parameter encapsulating filtering and pagination criteria.
+     * @return a Response object containing the requested page of AccessControlDirectDTO objects representing the
+     * permissions of the specified role. The status of the response can vary based on the outcome of the request.
+     */
+    @GET
+    @Path("/{id}/permissions")
+    public Response getPermissionsOfRole(final @Context HttpServletRequest request,
+                                         final @PathParam("id") @Valid @NotNull Long id,
+                                         final @Context UriInfo uriInfo,
+                                         final @BeanParam @Valid QueryFilter queryFilter) {
+        HttpSession session = request.getSession();
+        User user = userService.getFromSession(session);
+        userPermissionService.checkIsAdmin(user, null);
+
+        Map<String, String> filters = this.getFilters(uriInfo);
+        log.info("Received GET request to get permissions of role {} with the following filters: {}", id, filters);
+        AccessControl accessControl = accessControlService.findById(AccessControlType.ROLE, id);
+        Page<PermissionDirectDTO> resources = accessControlPermissionService
+                .findAll(accessControl.getId(), filters, queryFilter.getPagination())
+                .map(accessControlPermissionView -> {
+                    PermissionDirectDTO dto = new PermissionDirectDTO();
+
+                    dto.setId(accessControlPermissionView.getPermissionId());
+                    dto.setAction(accessControlPermissionView.getAction());
+                    dto.setEntity(accessControlPermissionView.getEntity());
+                    dto.setLibraryId(accessControlPermissionView.getLibraryId());
+                    dto.setIsDirect(accessControlPermissionView.getIsDirect());
+
+                    return dto;
+                });
+
+        return Response.status(this.getStatus(resources)).entity(resources).build();
+    }
+
+    /**
+     * Associates a permission with a role.
+     *
+     * <p>This method handles a POST request to create an association between permission and role, specified by their
+     * IDs.
+     * It validates the user's session and ensures the user has administrative privileges before proceeding with the
+     * association.
+     *
+     * @param request the HttpServletRequest from which to obtain the HttpSession for user validation.
+     * @param id the ID of the role to which the role will be associated. Must be a valid and non-null Long value.
+     * @param permissionId the ID of the permission to be associated to the role. Must be a valid and non-null Long
+     *                     value.
+     * @return a Response object indicating the outcome of the association operation. A successful operation returns
+     * a status of CREATED.
+     */
+    @POST
+    @Consumes(MediaType.TEXT_PLAIN)
+    @Path("/{id}/permissions")
+    public Response associatePermission(final @Context HttpServletRequest request,
+                                   final @PathParam("id") @Valid @NotNull Long id,
+                                   final @Valid @NotNull Long permissionId) {
+        HttpSession session = request.getSession();
+        User user = userService.getFromSession(session);
+        userPermissionService.checkIsAdmin(user, null);
+
+        log.info("Received POST request to associate role {} with permission {}", id, permissionId);
+        AccessControl accessControl = accessControlService.findById(AccessControlType.ROLE, id);
+        Permission permission = permissionService.findById(permissionId);
+        accessControlPermissionService.associate(accessControl.getId(), permission.getId());
+
+        return Response.status(HttpStatus.CREATED.value()).build();
+    }
+
+    /**
+     * Dissociates a permission from role.
+     *
+     * <p>This method facilitates the handling of a DELETE request to remove the association between permission and
+     * role, identified by their respective IDs. The operation is secured, requiring validation of the user's session
+     * and administrative privileges.
+     *
+     * @param request the HttpServletRequest used to validate the user's session.
+     * @param id the ID of the role from which the permission will be dissociated. Must be a valid and non-null Long
+     *           value.
+     * @param permissionId the ID of the permission to be dissociated from the role. Must be a valid and non-null Long
+     *                     value.
+     * @return a Response object with a status indicating the outcome of the dissociation operation. A successful
+     * operation returns a status of NO_CONTENT.
+     */
+    @DELETE
+    @Path("/{id}/permissions/{permissionId}")
+    public Response dissociatePermission(final @Context HttpServletRequest request,
+                                    final @PathParam("id") @Valid @NotNull Long id,
+                                    final @PathParam("permissionId") @Valid @NotNull Long permissionId) {
+        HttpSession session = request.getSession();
+        User user = userService.getFromSession(session);
+        userPermissionService.checkIsAdmin(user, null);
+
+        log.info("Received DELETE request to dissociate role {} with permission {}", id, permissionId);
+        AccessControl accessControl = accessControlService.findById(AccessControlType.ROLE, id);
+        Permission permission = permissionService.findById(permissionId);
+        accessControlPermissionService.dissociate(accessControl.getId(), permission.getId());
 
         return Response.noContent().build();
     }

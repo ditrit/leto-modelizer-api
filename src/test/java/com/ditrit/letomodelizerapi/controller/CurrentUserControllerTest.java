@@ -5,7 +5,7 @@ import com.ditrit.letomodelizerapi.helper.MockHelper;
 import com.ditrit.letomodelizerapi.model.permission.ActionPermission;
 import com.ditrit.letomodelizerapi.model.permission.EntityPermission;
 import com.ditrit.letomodelizerapi.model.user.UserDTO;
-import com.ditrit.letomodelizerapi.model.user.permission.UserPermissionDTO;
+import com.ditrit.letomodelizerapi.model.permission.PermissionDTO;
 import com.ditrit.letomodelizerapi.persistence.model.User;
 import com.ditrit.letomodelizerapi.persistence.model.UserPermission;
 import com.ditrit.letomodelizerapi.service.AccessControlService;
@@ -138,10 +138,11 @@ class CurrentUserControllerTest extends MockHelper {
                 .when(userPermissionService.getAllPermissions(Mockito.any()))
                 .thenReturn(permissions);
 
-        UserPermissionDTO expectedPermission = new UserPermissionDTO();
+        PermissionDTO expectedPermission = new PermissionDTO();
+        expectedPermission.setId(0L);
         expectedPermission.setEntity("ADMIN");
         expectedPermission.setAction("ACCESS");
-        List<UserPermissionDTO> expectedPermissions = List.of(expectedPermission);
+        List<PermissionDTO> expectedPermissions = List.of(expectedPermission);
 
         Response response = controller.getMyPermissions(request);
 

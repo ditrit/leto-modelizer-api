@@ -65,8 +65,8 @@ Feature: group feature
     And  I set response field "id" to context "group_id"
 
     When I request "/groups/[group_id]" with method "PUT" with json
-      | key  | value               |
-      | name | Super administrator |
+      | key  | value              |
+      | name | Super administrator|
     Then I expect "400" as status code
     And  I expect response fields length is "5"
     And  I expect response field "message" is "Wrong field value."

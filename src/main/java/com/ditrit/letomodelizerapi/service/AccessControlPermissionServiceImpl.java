@@ -1,0 +1,88 @@
+package com.ditrit.letomodelizerapi.service;
+
+import com.ditrit.letomodelizerapi.model.error.ApiException;
+import com.ditrit.letomodelizerapi.model.error.ErrorType;
+import com.ditrit.letomodelizerapi.persistence.model.AccessControlPermission;
+import com.ditrit.letomodelizerapi.persistence.model.AccessControlPermissionView;
+import com.ditrit.letomodelizerapi.persistence.repository.AccessControlPermissionRepository;
+import com.ditrit.letomodelizerapi.persistence.repository.AccessControlPermissionViewRepository;
+import com.ditrit.letomodelizerapi.persistence.specification.SpecificationHelper;
+import jakarta.transaction.Transactional;
+import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
+
+/**
+ * Implementation of the AccessControlService interface.
+ *
+ * <p>This class provides concrete implementations for the access control management operations defined in
+ * AccessControlService.
+ * AccessControlServiceImpl interacts with the underlying repository layer to perform these operations,
+ * ensuring that business logic and data access are effectively managed.
+ */
+@Slf4j
+@Service
+@Transactional
+@AllArgsConstructor(onConstructor = @__(@Autowired))
+public class AccessControlPermissionServiceImpl implements AccessControlPermissionService {
+
+    /**
+     * The AccessControlPermissionViewRepository instance is injected by Spring's dependency injection mechanism.
+     * This repository is used for performing database operations related to AccessControlPermissionView entities,
+     * such as querying, saving, and updating access control data.
+     */
+    private AccessControlPermissionViewRepository accessControlPermissionViewRepository;
+
+    /**
+     * The AccessControlPermissionRepository instance is injected by Spring's dependency injection mechanism.
+     * This repository is used for performing database operations related to AccessControlPermission entities,
+     * such as querying, saving, and updating access control data.
+     */
+    private AccessControlPermissionRepository accessControlPermissionRepository;
+
+    @Override
+    public Page<AccessControlPermissionView> findAll(final Long id,
+                                                     final Map<String, String> immutableFilters,
+                                                     final Pageable pageable) {
+        Map<String, String> filters = new HashMap<>(immutableFilters);
+        filters.put("accessControlId", id.toString());
+
+        return accessControlPermissionViewRepository.findAll(
+                new SpecificationHelper<>(AccessControlPermissionView.class, filters),
+                PageRequest.of(pageable.getPageNumber(), pageable.getPageSize())
+        );
+    }
+
+    @Override
+    public void associate(final Long id, final Long permissionId) {
+        Optional<AccessControlPermission> accessControlPermissionOptional = accessControlPermissionRepository
+                .findByAccessControlIdAndPermissionId(id, permissionId);
+
+        if (accessControlPermissionOptional.isPresent()) {
+            throw new ApiException(ErrorType.ENTITY_ALREADY_EXISTS, "association");
+        }
+
+        AccessControlPermission accessControlPermission = new AccessControlPermission();
+        accessControlPermission.setAccessControlId(id);
+        accessControlPermission.setPermissionId(permissionId);
+
+        accessControlPermissionRepository.save(accessControlPermission);
+    }
+
+    @Override
+    public void dissociate(final Long id, final Long permissionId) {
+        AccessControlPermission accessControlPermission = accessControlPermissionRepository
+                .findByAccessControlIdAndPermissionId(id, permissionId)
+                .orElseThrow(() -> new ApiException(ErrorType.ENTITY_NOT_FOUND, "association"));
+
+        accessControlPermissionRepository.delete(accessControlPermission);
+    }
+}
