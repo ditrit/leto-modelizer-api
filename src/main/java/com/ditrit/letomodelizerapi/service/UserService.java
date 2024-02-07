@@ -59,4 +59,12 @@ public interface UserService {
      * @return The User object if found, or {@code null} if no user exists with the given login.
      */
     User findByLogin(String login);
+
+    /**
+     * Deletes a user by their login identifier.
+     * This method is used to delete a user based on their unique login.
+     *
+     * @param login The login identifier of the user to be retrieved.
+     */
+    void deleteByLogin(String login);
 }
