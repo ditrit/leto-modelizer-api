@@ -20,10 +20,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     * `GET /api/user/me/roles`, to get its roles.
     * `GET /api/user/me/groups`, to get its groups.
   * For all users:
-    * `GET /api/users`, to get all users.
-    * `GET /api/users/{login}`, to get user by login.
-    * `GET /api/users/{login}/roles`, to get all roles associated to the users.
-    * `GET /api/users/{login}/groups`, to get all groups associated to the users.
+    * `GET    /api/users`, to get all users.
+    * `GET    /api/users/{login}`, to get user by login.
+    * `DELETE /api/users/{login}`, to delete user by login.
+    * `GET    /api/users/{login}/roles`, to get all roles associated to the user.
+    * `GET    /api/users/{login}/groups`, to get all groups associated to the user.
+    * `GET    /api/users/{login}/picture`, to get picture associated to the user.
   * For all roles:
     * `GET    /api/roles`, to get all roles.
     * `POST   /api/roles`, to create a role.
