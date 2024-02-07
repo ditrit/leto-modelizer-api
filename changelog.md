@@ -36,6 +36,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     * `GET    /api/roles/[ROLE_ID]/groups`, to get all groups associated to the role.
     * `POST   /api/roles/[ROLE_ID]/groups`, to associate role and group.
     * `DELETE /api/roles/[ROLE_ID]/groups/[GROUP_ID]`, to dissociate role and group.
+    * `GET    /api/roles/[ROLE_ID]/permissions`, to get all permissions associated to the role.
+    * `POST   /api/roles/[ROLE_ID]/permissions`, to associate role and permission.
+    * `DELETE /api/roles/[ROLE_ID]/permissions/[PERMISSION_ID]`, to dissociate role and permission.
   * For all groups:
     * `GET    /api/groups`, to get all groups.
     * `POST   /api/groups`, to create a group.
@@ -49,5 +52,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     * `POST   /api/groups/[GROUP_ID]/groups`, to associate group and group.
     * `DELETE /api/groups/[GROUP_ID]/groups/[GROUP_ID]`, to dissociate group and group.
     * `GET    /api/groups/[GROUP_ID]/roles`, to get all roles associated to the group.
+    * `GET    /api/groups/[GROUP_ID]/permissions`, to get all permissions associated to the group.
   * `/api/login`, to login.
   * `/api/redirect`, to redirect with token on leto-modelizer/leto-modelizer-admin.
