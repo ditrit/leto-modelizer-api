@@ -139,6 +139,7 @@ class CurrentUserControllerTest extends MockHelper {
                 .thenReturn(permissions);
 
         PermissionDTO expectedPermission = new PermissionDTO();
+        expectedPermission.setId(0L);
         expectedPermission.setEntity("ADMIN");
         expectedPermission.setAction("ACCESS");
         List<PermissionDTO> expectedPermissions = List.of(expectedPermission);
