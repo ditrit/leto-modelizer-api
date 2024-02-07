@@ -5,7 +5,7 @@ import com.ditrit.letomodelizerapi.model.BeanMapper;
 import com.ditrit.letomodelizerapi.model.accesscontrol.AccessControlDTO;
 import com.ditrit.letomodelizerapi.model.accesscontrol.AccessControlType;
 import com.ditrit.letomodelizerapi.model.user.UserDTO;
-import com.ditrit.letomodelizerapi.model.user.permission.UserPermissionDTO;
+import com.ditrit.letomodelizerapi.model.permission.PermissionDTO;
 import com.ditrit.letomodelizerapi.persistence.model.User;
 import com.ditrit.letomodelizerapi.service.AccessControlService;
 import com.ditrit.letomodelizerapi.service.UserPermissionService;
@@ -97,9 +97,9 @@ public class CurrentUserController implements DefaultController {
     public Response getMyPermissions(final @Context HttpServletRequest request) {
         HttpSession session = request.getSession();
         User user = userService.getFromSession(session);
-        List<UserPermissionDTO> permissions = userPermissionService.getAllPermissions(user)
+        List<PermissionDTO> permissions = userPermissionService.getAllPermissions(user)
                 .stream()
-                .map(new BeanMapper<>(UserPermissionDTO.class))
+                .map(new BeanMapper<>(PermissionDTO.class))
                 .toList();
 
         return Response.ok(permissions).build();

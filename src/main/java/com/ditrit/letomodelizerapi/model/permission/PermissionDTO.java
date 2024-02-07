@@ -1,4 +1,4 @@
-package com.ditrit.letomodelizerapi.model.user.permission;
+package com.ditrit.letomodelizerapi.model.permission;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
@@ -7,7 +7,12 @@ import lombok.Data;
  * Data Transfer Object of the user permission model, including only the essential fields.
  */
 @Data
-public class UserPermissionDTO {
+public class PermissionDTO {
+    /**
+     * The unique identifier of the Permission entity.
+     * This field represents the primary key in the database.
+     */
+    private Long id;
 
     /**
      * The entity to which the permission is related.
