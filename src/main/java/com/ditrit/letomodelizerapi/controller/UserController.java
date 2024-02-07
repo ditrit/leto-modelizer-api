@@ -14,6 +14,7 @@ import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.ws.rs.BeanParam;
+import jakarta.ws.rs.DELETE;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
@@ -28,6 +29,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Controller;
 
+import java.net.http.HttpResponse;
 import java.util.Map;
 
 /**
@@ -102,6 +104,29 @@ public class UserController implements DefaultController {
     }
 
     /**
+     * Deletes a user identified by their login. This operation requires administrative privileges and ensures that
+     * only authorized users can delete other user accounts from the system. Upon successful deletion, this method
+     * returns a no-content response to indicate the operation's completion.
+     *
+     * @param request The HTTP request containing the user's session, used to verify administrative privileges.
+     * @param login The login identifier of the user to be deleted.
+     * @return A {@link Response} with a status of 204 No Content on successful deletion of the user.
+     */
+    @DELETE
+    @Path("/{login}")
+    public Response deleteUserByLogin(final @Context HttpServletRequest request,
+                                   final @PathParam("login") @Valid @NotBlank String login) {
+        HttpSession session = request.getSession();
+        User user = userService.getFromSession(session);
+        userPermissionService.checkIsAdmin(user, null);
+
+        log.info("Received DELETE request to delete user with login {}", login);
+        userService.deleteByLogin(login);
+
+        return Response.noContent().build();
+    }
+
+    /**
      * Retrieves roles associated with a user identified by their login.
      *
      * <p>This method processes a GET request to fetch roles assigned to a user, utilizing the user's login as the
@@ -170,5 +195,34 @@ public class UserController implements DefaultController {
                 .map(new BeanMapper<>(AccessControlDTO.class));
 
         return Response.status(this.getStatus(resources)).entity(resources).build();
+    }
+
+    /**
+     * Retrieves the profile picture of a user identified by their login. Access to this endpoint is restricted to
+     * users with administrative privileges. The method fetches the picture from the user service and returns it
+     * along with the appropriate content type. If the user does not have a profile picture or if any error occurs
+     * during retrieval, this method may return an error response or a default image, depending on the implementation.
+     *
+     * @param request The HTTP request containing the user's session, used to check for administrative privileges.
+     * @param login The login identifier of the user whose picture is being requested.
+     * @return A {@link Response} containing the user's profile picture as a byte array and the content type of the
+     *         image. The response status and content type may vary based on the outcome of the request.
+     */
+    @GET
+    @Path("/{login}/picture")
+    public Response getPictureOfUser(final @Context HttpServletRequest request,
+                                     final @PathParam("login") @Valid @NotBlank String login) {
+        HttpSession session = request.getSession();
+        User me = userService.getFromSession(session);
+        userPermissionService.checkIsAdmin(me, null);
+
+        User user = userService.findByLogin(login);
+
+        HttpResponse<byte[]> response = userService.getPicture(user);
+        String contentType = response.headers()
+                .firstValue("Content-Type")
+                .orElse("application/octet-stream");
+
+        return Response.ok(response.body(), contentType).build();
     }
 }

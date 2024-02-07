@@ -21,7 +21,12 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.http.HttpStatus;
 
+import java.net.http.HttpHeaders;
+import java.net.http.HttpResponse;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -113,5 +118,34 @@ class UserControllerTest extends MockHelper {
         assertNotNull(response);
         assertEquals(HttpStatus.OK.value(), response.getStatus());
         assertNotNull(response.getEntity());
+    }
+
+    @Test
+    @DisplayName("Test getPicture: should return valid response.")
+    void testGetPicture() {
+        User user = new User();
+        user.setId(1L);
+        user.setEmail("email");
+        user.setLogin("login");
+        user.setName("name");
+        user.setPicture("picture");
+
+        HttpSession session = Mockito.mock(HttpSession.class);
+        HttpServletRequest request = Mockito.mock(HttpServletRequest.class);
+        HttpResponse<byte[]> picture = Mockito.mock(HttpResponse.class);
+        Map<String, List<String>> headers = new HashMap<>();
+        Mockito.when(picture.headers()).thenReturn(HttpHeaders.of(headers, (s, s2) -> true));
+
+        Mockito
+                .when(request.getSession())
+                .thenReturn(session);
+        Mockito
+                .when(userService.getPicture(Mockito.any()))
+                .thenReturn(picture);
+
+        Response response = controller.getPictureOfUser(request, "test");
+
+        assertNotNull(response);
+        assertEquals(HttpStatus.OK.value(), response.getStatus());
     }
 }
