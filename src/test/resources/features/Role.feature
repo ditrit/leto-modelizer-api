@@ -308,3 +308,93 @@ Feature: Role feature
     Then I expect "200" as status code
     And  I extract resources from response
     And  I expect response resources length is "0"
+
+  Scenario: Should add permission to a role
+    Given I initialize the admin user
+    And   I clean role "role"
+
+    # Create all role
+    When I request "/roles" with method "POST" with json
+      | key  | value |
+      | name | role  |
+    Then I expect "201" as status code
+    And  I set response field "id" to context "role_id"
+
+    # Role shouldn't have permissions
+    When I request "/roles/[role_id]/permissions" with method "GET"
+    Then I expect "200" as status code
+    And  I extract resources from response
+    And  I expect response resources length is "0"
+
+    # Associate permission and role
+    When I request "/roles/[role_id]/permissions" with method "POST" with body
+      | value | type   |
+      | 1     | number |
+    Then I expect "201" as status code
+
+    # Verify all permissions of role
+    When I request "/roles/[role_id]/permissions" with method "GET"
+    Then I expect "200" as status code
+    And  I extract resources from response
+    And  I expect response resources length is "1"
+    And  I expect one resource contains "id" equals to "1"
+    And  I expect one resource contains "action" equals to "ACCESS"
+    And  I expect one resource contains "entity" equals to "ADMIN"
+    And  I expect one resource contains "isDirect" equals to "true" as "boolean"
+
+    # Dissociate group and role
+    When I request "/roles/[role_id]/permissions/1" with method "DELETE"
+    Then I expect "204" as status code
+
+    # Role shouldn't have permissions
+    When I request "/roles/[role_id]/permissions" with method "GET"
+    Then I expect "200" as status code
+    And  I extract resources from response
+    And  I expect response resources length is "0"
+
+  Scenario: Should add permission to a role and check group permission
+    Given I initialize the admin user
+    And   I clean role "role"
+    And   I clean group "group"
+
+    # Create role
+    When I request "/roles" with method "POST" with json
+      | key  | value |
+      | name | role  |
+    Then I expect "201" as status code
+    And  I set response field "id" to context "role_id"
+
+    # Create group
+    When I request "/groups" with method "POST" with json
+      | key  | value |
+      | name | group |
+    Then I expect "201" as status code
+    And  I set response field "id" to context "group_id"
+
+    # Verify all permissions of group
+    When I request "/groups/[group_id]/permissions" with method "GET"
+    Then I expect "200" as status code
+    And  I extract resources from response
+    And  I expect response resources length is "0"
+
+    # Associate permission and role
+    When I request "/roles/[role_id]/permissions" with method "POST" with body
+      | value | type   |
+      | 1     | number |
+    Then I expect "201" as status code
+
+    # Associate role and group
+    When I request "/roles/[role_id]/groups" with method "POST" with body
+      | value      | type   |
+      | [group_id] | number |
+    Then I expect "201" as status code
+
+    # Verify all permissions of group
+    When I request "/groups/[group_id]/permissions" with method "GET"
+    Then I expect "200" as status code
+    And  I extract resources from response
+    And  I expect response resources length is "1"
+    And  I expect one resource contains "id" equals to "0"
+    And  I expect one resource contains "action" equals to "ACCESS"
+    And  I expect one resource contains "entity" equals to "ADMIN"
+    And  I expect one resource contains "isDirect" equals to "false" as "boolean"
