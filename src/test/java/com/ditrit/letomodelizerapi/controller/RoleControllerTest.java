@@ -4,7 +4,10 @@ import com.ditrit.letomodelizerapi.controller.model.QueryFilter;
 import com.ditrit.letomodelizerapi.helper.MockHelper;
 import com.ditrit.letomodelizerapi.model.accesscontrol.AccessControlRecord;
 import com.ditrit.letomodelizerapi.persistence.model.AccessControl;
+import com.ditrit.letomodelizerapi.persistence.model.Permission;
+import com.ditrit.letomodelizerapi.service.AccessControlPermissionService;
 import com.ditrit.letomodelizerapi.service.AccessControlService;
+import com.ditrit.letomodelizerapi.service.PermissionService;
 import com.ditrit.letomodelizerapi.service.UserPermissionService;
 import com.ditrit.letomodelizerapi.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -38,7 +41,13 @@ class RoleControllerTest extends MockHelper {
     UserPermissionService userPermissionService;
 
     @Mock
+    PermissionService permissionService;
+
+    @Mock
     AccessControlService accessControlService;
+
+    @Mock
+    AccessControlPermissionService accessControlPermissionService;
 
     @InjectMocks
     RoleController controller;
@@ -272,6 +281,73 @@ class RoleControllerTest extends MockHelper {
         Mockito.doNothing().when(userPermissionService).checkIsAdmin(Mockito.any(), Mockito.any());
         Mockito.doNothing().when(this.accessControlService).dissociate(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any());
         final Response response = this.controller.dissociateGroup(request, 1L, 2l);
+
+        assertNotNull(response);
+        assertEquals(HttpStatus.NO_CONTENT.value(), response.getStatus());
+    }
+
+    @Test
+    @DisplayName("Test getPermissionsOfRole: should return valid response.")
+    void testGetPermissionsOfRole() {
+        HttpSession session = Mockito.mock(HttpSession.class);
+        HttpServletRequest request = Mockito.mock(HttpServletRequest.class);
+        Mockito
+                .when(request.getSession())
+                .thenReturn(session);
+        Mockito.doNothing().when(userPermissionService).checkIsAdmin(Mockito.any(), Mockito.any());
+        Mockito
+                .when(this.accessControlService.findById(Mockito.any(), Mockito.any()))
+                .thenReturn(new AccessControl());
+        Mockito
+                .when(this.accessControlPermissionService.findAll(Mockito.any(), Mockito.any(), Mockito.any()))
+                .thenReturn(Page.empty());
+        final Response response = this.controller.getPermissionsOfRole(request, 1l, mockUriInfo(), new QueryFilter());
+
+        assertNotNull(response);
+        assertEquals(HttpStatus.OK.value(), response.getStatus());
+        assertNotNull(response.getEntity());
+    }
+
+    @Test
+    @DisplayName("Test associatePermission: should return valid response.")
+    void testAssociatePermission() {
+        HttpSession session = Mockito.mock(HttpSession.class);
+        HttpServletRequest request = Mockito.mock(HttpServletRequest.class);
+        Mockito
+                .when(request.getSession())
+                .thenReturn(session);
+        Mockito.doNothing().when(userPermissionService).checkIsAdmin(Mockito.any(), Mockito.any());
+        Mockito
+                .when(this.accessControlService.findById(Mockito.any(), Mockito.any()))
+                .thenReturn(new AccessControl());
+        Mockito
+                .when(this.permissionService.findById(Mockito.any()))
+                .thenReturn(new Permission());
+        Mockito.doNothing().when(this.accessControlPermissionService).associate(Mockito.any(), Mockito.any());
+        final Response response = this.controller.associatePermission(request, 1l, 2l);
+
+        assertNotNull(response);
+        assertEquals(HttpStatus.CREATED.value(), response.getStatus());
+        assertNull(response.getEntity());
+    }
+
+    @Test
+    @DisplayName("Test dissociatePermission: should return valid response.")
+    void testDissociatePermission() {
+        HttpSession session = Mockito.mock(HttpSession.class);
+        HttpServletRequest request = Mockito.mock(HttpServletRequest.class);
+        Mockito
+                .when(request.getSession())
+                .thenReturn(session);
+        Mockito.doNothing().when(userPermissionService).checkIsAdmin(Mockito.any(), Mockito.any());
+        Mockito
+                .when(this.accessControlService.findById(Mockito.any(), Mockito.any()))
+                .thenReturn(new AccessControl());
+        Mockito
+                .when(this.permissionService.findById(Mockito.any()))
+                .thenReturn(new Permission());
+        Mockito.doNothing().when(this.accessControlPermissionService).dissociate(Mockito.any(), Mockito.any());
+        final Response response = this.controller.dissociatePermission(request, 1L, 2l);
 
         assertNotNull(response);
         assertEquals(HttpStatus.NO_CONTENT.value(), response.getStatus());
