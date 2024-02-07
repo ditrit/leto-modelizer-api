@@ -204,4 +204,14 @@ class UserServiceImplTest {
         assertEquals("login", exception.getError().getField());
         assertEquals("test", exception.getError().getValue());
     }
+
+    @Test
+    @DisplayName("Test deleteByLogin: should delete user.")
+    void testDeleteByLogin() {
+        User expected = new User();
+        Mockito.when(userRepository.findByLogin(Mockito.any())).thenReturn(Optional.of(expected));
+        Mockito.doNothing().when(userRepository).delete(Mockito.any());
+        service.deleteByLogin("test");
+        Mockito.verify(userRepository, Mockito.times(1)).delete(Mockito.any());
+    }
 }

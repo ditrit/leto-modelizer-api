@@ -107,4 +107,11 @@ public class UserServiceImpl implements UserService {
         return this.userRepository.findByLogin(login)
                 .orElseThrow(() -> new ApiException(ErrorType.ENTITY_NOT_FOUND, LOGIN_ATTRIBUTE, login));
     }
+
+    @Override
+    public void deleteByLogin(final String login) {
+        User user =  this.findByLogin(login);
+
+        this.userRepository.delete(user);
+    }
 }
