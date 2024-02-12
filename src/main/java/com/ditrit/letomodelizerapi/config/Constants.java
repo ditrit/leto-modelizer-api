@@ -14,6 +14,11 @@ public final class Constants {
     public static final int DEFAULT_RESOURCE_SIZE = 10;
 
     /**
+     * The constant representing the role ID for the super administrator.
+     */
+    public static final long SUPER_ADMINISTRATOR_ROLE_ID = 1L;
+
+    /**
      * Private constructor.
      */
     private Constants() {
