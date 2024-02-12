@@ -52,7 +52,15 @@ public enum ErrorType {
      * Error to call when an internal error occurred.
      */
     INTERNAL_ERROR(301, "Internal error occurred, please contact your administrator.",
-        HttpStatus.INTERNAL_SERVER_ERROR);
+        HttpStatus.INTERNAL_SERVER_ERROR),
+    /**
+     * Error to call when url of library is not in the whitelist.
+     */
+    UNAUTHORIZED_LIBRARY_URL(209, "Url of library is unauthorized.", HttpStatus.BAD_REQUEST),
+    /**
+     * Error to call when json of library is invalid.
+     */
+    WRONG_LIBRARY_VALUE(210, "Index.json of library is invalid.", HttpStatus.BAD_REQUEST);
 
     /**
      * Error code.
