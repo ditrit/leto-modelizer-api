@@ -22,5 +22,11 @@ public enum ActionPermission {
      * Permission to delete an existing resource from the system.
      * This involves operations that remove entities or data.
      */
-    DELETE;
+    DELETE,
+
+    /**
+     * Permission to update an existing resource from the system.
+     * This involves operations that remove entities or data.
+     */
+    UPDATE;
 }
