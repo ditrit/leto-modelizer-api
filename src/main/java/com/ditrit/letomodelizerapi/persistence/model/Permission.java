@@ -37,7 +37,7 @@ public class Permission extends AbstractEntity {
      * The entity associated with this permission.
      */
     @Column(name = "entity")
-    @ColumnTransformer(write = "?::entity_type", read = "?::text")
+    @ColumnTransformer(write = "?::entity_type")
     @FilterType(type = FilterType.Type.TEXT)
     private String entity;
 
@@ -45,7 +45,7 @@ public class Permission extends AbstractEntity {
      * The action associated with this permission.
      */
     @Column(name = "action")
-    @ColumnTransformer(write = "?::action_type", read = "?::text")
+    @ColumnTransformer(write = "?::action_type")
     @FilterType(type = FilterType.Type.TEXT)
     private String action;
 
