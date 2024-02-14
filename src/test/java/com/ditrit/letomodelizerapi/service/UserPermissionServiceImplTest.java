@@ -16,6 +16,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.http.HttpStatus;
 
 import java.util.List;
 
@@ -84,5 +85,64 @@ class UserPermissionServiceImplTest {
         }
 
         assertNull(exception);
+    }
+
+    @Test
+    @DisplayName("Test checkLibraryPermission: should exists and not throw exception")
+    void testCheckLibraryPermission() {
+        User user = new User();
+        user.setId(1L);
+        Mockito
+                .when(userPermissionRepository.exists(Mockito.any(Specification.class)))
+                .thenReturn(true);
+
+        ApiException exception = null;
+        try {
+            service.checkLibraryPermission(user, ActionPermission.ACCESS, null);
+        } catch (ApiException e) {
+            exception = e;
+        }
+
+        assertNull(exception);
+    }
+
+    @Test
+    @DisplayName("Test checkLibraryPermission: should throw exception on permission to create")
+    void testCheckLibraryPermissionWithoutCreatePermission() {
+        User user = new User();
+        user.setId(1L);
+        Mockito
+                .when(userPermissionRepository.exists(Mockito.any(Specification.class)))
+                .thenReturn(false);
+
+        ApiException exception = null;
+        try {
+            service.checkLibraryPermission(user, ActionPermission.CREATE, 1L);
+        } catch (ApiException e) {
+            exception = e;
+        }
+
+        assertNotNull(exception);
+        assertEquals(HttpStatus.FORBIDDEN, exception.getStatus());
+    }
+
+    @Test
+    @DisplayName("Test checkLibraryPermission: should throw exception on other permission")
+    void testCheckLibraryPermissionWithoutOtherPermission() {
+        User user = new User();
+        user.setId(1L);
+        Mockito
+                .when(userPermissionRepository.exists(Mockito.any(Specification.class)))
+                .thenReturn(false);
+
+        ApiException exception = null;
+        try {
+            service.checkLibraryPermission(user, ActionPermission.ACCESS, 1L);
+        } catch (ApiException e) {
+            exception = e;
+        }
+
+        assertNotNull(exception);
+        assertEquals(HttpStatus.NOT_FOUND, exception.getStatus());
     }
 }

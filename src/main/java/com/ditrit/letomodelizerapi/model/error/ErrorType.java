@@ -17,6 +17,10 @@ public enum ErrorType {
      */
     AUTHORIZATION_FAILED(102, "Authentication has failed.", HttpStatus.UNAUTHORIZED),
     /**
+     * Error to call when user has invalid permission(s).
+     */
+    NO_VALID_PERMISSION(103, "Missing valid permission for this action.", HttpStatus.FORBIDDEN),
+    /**
      * Error to call when a field value is empty.
      */
     EMPTY_VALUE(201, "Field value is empty.", HttpStatus.BAD_REQUEST),
