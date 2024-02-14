@@ -3,6 +3,7 @@ package com.ditrit.letomodelizerapi.config;
 import com.ditrit.letomodelizerapi.controller.CurrentUserController;
 import com.ditrit.letomodelizerapi.controller.GroupController;
 import com.ditrit.letomodelizerapi.controller.HomeController;
+import com.ditrit.letomodelizerapi.controller.LibraryController;
 import com.ditrit.letomodelizerapi.controller.RoleController;
 import com.ditrit.letomodelizerapi.controller.UserController;
 import com.ditrit.letomodelizerapi.controller.handler.ApiExceptionHandler;
@@ -27,6 +28,7 @@ public class JerseyConfig extends ResourceConfig {
         register(CurrentUserController.class);
         register(RoleController.class);
         register(GroupController.class);
+        register(LibraryController.class);
         register(HomeController.class);
 
         // Exception handler
