@@ -1,0 +1,127 @@
+{
+  "$schema": "http://json-schema.org/draft-06/schema#",
+  "unevaluatedProperties": false,
+  "type": "object",
+  "required": ["name", "version", "description", "maintainer"],
+  "properties": {
+    "name": {
+      "type": "string",
+      "maxLength": 255
+    },
+    "version": {
+      "type": "string",
+      "maxLength": 255
+    },
+    "description": {
+      "type": "string"
+    },
+    "maintainer": {
+      "type": "string",
+      "maxLength": 255
+    },
+    "icon": {
+      "type": "string"
+    },
+    "templates": {
+      "type": "array",
+      "items": {
+        "anyOf": [{
+          "type": "object",
+          "unevaluatedItems": false,
+          "minItems": 1,
+          "required": ["name", "type", "basePath", "plugins", "files"],
+          "properties": {
+            "name": {
+              "type": "string",
+              "maxLength": 255
+            },
+            "type": {
+              "enum": ["PROJECT"]
+            },
+            "description": {
+              "type": "string"
+            },
+            "documentationUrl": {
+              "type": "string"
+            },
+            "basePath": {
+              "type": "string"
+            },
+            "icon": {
+              "type": "string"
+            },
+            "plugins": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "unevaluatedItems": false,
+              "minItems": 1
+            },
+            "schemas": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "unevaluatedItems": false
+            },
+            "files": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1
+              },
+              "unevaluatedItems": false,
+              "minItems": 1
+            }
+          }
+        }, {
+          "type": "object",
+          "unevaluatedItems": false,
+          "minItems": 1,
+          "required": ["name", "type", "basePath", "plugin", "files"],
+          "properties": {
+            "name": {
+              "type": "string",
+              "maxLength": 255
+            },
+            "type": {
+              "enum": ["DIAGRAM", "COMPONENT"]
+            },
+            "description": {
+              "type": "string"
+            },
+            "documentationUrl": {
+              "type": "string"
+            },
+            "basePath": {
+              "type": "string"
+            },
+            "icon": {
+              "type": "string"
+            },
+            "plugin": {
+              "type": "string"
+            },
+            "schemas": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "unevaluatedItems": false
+            },
+            "files": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1
+              },
+              "unevaluatedItems": false,
+              "minItems": 1
+            }
+          }
+        }]
+      }
+    }
+  }
+}
