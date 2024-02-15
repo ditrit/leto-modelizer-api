@@ -40,9 +40,6 @@ class UserServiceImplTest {
     @InjectMocks
     UserServiceImpl service;
 
-    static MockedStatic<HttpRequest> requestStatic = Mockito.mockStatic(HttpRequest.class);
-    static MockedStatic<HttpClient> clientStatic = Mockito.mockStatic(HttpClient.class);
-
     @Test
     @DisplayName("Test save: should save new user on unknown login.")
     void testSaveUnknownUser() {
@@ -116,6 +113,8 @@ class UserServiceImplTest {
     @Test
     @DisplayName("Test getPicture: Should throw a valid exception on error.")
     void testGetPictureThrowException() throws IOException, InterruptedException {
+        MockedStatic<HttpRequest> requestStatic = Mockito.mockStatic(HttpRequest.class);
+        MockedStatic<HttpClient> clientStatic = Mockito.mockStatic(HttpClient.class);
         User user = new User();
         user.setPicture("picture_value");
         HttpClient client = Mockito.mock(HttpClient.class);
@@ -146,11 +145,15 @@ class UserServiceImplTest {
         assertEquals("picture", exception.getError().getField());
         assertEquals("picture_value", exception.getError().getValue());
         Mockito.reset();
+        requestStatic.close();
+        clientStatic.close();
     }
 
     @Test
     @DisplayName("Test getPicture: Should return picture on success.")
     void testGetPicture() throws IOException, InterruptedException {
+        MockedStatic<HttpRequest> requestStatic = Mockito.mockStatic(HttpRequest.class);
+        MockedStatic<HttpClient> clientStatic = Mockito.mockStatic(HttpClient.class);
         HttpResponse<Object> expectedResponse = Mockito.mock(HttpResponse.class);
         User user = new User();
         user.setPicture("picture_value");
@@ -170,6 +173,8 @@ class UserServiceImplTest {
         clientStatic.when(HttpClient::newBuilder).thenReturn(clientBuilder);
 
         assertEquals(expectedResponse, service.getPicture(user));
+        requestStatic.close();
+        clientStatic.close();
     }
 
     @Test
