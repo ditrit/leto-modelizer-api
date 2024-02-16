@@ -67,7 +67,7 @@ public class AccessControlPermissionServiceImpl implements AccessControlPermissi
                 .findByAccessControlIdAndPermissionId(id, permissionId);
 
         if (accessControlPermissionOptional.isPresent()) {
-            throw new ApiException(ErrorType.ENTITY_ALREADY_EXISTS, "association");
+            return;
         }
 
         AccessControlPermission accessControlPermission = new AccessControlPermission();

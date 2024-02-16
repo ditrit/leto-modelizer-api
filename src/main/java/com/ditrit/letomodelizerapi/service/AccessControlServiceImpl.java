@@ -221,7 +221,7 @@ public class AccessControlServiceImpl implements AccessControlService {
                 .findByAccessControlIdAndParentAccessControlId(parentAccessControl.getId(), accessControl.getId());
 
         if (userAccessControlOptional.isPresent()) {
-            throw new ApiException(ErrorType.ENTITY_ALREADY_EXISTS, "association");
+            return;
         }
 
         AccessControlTree accessControlTree = new AccessControlTree();
@@ -253,7 +253,7 @@ public class AccessControlServiceImpl implements AccessControlService {
                 .findByAccessControlIdAndUserId(accessControl.getId(), user.getId());
 
         if (userAccessControlOptional.isPresent()) {
-            throw new ApiException(ErrorType.ENTITY_ALREADY_EXISTS, "association");
+            return;
         }
 
         UserAccessControl userAccessControl = new UserAccessControl();

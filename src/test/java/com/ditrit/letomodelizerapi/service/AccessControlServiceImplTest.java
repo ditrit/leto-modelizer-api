@@ -29,6 +29,7 @@ import org.springframework.data.jpa.domain.Specification;
 import java.util.Map;
 import java.util.Optional;
 
+import static org.junit.Assert.assertNull;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
@@ -240,8 +241,8 @@ class AccessControlServiceImplTest {
     }
 
     @Test
-    @DisplayName("Test associateUser: should throw exception on already existing association")
-    void testAssociateUserThrow() {
+    @DisplayName("Test associateUser: should do nothing on already existing association")
+    void testAssociateUserDoNothing() {
         AccessControl accessControl = new AccessControl();
         accessControl.setId(1L);
         accessControl.setType(AccessControlType.ROLE);
@@ -267,9 +268,8 @@ class AccessControlServiceImplTest {
             exception = e;
         }
 
-        assertNotNull(exception);
-        assertEquals(ErrorType.ENTITY_ALREADY_EXISTS.getStatus(), exception.getStatus());
-        assertEquals("association", exception.getError().getField());
+        assertNull(exception);
+        Mockito.verify(userAccessControlRepository, Mockito.times(0)).save(Mockito.any());
     }
 
     @Test
@@ -358,8 +358,8 @@ class AccessControlServiceImplTest {
     }
 
     @Test
-    @DisplayName("Test associate: should throw exception on already existing association")
-    void testAssociateThrow() {
+    @DisplayName("Test associate: should do nothing on already existing association")
+    void testAssociateDoNothing() {
         AccessControl accessControl = new AccessControl();
         accessControl.setId(1L);
         accessControl.setType(AccessControlType.ROLE);
@@ -379,9 +379,8 @@ class AccessControlServiceImplTest {
             exception = e;
         }
 
-        assertNotNull(exception);
-        assertEquals(ErrorType.ENTITY_ALREADY_EXISTS.getStatus(), exception.getStatus());
-        assertEquals("association", exception.getError().getField());
+        assertNull(exception);
+        Mockito.verify(accessControlTreeRepository, Mockito.times(0)).save(Mockito.any());
     }
 
     @Test
