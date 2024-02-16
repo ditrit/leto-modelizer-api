@@ -20,8 +20,7 @@ import org.springframework.data.jpa.domain.Specification;
 import java.util.Map;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 
 @Tag("unit")
 @ExtendWith(MockitoExtension.class)
@@ -63,8 +62,8 @@ class AccessControlPermissionServiceImplTest {
     }
 
     @Test
-    @DisplayName("Test associate: should throw exception on already existing association")
-    void testAssociateThrow() {
+    @DisplayName("Test associate: should do nothing on already existing association")
+    void testAssociateDoNothing() {
         AccessControlPermission accessControlPermission = new AccessControlPermission();
         accessControlPermission.setId(1L);
         accessControlPermission.setPermissionId(1L);
@@ -81,9 +80,8 @@ class AccessControlPermissionServiceImplTest {
             exception = e;
         }
 
-        assertNotNull(exception);
-        assertEquals(ErrorType.ENTITY_ALREADY_EXISTS.getStatus(), exception.getStatus());
-        assertEquals("association", exception.getError().getField());
+        assertNull(exception);
+        Mockito.verify(accessControlPermissionRepository, Mockito.times(0)).save(Mockito.any());
     }
 
     @Test

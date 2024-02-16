@@ -170,17 +170,11 @@ Feature: group feature
       | [group_test_3_id] | text |
     Then I expect "201" as status code
 
-    # Should not be able to create cycle in group hierarchy
+    # Should not be able to create cycle in group hierarchy but return 201
     When I request "/groups/[group_test_3_id]/groups" with method "POST" with body
       | value             | type |
       | [group_test_1_id] | text |
-    Then I expect "400" as status code
-    And  I expect response fields length is "5"
-    And  I expect response field "message" is "Entity already exists."
-    And  I expect response field "code" is "208"
-    And  I expect response field "field" is "association"
-    And  I expect response field "value" is "NULL"
-    And  I expect response field "cause" is "NULL"
+    Then I expect "201" as status code
 
     # Verify all sub groups of all groups
     When I request "/groups/[group_test_1_id]/groups" with method "GET"
