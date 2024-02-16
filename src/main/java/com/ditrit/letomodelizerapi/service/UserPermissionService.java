@@ -23,6 +23,19 @@ public interface UserPermissionService {
     List<UserPermission> getAllPermissions(User user);
 
     /**
+     * Checks if a given user has permission for a specific action on an entity.
+     * This method determines whether the specified user is authorized to perform the given action
+     * (e.g., READ, WRITE) on the specified entity (e.g., LIBRARY, DOCUMENT). The check is typically
+     * based on examining the user's roles and the permissions associated with those roles.
+     *
+     * @param user the user whose permissions are being checked
+     * @param entity the type of entity on which the action is to be performed, represented by the EntityPermission enum
+     * @param action the action to be checked, represented by the ActionPermission enum
+     * @return true if the user has the specified permission, false otherwise
+     */
+    boolean hasPermission(User user, EntityPermission entity, ActionPermission action);
+
+    /**
      * Checks if a user has a specific permission for a given field, entity, and action.
      * Throws a security exception if the user does not have the required permission.
      *
@@ -41,4 +54,18 @@ public interface UserPermissionService {
      * @param field The field to set in case of security exception.
      */
     void checkIsAdmin(User user, String field);
+
+    /**
+     * Verifies if a user has the specified action permission on a library identified by its ID.
+     * This method checks the user's permissions to determine if they are authorized to perform the given action
+     * (e.g., ACCESS, CREATE, DELETE) on the library specified by the ID. If the user does not have the necessary
+     * permissions, this method should throw an exception or handle the authorization failure according to the
+     * application's security policy.
+     *
+     * @param user the user whose permission is being checked
+     * @param action the action for which permission is being verified, represented by the ActionPermission enum
+     * @param id the ID of the library on which the action is attempted
+     * @throws SecurityException or a custom application-specific exception if the user lacks the required permission
+     */
+    void checkLibraryPermission(User user, ActionPermission action, Long id);
 }

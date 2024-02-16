@@ -55,5 +55,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     * `DELETE /api/groups/[GROUP_ID]/groups/[GROUP_ID]`, to dissociate group and group.
     * `GET    /api/groups/[GROUP_ID]/roles`, to get all roles associated to the group.
     * `GET    /api/groups/[GROUP_ID]/permissions`, to get all permissions associated to the group.
+  * For all libraries:
+    * `GET    /api/libraries`, to get all libraries.
+    * `POST   /api/libraries`, to create a libraries.
+    * `PUT    /api/libraries/[LIBRARY_ID]`, to update a library.
+    * `DELETE /api/libraries/[LIBRARY_ID]`, to delete a library.
+    * `GET    /api/libraries/templates`, to get all templates.
   * `/api/login`, to login.
   * `/api/redirect`, to redirect with token on leto-modelizer/leto-modelizer-admin.

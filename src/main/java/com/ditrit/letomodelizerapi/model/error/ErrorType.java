@@ -17,6 +17,10 @@ public enum ErrorType {
      */
     AUTHORIZATION_FAILED(102, "Authentication has failed.", HttpStatus.UNAUTHORIZED),
     /**
+     * Error to call when user has invalid permission(s).
+     */
+    NO_VALID_PERMISSION(103, "Missing valid permission for this action.", HttpStatus.FORBIDDEN),
+    /**
      * Error to call when a field value is empty.
      */
     EMPTY_VALUE(201, "Field value is empty.", HttpStatus.BAD_REQUEST),
@@ -52,7 +56,15 @@ public enum ErrorType {
      * Error to call when an internal error occurred.
      */
     INTERNAL_ERROR(301, "Internal error occurred, please contact your administrator.",
-        HttpStatus.INTERNAL_SERVER_ERROR);
+        HttpStatus.INTERNAL_SERVER_ERROR),
+    /**
+     * Error to call when url of library is not in the whitelist.
+     */
+    UNAUTHORIZED_LIBRARY_URL(209, "Url of library is unauthorized.", HttpStatus.BAD_REQUEST),
+    /**
+     * Error to call when json of library is invalid.
+     */
+    WRONG_LIBRARY_VALUE(210, "Index.json of library is invalid.", HttpStatus.BAD_REQUEST);
 
     /**
      * Error code.

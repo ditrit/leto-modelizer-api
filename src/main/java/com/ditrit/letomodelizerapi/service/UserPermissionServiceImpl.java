@@ -32,6 +32,10 @@ import java.util.Map;
 public class UserPermissionServiceImpl implements UserPermissionService {
 
     /**
+     * Library id field name.
+     */
+    private static final String LIBRARY_ID = "libraryId";
+    /**
      * The UserPermissionRepository instance is injected by Spring's dependency injection mechanism.
      * This repository is used for performing database operations related to UserPermission entities, such as querying,
      * saving and updating user data.
@@ -44,17 +48,26 @@ public class UserPermissionServiceImpl implements UserPermissionService {
     }
 
     @Override
-    public void checkPermission(
+    public boolean hasPermission(
             final User user,
-            final String field,
             final EntityPermission entity,
             final ActionPermission action) {
         Map<String, String> filters = new HashMap<>();
         filters.put("userId", user.getId().toString());
         filters.put("entity", entity.name());
         filters.put("action", action.name());
+        filters.put("libraryId", null);
 
-        if (!userPermissionRepository.exists(new SpecificationHelper<>(UserPermission.class, filters))) {
+        return userPermissionRepository.exists(new SpecificationHelper<>(UserPermission.class, filters));
+    }
+
+    @Override
+    public void checkPermission(
+            final User user,
+            final String field,
+            final EntityPermission entity,
+            final ActionPermission action) {
+        if (!hasPermission(user, entity, action)) {
             throw new ApiException(ErrorType.ENTITY_NOT_FOUND, field);
         }
     }
@@ -62,5 +75,31 @@ public class UserPermissionServiceImpl implements UserPermissionService {
     @Override
     public void checkIsAdmin(final User user, final String field) {
         this.checkPermission(user, field, EntityPermission.ADMIN, ActionPermission.ACCESS);
+    }
+
+    @Override
+    public void checkLibraryPermission(final User user, final  ActionPermission action, final Long id) {
+        String libraryId = null;
+        Map<String, String> filters = new HashMap<>();
+        filters.put("userId", user.getId().toString());
+        filters.put("entity", EntityPermission.LIBRARY.name());
+        filters.put("action", action.name());
+
+        if (id == null) {
+            filters.put("libraryId", "null");
+        } else {
+            libraryId = id.toString();
+            filters.put(LIBRARY_ID, String.format("null|%s", libraryId));
+        }
+
+        if (userPermissionRepository.exists(new SpecificationHelper<>(UserPermission.class, filters))) {
+            return;
+        }
+
+        if (ActionPermission.CREATE.equals(action)) {
+            throw new ApiException(ErrorType.NO_VALID_PERMISSION, "library", "create");
+        }
+
+        throw new ApiException(ErrorType.ENTITY_NOT_FOUND, "id", libraryId);
     }
 }

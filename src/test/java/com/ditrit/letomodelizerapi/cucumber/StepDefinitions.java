@@ -393,6 +393,11 @@ public class StepDefinitions {
         this.clean("groups", String.format("name=%s", name));
     }
 
+    @Given("I clean library {string}")
+    public void cleanLibrary(String url) throws URISyntaxException, IOException, InterruptedException {
+        this.clean("libraries", String.format("url=%s", url));
+    }
+
     public void clean(String entity, String query) throws URISyntaxException, IOException, InterruptedException {
         this.request(String.format("/%s?%s", entity, query));
         if (statusCode == 200 && json.get("totalElements").asInt() > 0) {

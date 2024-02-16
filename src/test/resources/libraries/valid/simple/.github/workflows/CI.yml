@@ -1,0 +1,12 @@
+name: TEST
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+jobs:
+  hello-world:
+    name: Print "hello world!"
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "hello world!"

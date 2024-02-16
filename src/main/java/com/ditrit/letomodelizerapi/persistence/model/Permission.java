@@ -10,6 +10,7 @@ import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import org.hibernate.annotations.ColumnTransformer;
 
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
@@ -36,6 +37,7 @@ public class Permission extends AbstractEntity {
      * The entity associated with this permission.
      */
     @Column(name = "entity")
+    @ColumnTransformer(write = "?::entity_type")
     @FilterType(type = FilterType.Type.TEXT)
     private String entity;
 
@@ -43,6 +45,7 @@ public class Permission extends AbstractEntity {
      * The action associated with this permission.
      */
     @Column(name = "action")
+    @ColumnTransformer(write = "?::action_type")
     @FilterType(type = FilterType.Type.TEXT)
     private String action;
 

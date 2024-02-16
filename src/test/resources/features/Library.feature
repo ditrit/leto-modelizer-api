@@ -1,0 +1,115 @@
+Feature: Library feature
+
+  Scenario: Should return 400 on invalid library url
+    Given I initialize the admin user
+
+    When I request "/libraries" with method "POST" with json
+      | key | value                  |
+      | url | http://localhost:8000/ |
+    Then I expect "400" as status code
+    And  I expect response field "message" is "Wrong field value."
+    And  I expect response field "code" is "206"
+    And  I expect response field "field" is "url"
+    And  I expect response field "value" is "http://localhost:8000/"
+
+  Scenario: Should return 400 on unauthorized library url
+    Given I initialize the admin user
+
+    When I request "/libraries" with method "POST" with json
+      | key | value                         |
+      | url | http://invalidhost/index.json |
+    Then I expect "400" as status code
+    And  I expect response field "message" is "Url of library is unauthorized."
+    And  I expect response field "code" is "209"
+    And  I expect response field "field" is "url"
+    And  I expect response field "value" is "http://invalidhost/index.json"
+
+  Scenario: Should return 400 on unknown library url
+    Given I initialize the admin user
+
+    When I request "/libraries" with method "POST" with json
+      | key | value                                            |
+      | url | http://localhost:8000/invalid/unknown/index.json |
+    Then I expect "400" as status code
+    And  I expect response field "message" is "Wrong field value."
+    And  I expect response field "code" is "206"
+    And  I expect response field "field" is "url"
+    And  I expect response field "value" is "http://localhost:8000/invalid/unknown/index.json"
+
+  Scenario: Should return 400 on already exists library
+    Given I initialize the admin user
+    And   I clean library "http://localhost:8000/valid/simple/"
+
+    When I request "/libraries" with method "POST" with json
+      | key | value                                         |
+      | url | http://localhost:8000/valid/simple/index.json |
+    Then I expect "201" as status code
+
+    When I request "/libraries" with method "POST" with json
+      | key | value                                         |
+      | url | http://localhost:8000/valid/simple/index.json |
+    Then I expect "400" as status code
+    And  I expect response field "message" is "Entity already exists."
+    And  I expect response field "code" is "208"
+    And  I expect response field "field" is "url"
+    And  I expect response field "value" is "http://localhost:8000/valid/simple/"
+
+  Scenario: Should return 200 on a valid library creation
+    Given I initialize the admin user
+    And   I clean library "http://localhost:8000/valid/simple/"
+
+    # Library creation
+    When I request "/libraries" with method "POST" with json
+      | key | value                                         |
+      | url | http://localhost:8000/valid/simple/index.json |
+    Then I expect "201" as status code
+    And  I set response field "id" to context "libraryId"
+
+    # Check if library is created
+    When I request "/libraries/[libraryId]" with method "GET"
+    Then I expect "200" as status code
+    And  I expect response field "id" is "[libraryId]"
+
+    # Verify there is only one library registered
+    When I request "/libraries" with method "GET"
+    Then I expect "200" as status code
+    And  I expect response field "totalElements" is "1" as "number"
+
+    # Check if library templates are created
+    When I request "/libraries/templates" with method "GET"
+    Then I expect "200" as status code
+    And  I expect response field "totalElements" is "3" as "number"
+
+    # Delete library
+    When I request "/libraries/[libraryId]" with method "DELETE"
+    Then I expect "204" as status code
+
+    # Check if library is deleted
+    When I request "/libraries/[libraryId]" with method "GET"
+    Then I expect "404" as status code
+
+  Scenario: Should return 200 on a valid library and role creation
+    Given I initialize the admin user
+    And   I clean role "role_of_lib_1"
+    And   I clean library "http://localhost:8000/valid/simple/"
+
+    # Library creation
+    When I request "/libraries" with method "POST" with json
+      | key  | value                                         |
+      | url  | http://localhost:8000/valid/simple/index.json |
+      | role | role_of_lib_1                                 |
+    Then I expect "201" as status code
+    And  I set response field "id" to context "libraryId"
+
+    When I request "/roles?name=role_of_lib_1" with method "GET"
+    Then I expect "200" as status code
+    And  I expect response field "totalElements" is "1" as "number"
+    And  I extract first resource from response
+    And  I set response field "id" to context "roleId"
+
+    When I request "/roles/[roleId]/permissions" with method "GET"
+    Then I expect "200" as status code
+    And  I expect response field "totalElements" is "3" as "number"
+
+    And I clean role "role_of_lib_1"
+    And I clean library "http://localhost:8000/valid/simple/"

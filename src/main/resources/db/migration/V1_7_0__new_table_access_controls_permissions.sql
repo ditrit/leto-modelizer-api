@@ -24,6 +24,9 @@ INSERT INTO access_controls_permissions(aco_id, per_id) VALUES (1, 6);
 INSERT INTO access_controls_permissions(aco_id, per_id) VALUES (1, 7);
 INSERT INTO access_controls_permissions(aco_id, per_id) VALUES (1, 8);
 INSERT INTO access_controls_permissions(aco_id, per_id) VALUES (1, 9);
+INSERT INTO access_controls_permissions(aco_id, per_id) VALUES (1, 10);
+INSERT INTO access_controls_permissions(aco_id, per_id) VALUES (1, 11);
+INSERT INTO access_controls_permissions(aco_id, per_id) VALUES (1, 12);
 
 -- Add permission ['ADMIN', 'ACCESS', NULL] to Administrator.
 INSERT INTO access_controls_permissions(aco_id, per_id) VALUES (2, 1);

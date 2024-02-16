@@ -1,0 +1,47 @@
+{
+  "name": "Simple library",
+  "version": "0.1.0",
+  "description": "Library with all templates types.",
+  "maintainer": "Zorin95670",
+  "templates": [
+    {
+      "name": "Template of project",
+      "type": "PROJECT",
+      "description": "Project template example.",
+      "documentationUrl": "doc url",
+      "basePath": "",
+      "plugins": ["terrator-plugin", "githubator-plugin"],
+      "icon": "project.svg",
+      "schemas": [
+        ".github/workflows/schema.svg",
+        "infra/schema.svg"
+      ],
+      "files": [
+        ".github/workflows/CI.yml",
+        "infra/main.tf"
+      ]
+    },
+    {
+      "name": "Template of diagram",
+      "type": "DIAGRAM",
+      "description": "Diagram template example.",
+      "documentationUrl": "doc url",
+      "basePath": ".github/workflows/",
+      "plugin": "githubator-plugin",
+      "icon": "diagram.svg",
+      "schemas": ["schema.svg"],
+      "files": ["CI.yml"]
+    },
+    {
+      "name": "Template of component",
+      "type": "COMPONENT",
+      "description": "Component template example.",
+      "documentationUrl": "doc url",
+      "basePath": "infra/",
+      "plugin": "terrator-plugin",
+      "icon": "component.svg",
+      "schemas": ["schema.svg"],
+      "files": ["main.tf"]
+    }
+  ]
+}
