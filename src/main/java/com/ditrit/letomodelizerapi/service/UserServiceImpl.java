@@ -10,11 +10,13 @@ import jakarta.servlet.http.HttpSession;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -43,6 +45,11 @@ public class UserServiceImpl implements UserService {
      * This constant defines how the login attribute is referenced within the application.
      */
     private static final String LOGIN_ATTRIBUTE = "login";
+
+    /**
+     * This constant defines how the picture attribute is referenced within the application.
+     */
+    public static final String PICTURE_ATTRIBUTE = "picture";
 
     /**
      * The UserRepository instance is injected by Spring's dependency injection mechanism.
@@ -75,22 +82,32 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public HttpResponse<byte[]> getPicture(final User user) {
+        if (StringUtils.isBlank(user.getPicture())) {
+            throw new ApiException(ErrorType.EMPTY_VALUE, PICTURE_ATTRIBUTE);
+        }
+
         try {
             HttpRequest request = HttpRequest.newBuilder()
                 .uri(new URI(user.getPicture()))
                 .GET()
                 .build();
 
-            return HttpClient
+            HttpResponse<byte[]> response = HttpClient
                 .newBuilder()
                 .build()
                 .send(request, HttpResponse.BodyHandlers.ofByteArray());
+
+            if (!HttpStatus.valueOf(response.statusCode()).is2xxSuccessful()) {
+                throw new ApiException(ErrorType.WRONG_VALUE, PICTURE_ATTRIBUTE, user.getPicture());
+            }
+
+            return response;
         } catch (URISyntaxException | IOException e) {
-            throw new ApiException(e, ErrorType.INTERNAL_ERROR, "picture", user.getPicture());
+            throw new ApiException(e, ErrorType.INTERNAL_ERROR, PICTURE_ATTRIBUTE, user.getPicture());
         } catch (InterruptedException e) {
             // Re-interrupt the thread to restore the interrupt status
             Thread.currentThread().interrupt();
-            throw new ApiException(e, ErrorType.INTERNAL_ERROR, "picture", user.getPicture());
+            throw new ApiException(e, ErrorType.INTERNAL_ERROR, PICTURE_ATTRIBUTE, user.getPicture());
         }
     }
 

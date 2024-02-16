@@ -111,6 +111,23 @@ class UserServiceImplTest {
     }
 
     @Test
+    @DisplayName("Test getPicture: Should throw an exception on empty picture")
+    void testGetPictureEmpty() {
+        User user = new User();
+        ApiException exception = null;
+
+        try {
+            service.getPicture(user);
+        } catch (ApiException e) {
+            exception = e;
+        }
+
+        assertNotNull(exception);
+        assertEquals(ErrorType.EMPTY_VALUE.getStatus(), exception.getStatus());
+        assertEquals("picture", exception.getError().getField());
+    }
+
+    @Test
     @DisplayName("Test getPicture: Should throw a valid exception on error.")
     void testGetPictureThrowException() throws IOException, InterruptedException {
         MockedStatic<HttpRequest> requestStatic = Mockito.mockStatic(HttpRequest.class);
@@ -150,6 +167,47 @@ class UserServiceImplTest {
     }
 
     @Test
+    @DisplayName("Test getPicture: Should throw a valid exception on http error.")
+    void testGetPictureHttpError() throws IOException, InterruptedException {
+        MockedStatic<HttpRequest> requestStatic = Mockito.mockStatic(HttpRequest.class);
+        MockedStatic<HttpClient> clientStatic = Mockito.mockStatic(HttpClient.class);
+        User user = new User();
+        user.setPicture("picture_value");
+        HttpResponse<Object> expectedResponse = Mockito.mock(HttpResponse.class);
+        HttpClient client = Mockito.mock(HttpClient.class);
+        HttpRequest request = Mockito.mock(HttpRequest.class);
+        HttpClient.Builder clientBuilder = Mockito.mock(HttpClient.Builder.class);
+        HttpRequest.Builder requestBuilder = Mockito.mock(HttpRequest.Builder.class);
+
+        Mockito.when(expectedResponse.statusCode()).thenReturn(404);
+        Mockito.when(requestBuilder.uri(Mockito.any())).thenReturn(requestBuilder);
+        Mockito.when(requestBuilder.GET()).thenReturn(requestBuilder);
+        Mockito.when(requestBuilder.build()).thenReturn(request);
+
+        Mockito.when(client.send(Mockito.any(), Mockito.any())).thenReturn(expectedResponse);
+        Mockito.when(clientBuilder.build()).thenReturn(client);
+
+        requestStatic.when(HttpRequest::newBuilder).thenReturn(requestBuilder);
+        clientStatic.when(HttpClient::newBuilder).thenReturn(clientBuilder);
+
+        ApiException exception = null;
+
+        try {
+            service.getPicture(user);
+        } catch (ApiException e) {
+            exception = e;
+        }
+
+        assertNotNull(exception);
+        assertEquals(ErrorType.WRONG_VALUE.getStatus(), exception.getStatus());
+        assertEquals("picture", exception.getError().getField());
+        assertEquals("picture_value", exception.getError().getValue());
+        Mockito.reset();
+        requestStatic.close();
+        clientStatic.close();
+    }
+
+    @Test
     @DisplayName("Test getPicture: Should return picture on success.")
     void testGetPicture() throws IOException, InterruptedException {
         MockedStatic<HttpRequest> requestStatic = Mockito.mockStatic(HttpRequest.class);
@@ -161,7 +219,7 @@ class UserServiceImplTest {
         HttpRequest request = Mockito.mock(HttpRequest.class);
         HttpClient.Builder clientBuilder = Mockito.mock(HttpClient.Builder.class);
         HttpRequest.Builder requestBuilder = Mockito.mock(HttpRequest.Builder.class);
-
+        Mockito.when(expectedResponse.statusCode()).thenReturn(200);
         Mockito.when(requestBuilder.uri(Mockito.any())).thenReturn(requestBuilder);
         Mockito.when(requestBuilder.GET()).thenReturn(requestBuilder);
         Mockito.when(requestBuilder.build()).thenReturn(request);
