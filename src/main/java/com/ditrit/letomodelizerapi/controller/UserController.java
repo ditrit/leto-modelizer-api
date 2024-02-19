@@ -23,9 +23,9 @@ import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.UriInfo;
-import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Controller;
 
@@ -39,7 +39,6 @@ import java.util.Map;
 @Path("/users")
 @Produces(MediaType.APPLICATION_JSON)
 @Controller
-@AllArgsConstructor(onConstructor = @__(@Autowired))
 public class UserController implements DefaultController {
 
     /**
@@ -55,6 +54,35 @@ public class UserController implements DefaultController {
      * Service to manage access controls.
      */
     private AccessControlService accessControlService;
+
+    /**
+     * The maximum age for caching user pictures.
+     * This value is typically specified in application properties and injected into the controller or service
+     * to determine how long user pictures should be cached by clients. It is expressed in a format understood
+     * by HTTP cache control headers, such as seconds.
+     */
+    private String userPictureCacheMaxAge;
+
+    /**
+     * Constructor for UserController.
+     * Initializes the controller with necessary services for user management, permission checking, and access control.
+     * It also configures the maximum age for user picture cache based on application properties.
+     *
+     * @param userService the service responsible for user-related operations.
+     * @param userPermissionService the service for checking user permissions.
+     * @param accessControlService the service for managing access controls.
+     * @param userPictureCacheMaxAge the maximum age for caching user pictures, injected from application properties.
+     */
+    @Autowired
+    public UserController(final UserService userService,
+                          final UserPermissionService userPermissionService,
+                          final AccessControlService accessControlService,
+                          final @Value("${user.picture.cache.max.age}") String userPictureCacheMaxAge) {
+        this.userService = userService;
+        this.userPermissionService = userPermissionService;
+        this.accessControlService = accessControlService;
+        this.userPictureCacheMaxAge = userPictureCacheMaxAge;
+    }
 
     /**
      * Retrieves a paginated list of users based on the provided query filters.
@@ -223,6 +251,6 @@ public class UserController implements DefaultController {
                 .firstValue("Content-Type")
                 .orElse("application/octet-stream");
 
-        return Response.ok(response.body(), contentType).build();
+        return Response.ok(response.body(), contentType).cacheControl(getCacheControl(userPictureCacheMaxAge)).build();
     }
 }
