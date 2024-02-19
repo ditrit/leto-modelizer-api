@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "description": "Library with all templates types.",
   "maintainer": "Zorin95670",
+  "icon": "icon.svg",
   "templates": [
     {
       "name": "Template of project",
