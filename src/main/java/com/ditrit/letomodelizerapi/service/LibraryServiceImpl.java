@@ -330,9 +330,11 @@ public class LibraryServiceImpl implements LibraryService {
     }
 
     @Override
-    public Page<Library> findAll(final User user, final Map<String, String> filters, final Pageable pageable) {
-        return userLibraryViewRepository.findAllByUserId(
-                user.getId(),
+    public Page<Library> findAll(final User user, final Map<String, String> immutableFilters, final Pageable pageable) {
+        Map<String, String> filters = new HashMap<>(immutableFilters);
+        filters.put("userId", user.getId().toString());
+
+        return userLibraryViewRepository.findAll(
                 new SpecificationHelper<>(UserLibraryView.class, filters),
                 PageRequest.of(pageable.getPageNumber(), pageable.getPageSize())
         ).map(new UserLibraryViewToLibraryFunction());

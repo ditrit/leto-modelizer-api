@@ -496,7 +496,7 @@ class LibraryServiceImplTest {
     void testFindAllByUser() {
         LibraryServiceImpl service = newInstance("http://localhost:8080/test/");
 
-        Mockito.when(userLibraryViewRepository.findAllByUserId(Mockito.any(), Mockito.any(Specification.class), Mockito.any())).thenReturn(Page.empty());
+        Mockito.when(userLibraryViewRepository.findAll(Mockito.any(Specification.class), Mockito.any())).thenReturn(Page.empty());
         User user = new User();
         user.setId(1L);
         assertEquals(Page.empty(), service.findAll(user, Map.of(), PageRequest.of(1, 1)));
