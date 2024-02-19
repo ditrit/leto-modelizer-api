@@ -15,6 +15,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import jakarta.ws.rs.BeanParam;
@@ -26,16 +27,19 @@ import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.Context;
+import jakarta.ws.rs.core.HttpHeaders;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.UriInfo;
-import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 
+import java.net.http.HttpResponse;
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -48,7 +52,6 @@ import java.util.Map;
 @Path("/libraries")
 @Produces(MediaType.APPLICATION_JSON)
 @Controller
-@AllArgsConstructor(onConstructor = @__(@Autowired))
 public class LibraryController implements DefaultController {
 
     /**
@@ -65,6 +68,44 @@ public class LibraryController implements DefaultController {
      * Service to manage library.
      */
     private LibraryService libraryService;
+
+    /**
+     * The maximum age for caching resource library content.
+     * This variable is intended to store the duration (in seconds) that resource library content should be considered
+     * fresh and can be cached by clients or intermediary proxies. After this period elapses, clients are expected to
+     * re-validate the cached content with the origin server to ensure it is still up-to-date. This value is typically
+     * configured through application settings or environment variables to allow for easy adjustment based on the
+     * application's caching strategy and performance requirements.
+     */
+    private String resourceCacheMaxAge;
+
+    /**
+     * Constructor for LibraryController.
+     * Initializes the controller with the necessary services for managing libraries, including user management,
+     * permission validation, and library operations. It also sets the configuration for the maximum age of library file
+     * caching based on the application's properties. This setup ensures efficient handling of library-related
+     * operations such as accessing, creating, updating, and deleting library resources, while also optimizing
+     * performance through caching strategies for library files.
+     *
+     * @param userService the service responsible for managing user details and operations.
+     * @param userPermissionService the service for checking and validating user permissions.
+     * @param libraryService the service dedicated to managing library operations such as CRUD actions and queries.
+     * @param resourceCacheMaxAge the configured maximum age for caching library files, specified in application
+     *                            properties, indicating how long client browsers and intermediate caches should
+     *                            consider library files fresh before revalidating them. This helps in reducing
+     *                            unnecessary server requests and improving user experience by leveraging browser cache.
+     */
+    @Autowired
+    public LibraryController(final UserService userService,
+                             final UserPermissionService userPermissionService,
+                             final LibraryService libraryService,
+                             final @Value("${library.files.cache.max.age}") String resourceCacheMaxAge) {
+        this.userService = userService;
+        this.userPermissionService = userPermissionService;
+        this.libraryService = libraryService;
+        this.resourceCacheMaxAge = resourceCacheMaxAge;
+    }
+
 
     /**
      * Handles the GET request to retrieve all libraries applying filters and pagination.
@@ -119,6 +160,66 @@ public class LibraryController implements DefaultController {
         LibraryDTO library = new BeanMapper<>(LibraryDTO.class).apply(libraryService.findById(id));
 
         return Response.ok(library).build();
+    }
+
+    /**
+     * Handles the GET request to retrieve the icon for a library identified by its ID.
+     * Validates the user's permission to access the library before attempting to retrieve the icon.
+     * This method fetches the library's icon as a byte array and determines the content type from the
+     * response headers. If the content type is not specified, "application/octet-stream" is used as a default.
+     *
+     * @param request the HttpServletRequest containing the session information to identify the user.
+     * @param id the unique identifier of the library whose icon is being retrieved, validated for non-null value.
+     * @return a Response object containing the icon as a byte array and the appropriate content type.
+     */
+    @GET
+    @Path("/{id}/icon")
+    public Response getLibraryIcon(final @Context HttpServletRequest request,
+                                   final @PathParam("id") @Valid @NotNull Long id) {
+        HttpSession session = request.getSession();
+        User user = userService.getFromSession(session);
+        userPermissionService.checkLibraryPermission(user, ActionPermission.ACCESS, id);
+
+        log.info("Received GET request to get library icon with id {}", id);
+
+        HttpResponse<byte[]> response = libraryService.getIcon(id);
+        String contentType = response.headers()
+                .firstValue(HttpHeaders.CONTENT_TYPE)
+                .orElse(MediaType.APPLICATION_OCTET_STREAM);
+
+        return Response.ok(response.body(), contentType).cacheControl(getCacheControl(resourceCacheMaxAge)).build();
+    }
+
+    /**
+     * Handles the GET request to retrieve templates associated with a specific library identified by its ID.
+     * Validates the user's permission to access the library before querying for templates. This method applies
+     * additional filters provided through the URI and the QueryFilter bean to refine the search for templates.
+     * It ensures that only templates associated with the specified library ID are fetched.
+     *
+     * @param request the HttpServletRequest containing the session information to identify the user.
+     * @param uriInfo the UriInfo containing query parameters for additional filtering.
+     * @param queryFilter a QueryFilter bean containing pagination settings.
+     * @param id the unique identifier of the library whose templates are being retrieved, validated for non-null value.
+     * @return a Response object containing a page of LibraryTemplate entities associated with the library and matching
+     * the specified filters and pagination settings.
+     */
+    @GET
+    @Path("/{id}/templates")
+    public Response getLibraryTemplates(final @Context HttpServletRequest request,
+                                        final @Context UriInfo uriInfo,
+                                        final @BeanParam @Valid QueryFilter queryFilter,
+                                        final @PathParam("id") @Valid @NotNull Long id) {
+        HttpSession session = request.getSession();
+        User user = userService.getFromSession(session);
+        userPermissionService.checkLibraryPermission(user, ActionPermission.ACCESS, id);
+        Map<String, String> filters = new HashMap<>(this.getFilters(uriInfo));
+        filters.put("libraryId", id.toString());
+
+        log.info("Received GET request to get templates of library with id {} with the following filters: {}", id,
+                filters);
+        Page<LibraryTemplate> resources = libraryService.findAllTemplates(filters, queryFilter.getPagination());
+
+        return Response.status(this.getStatus(resources)).entity(resources).build();
     }
 
     /**
@@ -229,5 +330,137 @@ public class LibraryController implements DefaultController {
         }
 
         return Response.status(this.getStatus(resources)).entity(resources).build();
+    }
+
+    /**
+     * Handles the GET request to retrieve a specific library template by its ID.
+     * Fetches the library template first to determine the associated library ID, then checks the user's permission
+     * to access the library. If the user has the necessary permission, the method returns the requested library
+     * template.
+     *
+     * @param request the HttpServletRequest containing the session information to identify the user.
+     * @param id the unique identifier of the library template being retrieved, validated for non-null value.
+     * @return a Response object containing the LibraryTemplate entity if found and accessible by the user.
+     */
+    @GET
+    @Path("/templates/{id}")
+    public Response getTemplatesById(final @Context HttpServletRequest request,
+                                     final @PathParam("id") @Valid @NotNull Long id) {
+        HttpSession session = request.getSession();
+        User user = userService.getFromSession(session);
+        LibraryTemplate libraryTemplate = libraryService.getTemplateById(id);
+        userPermissionService.checkLibraryPermission(user, ActionPermission.ACCESS, libraryTemplate.getLibraryId());
+
+        log.info("Received GET request to get templates with id {}", id);
+
+        return Response.ok(libraryTemplate).build();
+    }
+
+    /**
+     * Handles the GET request to retrieve the icon for a specific library template identified by its ID.
+     * Validates the user's permission to access the associated library before attempting to retrieve the template's
+     * icon.
+     * This method fetches the template's icon as a byte array and determines the content type from the response
+     * headers.
+     * If the content type is not specified, "application/octet-stream" is used as a default.
+     *
+     * @param request the HttpServletRequest containing the session information to identify the user.
+     * @param id the unique identifier of the library template whose icon is being retrieved, validated for non-null
+     *           value.
+     * @return a Response object containing the icon as a byte array and the appropriate content type.
+     */
+    @GET
+    @Path("/templates/{id}/icon")
+    public Response getTemplateIcon(final @Context HttpServletRequest request,
+                                    final @PathParam("id") @Valid @NotNull Long id) {
+        HttpSession session = request.getSession();
+        User user = userService.getFromSession(session);
+        LibraryTemplate libraryTemplate = libraryService.getTemplateById(id);
+        userPermissionService.checkLibraryPermission(user, ActionPermission.ACCESS, libraryTemplate.getLibraryId());
+
+        log.info("Received GET request to get template icon with id {}", id);
+
+        HttpResponse<byte[]> response = libraryService.getTemplateIcon(libraryTemplate);
+        String contentType = response.headers()
+                .firstValue(HttpHeaders.CONTENT_TYPE)
+                .orElse(MediaType.APPLICATION_OCTET_STREAM);
+
+        return Response.ok(response.body(), contentType).cacheControl(getCacheControl(resourceCacheMaxAge)).build();
+    }
+
+    /**
+     * Handles the GET request to retrieve a specific schema from a library template by its ID and the schema's index.
+     * Validates the user's permission to access the associated library before attempting to retrieve the template's
+     * schema.
+     * This method fetches the specified schema as a byte array based on its index within the library template and
+     * determines the content type from the response headers. If the content type is not specified,
+     * "application/octet-stream" is used as a default.
+     *
+     * @param request the HttpServletRequest containing the session information to identify the user.
+     * @param id the unique identifier of the library template from which the schema is being retrieved, validated for
+     *           non-null value.
+     * @param index the index of the schema within the template, validated to be non-null and minimum 0.
+     * @return a Response object containing the schema as a byte array and the appropriate content type.
+     */
+    @GET
+    @Path("/templates/{id}/schemas/{index}")
+    public Response getTemplateSchema(final @Context HttpServletRequest request,
+                                      final @PathParam("id") @Valid @NotNull Long id,
+                                      final @PathParam("index") @Valid @NotNull @Min(0) Long index) {
+        HttpSession session = request.getSession();
+        User user = userService.getFromSession(session);
+        LibraryTemplate libraryTemplate = libraryService.getTemplateById(id);
+        userPermissionService.checkLibraryPermission(user, ActionPermission.ACCESS, libraryTemplate.getLibraryId());
+
+        log.info("Received GET request to get template schema with id {} and index", id, index);
+
+        HttpResponse<byte[]> response = libraryService.getTemplateSchema(libraryTemplate, index);
+        String contentType = response.headers()
+                .firstValue(HttpHeaders.CONTENT_TYPE)
+                .orElse(MediaType.APPLICATION_OCTET_STREAM);
+        String fileName = libraryService.getFileName(true, libraryTemplate, index);
+
+        return Response.ok(response.body(), contentType)
+                .header("Content-Disposition", String.format("filename=\"%s\"", fileName))
+                .cacheControl(getCacheControl(resourceCacheMaxAge))
+                .build();
+    }
+
+    /**
+     * Handles the GET request to retrieve a specific file from a library template by its ID and the file's index.
+     * Validates the user's permission to access the associated library before attempting to retrieve the template's
+     * file.
+     * This method fetches the specified file as a byte array based on its index within the library template and
+     * determines the content type from the response headers. If the content type is not specified,
+     * "application/octet-stream" is used as a default.
+     *
+     * @param request the HttpServletRequest containing the session information to identify the user.
+     * @param id the unique identifier of the library template from which the file is being retrieved, validated for
+     *           non-null value.
+     * @param index the index of the file within the template, validated to be non-null and minimum 0.
+     * @return a Response object containing the file as a byte array and the appropriate content type.
+     */
+    @GET
+    @Path("/templates/{id}/files/{index}")
+    public Response getTemplateFile(final @Context HttpServletRequest request,
+                                      final @PathParam("id") @Valid @NotNull Long id,
+                                      final @PathParam("index") @Valid @NotNull @Min(0) Long index) {
+        HttpSession session = request.getSession();
+        User user = userService.getFromSession(session);
+        LibraryTemplate libraryTemplate = libraryService.getTemplateById(id);
+        userPermissionService.checkLibraryPermission(user, ActionPermission.ACCESS, libraryTemplate.getLibraryId());
+
+        log.info("Received GET request to get template file with id {} and index", id, index);
+
+        HttpResponse<byte[]> response = libraryService.getTemplateFile(libraryTemplate, index);
+        String contentType = response.headers()
+                .firstValue(HttpHeaders.CONTENT_TYPE)
+                .orElse(MediaType.APPLICATION_OCTET_STREAM);
+        String fileName = libraryService.getFileName(false, libraryTemplate, index);
+
+        return Response.ok(response.body(), contentType)
+                .header("Content-Disposition", String.format("filename=\"%s\"", fileName))
+                .cacheControl(getCacheControl(resourceCacheMaxAge))
+                .build();
     }
 }

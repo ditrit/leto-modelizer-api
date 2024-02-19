@@ -4,6 +4,7 @@ import com.ditrit.letomodelizerapi.controller.model.QueryFilter;
 import com.ditrit.letomodelizerapi.helper.MockHelper;
 import com.ditrit.letomodelizerapi.model.library.LibraryRecord;
 import com.ditrit.letomodelizerapi.persistence.model.Library;
+import com.ditrit.letomodelizerapi.persistence.model.LibraryTemplate;
 import com.ditrit.letomodelizerapi.persistence.model.User;
 import com.ditrit.letomodelizerapi.service.LibraryService;
 import com.ditrit.letomodelizerapi.service.UserPermissionService;
@@ -23,7 +24,12 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.http.HttpStatus;
 
+import java.net.http.HttpHeaders;
+import java.net.http.HttpResponse;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -180,5 +186,150 @@ class LibraryControllerTest extends MockHelper {
         assertNotNull(response);
         assertEquals(HttpStatus.OK.value(), response.getStatus());
         assertNotNull(response.getEntity());
+    }
+
+    @Test
+    @DisplayName("Test getIcon: should return valid response.")
+    void testGetIcon() {
+        LibraryController controller = new LibraryController(userService, userPermissionService, libraryService, "1");
+        HttpSession session = Mockito.mock(HttpSession.class);
+        HttpServletRequest request = Mockito.mock(HttpServletRequest.class);
+        HttpResponse<byte[]> icon = Mockito.mock(HttpResponse.class);
+        Map<String, List<String>> headers = new HashMap<>();
+        Mockito.when(icon.headers()).thenReturn(HttpHeaders.of(headers, (s, s2) -> true));
+        Mockito.doNothing().when(userPermissionService).checkLibraryPermission(Mockito.any(), Mockito.any(), Mockito.any());
+
+        Mockito
+                .when(request.getSession())
+                .thenReturn(session);
+        Mockito
+                .when(libraryService.getIcon(Mockito.any()))
+                .thenReturn(icon);
+
+        Response response = controller.getLibraryIcon(request, 1L);
+
+        assertNotNull(response);
+        assertEquals(HttpStatus.OK.value(), response.getStatus());
+    }
+
+    @Test
+    @DisplayName("Test getLibraryTemplates: should return valid response.")
+    void testGetLibraryTemplates() {
+        HttpSession session = Mockito.mock(HttpSession.class);
+        HttpServletRequest request = Mockito.mock(HttpServletRequest.class);
+        Mockito
+                .when(request.getSession())
+                .thenReturn(session);
+        Mockito.doNothing().when(userPermissionService).checkLibraryPermission(Mockito.any(), Mockito.any(), Mockito.any());
+        Mockito.when(this.libraryService.findAllTemplates(Mockito.any(), Mockito.any())).thenReturn(new PageImpl<>(new ArrayList<>()));
+        final Response response = this.controller.getLibraryTemplates(request, mockUriInfo(), new QueryFilter(), 1L);
+
+        assertNotNull(response);
+        assertEquals(HttpStatus.OK.value(), response.getStatus());
+        assertNotNull(response.getEntity());
+    }
+
+    @Test
+    @DisplayName("Test getTemplatesById: should return valid response.")
+    void testGetTemplatesById() {
+        HttpSession session = Mockito.mock(HttpSession.class);
+        HttpServletRequest request = Mockito.mock(HttpServletRequest.class);
+        Mockito
+                .when(request.getSession())
+                .thenReturn(session);
+        Mockito.doNothing().when(userPermissionService).checkLibraryPermission(Mockito.any(), Mockito.any(), Mockito.any());
+        Mockito.when(this.libraryService.getTemplateById(Mockito.any())).thenReturn(new LibraryTemplate());
+        final Response response = this.controller.getTemplatesById(request, 1L);
+
+        assertNotNull(response);
+        assertEquals(HttpStatus.OK.value(), response.getStatus());
+        assertNotNull(response.getEntity());
+    }
+
+    @Test
+    @DisplayName("Test getTemplateIcon: should return valid response.")
+    void testGetTemplateIcon() {
+        LibraryController controller = new LibraryController(userService, userPermissionService, libraryService, "1");
+        HttpSession session = Mockito.mock(HttpSession.class);
+        HttpServletRequest request = Mockito.mock(HttpServletRequest.class);
+        HttpResponse<byte[]> icon = Mockito.mock(HttpResponse.class);
+        Map<String, List<String>> headers = new HashMap<>();
+        Mockito.when(icon.headers()).thenReturn(HttpHeaders.of(headers, (s, s2) -> true));
+        Mockito.doNothing().when(userPermissionService).checkLibraryPermission(Mockito.any(), Mockito.any(), Mockito.any());
+
+        Mockito
+                .when(request.getSession())
+                .thenReturn(session);
+        Mockito
+                .when(libraryService.getTemplateIcon(Mockito.any()))
+                .thenReturn(icon);
+        Mockito
+                .when(libraryService.getTemplateById(Mockito.any()))
+                .thenReturn(new LibraryTemplate());
+
+        Response response = controller.getTemplateIcon(request, 1L);
+
+        assertNotNull(response);
+        assertEquals(HttpStatus.OK.value(), response.getStatus());
+    }
+
+    @Test
+    @DisplayName("Test getTemplateSchema: should return valid response.")
+    void testGetTemplateSchema() {
+        LibraryController controller = new LibraryController(userService, userPermissionService, libraryService, "1");
+        HttpSession session = Mockito.mock(HttpSession.class);
+        HttpServletRequest request = Mockito.mock(HttpServletRequest.class);
+        HttpResponse<byte[]> icon = Mockito.mock(HttpResponse.class);
+        Map<String, List<String>> headers = new HashMap<>();
+        Mockito.when(icon.headers()).thenReturn(HttpHeaders.of(headers, (s, s2) -> true));
+        Mockito.doNothing().when(userPermissionService).checkLibraryPermission(Mockito.any(), Mockito.any(), Mockito.any());
+
+        Mockito
+                .when(request.getSession())
+                .thenReturn(session);
+        Mockito
+                .when(libraryService.getTemplateSchema(Mockito.any(), Mockito.any()))
+                .thenReturn(icon);
+        Mockito
+                .when(libraryService.getTemplateById(Mockito.any()))
+                .thenReturn(new LibraryTemplate());
+        Mockito
+                .when(libraryService.getFileName(Mockito.anyBoolean(), Mockito.any(), Mockito.any()))
+                .thenReturn("test");
+
+        Response response = controller.getTemplateSchema(request, 1L, 1L);
+
+        assertNotNull(response);
+        assertEquals(HttpStatus.OK.value(), response.getStatus());
+    }
+
+    @Test
+    @DisplayName("Test getTemplateFile: should return valid response.")
+    void testGetTemplateFile() {
+        LibraryController controller = new LibraryController(userService, userPermissionService, libraryService, "1");
+        HttpSession session = Mockito.mock(HttpSession.class);
+        HttpServletRequest request = Mockito.mock(HttpServletRequest.class);
+        HttpResponse<byte[]> file = Mockito.mock(HttpResponse.class);
+        Map<String, List<String>> headers = new HashMap<>();
+        Mockito.when(file.headers()).thenReturn(HttpHeaders.of(headers, (s, s2) -> true));
+        Mockito.doNothing().when(userPermissionService).checkLibraryPermission(Mockito.any(), Mockito.any(), Mockito.any());
+
+        Mockito
+                .when(request.getSession())
+                .thenReturn(session);
+        Mockito
+                .when(libraryService.getTemplateFile(Mockito.any(), Mockito.any()))
+                .thenReturn(file);
+        Mockito
+                .when(libraryService.getTemplateById(Mockito.any()))
+                .thenReturn(new LibraryTemplate());
+        Mockito
+                .when(libraryService.getFileName(Mockito.anyBoolean(), Mockito.any(), Mockito.any()))
+                .thenReturn("test");
+
+        Response response = controller.getTemplateFile(request, 1L, 1L);
+
+        assertNotNull(response);
+        assertEquals(HttpStatus.OK.value(), response.getStatus());
     }
 }
