@@ -7,8 +7,8 @@ import com.ditrit.letomodelizerapi.model.accesscontrol.AccessControlType;
 import com.ditrit.letomodelizerapi.model.error.ApiException;
 import com.ditrit.letomodelizerapi.model.error.ErrorType;
 import com.ditrit.letomodelizerapi.persistence.function.AccessControlTreeViewToAccessControlDirectDTOFunction;
-import com.ditrit.letomodelizerapi.persistence.function.UserAccesControlViewToAccessControlFunction;
 import com.ditrit.letomodelizerapi.persistence.function.UserAccesControlViewToUserFunction;
+import com.ditrit.letomodelizerapi.persistence.function.UserAccessControlViewToAccessControlDirectDTOFunction;
 import com.ditrit.letomodelizerapi.persistence.model.AccessControl;
 import com.ditrit.letomodelizerapi.persistence.model.AccessControlTree;
 import com.ditrit.letomodelizerapi.persistence.model.AccessControlTreeView;
@@ -106,7 +106,7 @@ public class AccessControlServiceImpl implements AccessControlService {
     }
 
     @Override
-    public Page<AccessControl> findAll(final AccessControlType type,
+    public Page<AccessControlDirectDTO> findAll(final AccessControlType type,
                                        final User user,
                                        final Map<String, String> immutableFilters,
                                        final Pageable pageable) {
@@ -121,7 +121,7 @@ public class AccessControlServiceImpl implements AccessControlService {
                         pageable.getPageSize(),
                         pageable.getSortOr(Sort.by(Sort.Direction.ASC, "accessControlName"))
                 )
-        ).map(new UserAccesControlViewToAccessControlFunction());
+        ).map(new UserAccessControlViewToAccessControlDirectDTOFunction());
     }
 
     @Override

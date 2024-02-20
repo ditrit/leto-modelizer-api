@@ -51,17 +51,20 @@ public interface AccessControlService {
                                                  Pageable pageable);
 
     /**
-     * Finds and returns a paginated list of AccessControl entities of a specific type associated with a given User,
-     * filtered by provided criteria. This method allows for retrieving AccessControl entities linked to a specific
-     * user.
+     * Finds and returns a paginated list of AccessControlDirectDTO entities of a specific type associated with a given
+     * User, filtered by provided criteria. This method allows for retrieving AccessControlDirectDTO entities linked to
+     * a specific user.
      *
      * @param type     the AccessControlType to filter the AccessControl entities
      * @param user     the User object associated with the AccessControl entities
      * @param filters  a Map of strings representing the filtering criteria
      * @param pageable a Pageable object for pagination information
-     * @return a Page of AccessControl entities matching the specified type, user, and filters
+     * @return a Page of AccessControlDirectDTO entities matching the specified type, user, and filters
      */
-    Page<AccessControl> findAll(AccessControlType type, User user, Map<String, String> filters, Pageable pageable);
+    Page<AccessControlDirectDTO> findAll(AccessControlType type,
+                                         User user, Map<String,
+                                         String> filters,
+                                         Pageable pageable);
 
     /**
      * Finds and returns a paginated list of Users associated with a specific AccessControl entity, filtered by

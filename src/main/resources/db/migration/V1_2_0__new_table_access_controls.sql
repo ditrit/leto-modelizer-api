@@ -18,8 +18,8 @@ COMMENT ON COLUMN access_controls.insert_date IS 'Creation date of this row.';
 COMMENT ON COLUMN access_controls.update_date IS 'Last update date of this row.';
 
 INSERT INTO access_controls(aco_id, name, type) VALUES
-(1, 'Super administrator', 'ROLE'),
-(2, 'Administrator', 'ROLE'),
-(3, 'Developer', 'ROLE');
+(1, 'SUPER_ADMINISTRATOR', 'ROLE'),
+(2, 'ADMINISTRATOR', 'ROLE'),
+(3, 'DEVELOPER', 'ROLE');
 
 ALTER SEQUENCE access_controls_aco_id_seq RESTART WITH 4;

@@ -3,6 +3,7 @@ package com.ditrit.letomodelizerapi.controller;
 import com.ditrit.letomodelizerapi.controller.model.QueryFilter;
 import com.ditrit.letomodelizerapi.model.BeanMapper;
 import com.ditrit.letomodelizerapi.model.accesscontrol.AccessControlDTO;
+import com.ditrit.letomodelizerapi.model.accesscontrol.AccessControlDirectDTO;
 import com.ditrit.letomodelizerapi.model.accesscontrol.AccessControlType;
 import com.ditrit.letomodelizerapi.model.user.UserDTO;
 import com.ditrit.letomodelizerapi.persistence.model.User;
@@ -182,9 +183,8 @@ public class UserController implements DefaultController {
         log.info("Received GET request to get roles of user {} with the following filters: {}", login, filters);
 
         User user = userService.findByLogin(login);
-        Page<AccessControlDTO> resources = accessControlService
-                .findAll(AccessControlType.ROLE, user, filters, queryFilter.getPagination())
-                .map(new BeanMapper<>(AccessControlDTO.class));
+        Page<AccessControlDirectDTO> resources = accessControlService
+                .findAll(AccessControlType.ROLE, user, filters, queryFilter.getPagination());
 
         return Response.status(this.getStatus(resources)).entity(resources).build();
     }

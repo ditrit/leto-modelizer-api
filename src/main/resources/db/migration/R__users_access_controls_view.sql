@@ -7,13 +7,15 @@ CREATE VIEW users_access_controls_view AS
 WITH RECURSIVE all_access_controls AS (
     SELECT
         aco_id,
-        usr_id
+        usr_id,
+        FALSE as "direct"
     FROM
         users_access_controls
     UNION
     SELECT
         parent,
-        usr_id
+        usr_id,
+        all_access_controls.aco_id = access_controls_tree.current as "direct"
     FROM
         access_controls_tree
     INNER JOIN
@@ -29,7 +31,8 @@ SELECT DISTINCT
     users.name as "user_name",
     access_controls.aco_id,
     access_controls.name as "access_control_name",
-    access_controls.type::text
+    access_controls.type::text,
+    not all_access_controls.direct as "direct"
 FROM
     all_access_controls
 LEFT OUTER JOIN

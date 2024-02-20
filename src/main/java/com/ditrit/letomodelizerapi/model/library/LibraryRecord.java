@@ -12,5 +12,6 @@ import jakarta.validation.constraints.Pattern;
 public record LibraryRecord(
         @Pattern(regexp = ".+/index\\.json$")
         String url,
+        @Pattern(regexp = "^([A-Z0-9][A-Z0-9_-]+[A-Z0-9])?$")
         String role) {
 }

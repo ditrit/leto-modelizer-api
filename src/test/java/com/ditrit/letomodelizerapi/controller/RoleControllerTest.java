@@ -3,6 +3,8 @@ package com.ditrit.letomodelizerapi.controller;
 import com.ditrit.letomodelizerapi.controller.model.QueryFilter;
 import com.ditrit.letomodelizerapi.helper.MockHelper;
 import com.ditrit.letomodelizerapi.model.accesscontrol.AccessControlRecord;
+import com.ditrit.letomodelizerapi.model.error.ApiException;
+import com.ditrit.letomodelizerapi.model.error.ErrorType;
 import com.ditrit.letomodelizerapi.persistence.model.AccessControl;
 import com.ditrit.letomodelizerapi.persistence.model.Permission;
 import com.ditrit.letomodelizerapi.service.AccessControlPermissionService;
@@ -113,7 +115,7 @@ class RoleControllerTest extends MockHelper {
                 .thenReturn(session);
         Mockito.doNothing().when(userPermissionService).checkIsAdmin(Mockito.any(), Mockito.any());
         Mockito.when(this.accessControlService.update(Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(new AccessControl());
-        final Response response = this.controller.updateRole(request, 1L, new AccessControlRecord("test"));
+        final Response response = this.controller.updateRole(request, 2L, new AccessControlRecord("test"));
 
         assertNotNull(response);
         assertEquals(HttpStatus.OK.value(), response.getStatus());
@@ -130,7 +132,7 @@ class RoleControllerTest extends MockHelper {
                 .thenReturn(session);
         Mockito.doNothing().when(userPermissionService).checkIsAdmin(Mockito.any(), Mockito.any());
         Mockito.doNothing().when(this.accessControlService).delete(Mockito.any(), Mockito.any());
-        final Response response = this.controller.deleteRole(request, 1L);
+        final Response response = this.controller.deleteRole(request, 2L);
 
         assertNotNull(response);
         assertEquals(HttpStatus.NO_CONTENT.value(), response.getStatus());
@@ -146,7 +148,7 @@ class RoleControllerTest extends MockHelper {
                 .thenReturn(session);
         Mockito.doNothing().when(userPermissionService).checkIsAdmin(Mockito.any(), Mockito.any());
         Mockito.when(this.accessControlService.findAllUsers(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(Page.empty());
-        final Response response = this.controller.getUsersByRole(request, 1l, mockUriInfo(), new QueryFilter());
+        final Response response = this.controller.getUsersByRole(request, 2l, mockUriInfo(), new QueryFilter());
 
         assertNotNull(response);
         assertEquals(HttpStatus.OK.value(), response.getStatus());
@@ -163,7 +165,7 @@ class RoleControllerTest extends MockHelper {
                 .thenReturn(session);
         Mockito.doNothing().when(userPermissionService).checkIsAdmin(Mockito.any(), Mockito.any());
         Mockito.doNothing().when(this.accessControlService).associateUser(Mockito.any(), Mockito.any(), Mockito.any());
-        final Response response = this.controller.associateUser(request, 1l, "login");
+        final Response response = this.controller.associateUser(request, 2l, "login");
 
         assertNotNull(response);
         assertEquals(HttpStatus.CREATED.value(), response.getStatus());
@@ -180,7 +182,7 @@ class RoleControllerTest extends MockHelper {
                 .thenReturn(session);
         Mockito.doNothing().when(userPermissionService).checkIsAdmin(Mockito.any(), Mockito.any());
         Mockito.doNothing().when(this.accessControlService).dissociateUser(Mockito.any(), Mockito.any(), Mockito.any());
-        final Response response = this.controller.dissociateUser(request, 1L, "login");
+        final Response response = this.controller.dissociateUser(request, 2L, "login");
 
         assertNotNull(response);
         assertEquals(HttpStatus.NO_CONTENT.value(), response.getStatus());
@@ -196,7 +198,7 @@ class RoleControllerTest extends MockHelper {
                 .thenReturn(session);
         Mockito.doNothing().when(userPermissionService).checkIsAdmin(Mockito.any(), Mockito.any());
         Mockito.when(this.accessControlService.findAllAccessControls(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(Page.empty());
-        final Response response = this.controller.getSubRolesOfRole(request, 1l, mockUriInfo(), new QueryFilter());
+        final Response response = this.controller.getSubRolesOfRole(request, 2l, mockUriInfo(), new QueryFilter());
 
         assertNotNull(response);
         assertEquals(HttpStatus.OK.value(), response.getStatus());
@@ -213,7 +215,7 @@ class RoleControllerTest extends MockHelper {
                 .thenReturn(session);
         Mockito.doNothing().when(userPermissionService).checkIsAdmin(Mockito.any(), Mockito.any());
         Mockito.doNothing().when(this.accessControlService).associate(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any());
-        final Response response = this.controller.associate(request, 1l, 2l);
+        final Response response = this.controller.associate(request, 2l, 3l);
 
         assertNotNull(response);
         assertEquals(HttpStatus.CREATED.value(), response.getStatus());
@@ -230,7 +232,7 @@ class RoleControllerTest extends MockHelper {
                 .thenReturn(session);
         Mockito.doNothing().when(userPermissionService).checkIsAdmin(Mockito.any(), Mockito.any());
         Mockito.doNothing().when(this.accessControlService).dissociate(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any());
-        final Response response = this.controller.dissociate(request, 1L, 2l);
+        final Response response = this.controller.dissociate(request, 2l, 3l);
 
         assertNotNull(response);
         assertEquals(HttpStatus.NO_CONTENT.value(), response.getStatus());
@@ -246,7 +248,7 @@ class RoleControllerTest extends MockHelper {
                 .thenReturn(session);
         Mockito.doNothing().when(userPermissionService).checkIsAdmin(Mockito.any(), Mockito.any());
         Mockito.when(this.accessControlService.findAllChildren(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(Page.empty());
-        final Response response = this.controller.getGroupsOfRole(request, 1l, mockUriInfo(), new QueryFilter());
+        final Response response = this.controller.getGroupsOfRole(request, 2l, mockUriInfo(), new QueryFilter());
 
         assertNotNull(response);
         assertEquals(HttpStatus.OK.value(), response.getStatus());
@@ -263,7 +265,7 @@ class RoleControllerTest extends MockHelper {
                 .thenReturn(session);
         Mockito.doNothing().when(userPermissionService).checkIsAdmin(Mockito.any(), Mockito.any());
         Mockito.doNothing().when(this.accessControlService).associate(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any());
-        final Response response = this.controller.associateGroup(request, 1l, 2l);
+        final Response response = this.controller.associateGroup(request, 2l, 2l);
 
         assertNotNull(response);
         assertEquals(HttpStatus.CREATED.value(), response.getStatus());
@@ -280,7 +282,7 @@ class RoleControllerTest extends MockHelper {
                 .thenReturn(session);
         Mockito.doNothing().when(userPermissionService).checkIsAdmin(Mockito.any(), Mockito.any());
         Mockito.doNothing().when(this.accessControlService).dissociate(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any());
-        final Response response = this.controller.dissociateGroup(request, 1L, 2l);
+        final Response response = this.controller.dissociateGroup(request, 2L, 3l);
 
         assertNotNull(response);
         assertEquals(HttpStatus.NO_CONTENT.value(), response.getStatus());
@@ -301,7 +303,7 @@ class RoleControllerTest extends MockHelper {
         Mockito
                 .when(this.accessControlPermissionService.findAll(Mockito.any(), Mockito.any(), Mockito.any()))
                 .thenReturn(Page.empty());
-        final Response response = this.controller.getPermissionsOfRole(request, 1l, mockUriInfo(), new QueryFilter());
+        final Response response = this.controller.getPermissionsOfRole(request, 2l, mockUriInfo(), new QueryFilter());
 
         assertNotNull(response);
         assertEquals(HttpStatus.OK.value(), response.getStatus());
@@ -324,7 +326,7 @@ class RoleControllerTest extends MockHelper {
                 .when(this.permissionService.findById(Mockito.any()))
                 .thenReturn(new Permission());
         Mockito.doNothing().when(this.accessControlPermissionService).associate(Mockito.any(), Mockito.any());
-        final Response response = this.controller.associatePermission(request, 1l, 2l);
+        final Response response = this.controller.associatePermission(request, 2l, 3l);
 
         assertNotNull(response);
         assertEquals(HttpStatus.CREATED.value(), response.getStatus());
@@ -347,9 +349,41 @@ class RoleControllerTest extends MockHelper {
                 .when(this.permissionService.findById(Mockito.any()))
                 .thenReturn(new Permission());
         Mockito.doNothing().when(this.accessControlPermissionService).dissociate(Mockito.any(), Mockito.any());
-        final Response response = this.controller.dissociatePermission(request, 1L, 2l);
+        final Response response = this.controller.dissociatePermission(request, 2L, 3l);
 
         assertNotNull(response);
         assertEquals(HttpStatus.NO_CONTENT.value(), response.getStatus());
+    }
+
+    @Test
+    @DisplayName("Test checkSuperAdmin: should do nothing on valid id")
+    void testCheckSuperAdmin() {
+        ApiException exception = null;
+
+        try {
+            controller.checkSuperAdmin(2L);
+        } catch (ApiException e) {
+            exception = e;
+        }
+
+        assertNull(exception);
+    }
+
+    @Test
+    @DisplayName("Test checkSuperAdmin: should throw an error on invalid id")
+    void testCheckSuperAdminThrowError() {
+        ApiException exception = null;
+
+        try {
+            controller.checkSuperAdmin(1L);
+        } catch (ApiException e) {
+            exception = e;
+        }
+
+        assertNotNull(exception);
+        assertEquals(ErrorType.WRONG_VALUE.getStatus(), exception.getStatus());
+        assertEquals(ErrorType.WRONG_VALUE.getMessage(), exception.getMessage());
+        assertEquals("id", exception.getError().getField());
+        assertEquals("1", exception.getError().getValue());
     }
 }

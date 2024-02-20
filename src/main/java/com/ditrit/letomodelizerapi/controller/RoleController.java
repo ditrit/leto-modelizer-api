@@ -1,11 +1,14 @@
 package com.ditrit.letomodelizerapi.controller;
 
+import com.ditrit.letomodelizerapi.config.Constants;
 import com.ditrit.letomodelizerapi.controller.model.QueryFilter;
 import com.ditrit.letomodelizerapi.model.BeanMapper;
 import com.ditrit.letomodelizerapi.model.accesscontrol.AccessControlDTO;
 import com.ditrit.letomodelizerapi.model.accesscontrol.AccessControlDirectDTO;
 import com.ditrit.letomodelizerapi.model.accesscontrol.AccessControlRecord;
 import com.ditrit.letomodelizerapi.model.accesscontrol.AccessControlType;
+import com.ditrit.letomodelizerapi.model.error.ApiException;
+import com.ditrit.letomodelizerapi.model.error.ErrorType;
 import com.ditrit.letomodelizerapi.model.permission.PermissionDirectDTO;
 import com.ditrit.letomodelizerapi.model.user.UserDTO;
 import com.ditrit.letomodelizerapi.persistence.model.AccessControl;
@@ -170,6 +173,7 @@ public class RoleController implements DefaultController {
         HttpSession session = request.getSession();
         User user = userService.getFromSession(session);
         userPermissionService.checkIsAdmin(user, null);
+        checkSuperAdmin(id);
 
         log.info("Received PUT request to update a role with id {} with {}", id, accessControlRecord);
         AccessControlDTO accessControlDTO = new BeanMapper<>(AccessControlDTO.class)
@@ -193,6 +197,7 @@ public class RoleController implements DefaultController {
         HttpSession session = request.getSession();
         User user = userService.getFromSession(session);
         userPermissionService.checkIsAdmin(user, null);
+        checkSuperAdmin(id);
 
         log.info("Received DELETE request to delete role with id {}", id);
         accessControlService.delete(AccessControlType.ROLE, id);
@@ -336,6 +341,7 @@ public class RoleController implements DefaultController {
         HttpSession session = request.getSession();
         User user = userService.getFromSession(session);
         userPermissionService.checkIsAdmin(user, null);
+        checkSuperAdmin(id);
 
         log.info("Received POST request to associate role {} with role {}", id, roleId);
         accessControlService.associate(AccessControlType.ROLE, id, AccessControlType.ROLE, roleId);
@@ -366,6 +372,7 @@ public class RoleController implements DefaultController {
         HttpSession session = request.getSession();
         User user = userService.getFromSession(session);
         userPermissionService.checkIsAdmin(user, null);
+        checkSuperAdmin(id);
 
         log.info("Received DELETE request to dissociate role {} with role {}", id, roleId);
         accessControlService.dissociate(AccessControlType.ROLE, id, AccessControlType.ROLE, roleId);
@@ -434,6 +441,7 @@ public class RoleController implements DefaultController {
         HttpSession session = request.getSession();
         User user = userService.getFromSession(session);
         userPermissionService.checkIsAdmin(user, null);
+        checkSuperAdmin(id);
 
         log.info("Received POST request to associate role {} with group {}", id, groupId);
         accessControlService.associate(AccessControlType.ROLE, id, AccessControlType.GROUP, groupId);
@@ -462,6 +470,7 @@ public class RoleController implements DefaultController {
         HttpSession session = request.getSession();
         User user = userService.getFromSession(session);
         userPermissionService.checkIsAdmin(user, null);
+        checkSuperAdmin(id);
 
         log.info("Received DELETE request to dissociate role {} with group {}", id, groupId);
         accessControlService.dissociate(AccessControlType.ROLE, id, AccessControlType.GROUP, groupId);
@@ -536,6 +545,7 @@ public class RoleController implements DefaultController {
         HttpSession session = request.getSession();
         User user = userService.getFromSession(session);
         userPermissionService.checkIsAdmin(user, null);
+        checkSuperAdmin(id);
 
         log.info("Received POST request to associate role {} with permission {}", id, permissionId);
         AccessControl accessControl = accessControlService.findById(AccessControlType.ROLE, id);
@@ -568,6 +578,7 @@ public class RoleController implements DefaultController {
         HttpSession session = request.getSession();
         User user = userService.getFromSession(session);
         userPermissionService.checkIsAdmin(user, null);
+        checkSuperAdmin(id);
 
         log.info("Received DELETE request to dissociate role {} with permission {}", id, permissionId);
         AccessControl accessControl = accessControlService.findById(AccessControlType.ROLE, id);
@@ -575,5 +586,21 @@ public class RoleController implements DefaultController {
         accessControlPermissionService.dissociate(accessControl.getId(), permission.getId());
 
         return Response.noContent().build();
+    }
+
+    /**
+     * Checks if the provided ID matches the ID of the super administrator role.
+     * This method is designed to enforce a check that prevents operations or actions that should not be allowed
+     * on the super administrator role, based on its unique ID. If the provided ID matches that of the super
+     * administrator, an ApiException is thrown to indicate an incorrect or unauthorized value.
+     *
+     * @param id the ID to check against the super administrator role ID.
+     * @throws ApiException if the provided ID matches the super administrator role ID, indicating an operation
+     *         that is not allowed or is incorrect based on the application's business rules.
+     */
+    public void checkSuperAdmin(final Long id) {
+        if (Constants.SUPER_ADMINISTRATOR_ROLE_ID == id) {
+            throw new ApiException(ErrorType.WRONG_VALUE, "id", id.toString());
+        }
     }
 }
