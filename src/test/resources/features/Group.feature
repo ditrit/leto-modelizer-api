@@ -2,28 +2,28 @@ Feature: group feature
 
   Scenario: Should return 200 on a valid group creation
     Given I initialize the admin user
-    And   I clean group "test"
+    And   I clean group "TEST"
 
     When I request "/groups" with method "POST" with json
       | key  | value |
-      | name | test  |
+      | name | TEST  |
     Then I expect "201" as status code
     And  I expect response fields length is "2"
-    And  I expect response field "name" is "test"
+    And  I expect response field "name" is "TEST"
     And  I expect response field "id" is "NOT_NULL"
 
   Scenario: Should return 400 on a duplicated group creation
     Given I initialize the admin user
-    And   I clean group "test"
+    And   I clean group "TEST"
 
     When I request "/groups" with method "POST" with json
       | key  | value |
-      | name | test  |
+      | name | TEST  |
     Then I expect "201" as status code
 
     When  I request "/groups" with method "POST" with json
       | key  | value |
-      | name | test  |
+      | name | TEST  |
     Then I expect "400" as status code
     And  I expect response fields length is "5"
     And  I expect response field "message" is "Wrong field value."
@@ -34,39 +34,45 @@ Feature: group feature
 
   Scenario: Should return 200 on a valid group update
     Given I initialize the admin user
-    And   I clean group "test"
-    And   I clean group "test2"
+    And   I clean group "TEST"
+    And   I clean group "TEST2"
 
     When I request "/groups" with method "POST" with json
       | key  | value |
-      | name | test  |
+      | name | TEST  |
     Then I expect "201" as status code
     And  I set response field "id" to context "group_id"
 
     When I request "/groups/[group_id]" with method "PUT" with json
       | key  | value |
-      | name | test2 |
+      | name | TEST2 |
     Then I expect "200" as status code
 
     When I request "/groups/[group_id]" with method "GET"
     Then I expect "200" as status code
     And  I expect response fields length is "2"
-    And  I expect response field "name" is "test2"
+    And  I expect response field "name" is "TEST2"
     And  I expect response field "id" is "NOT_NULL"
 
   Scenario: Should return 400 on a duplicated group update
     Given I initialize the admin user
-    And   I clean group "test"
+    And   I clean group "TEST"
+    And   I clean group "TEST2"
 
     When I request "/groups" with method "POST" with json
       | key  | value |
-      | name | test  |
+      | name | TEST  |
     Then I expect "201" as status code
     And  I set response field "id" to context "group_id"
 
+    When I request "/groups" with method "POST" with json
+      | key  | value |
+      | name | TEST2 |
+    Then I expect "201" as status code
+
     When I request "/groups/[group_id]" with method "PUT" with json
-      | key  | value              |
-      | name | Super administrator|
+      | key  | value |
+      | name | TEST2 |
     Then I expect "400" as status code
     And  I expect response fields length is "5"
     And  I expect response field "message" is "Wrong field value."
@@ -77,12 +83,12 @@ Feature: group feature
 
   Scenario: Add group to user and delete association
     Given I initialize the admin user
-    And   I clean group "test"
+    And   I clean group "TEST"
 
     # Create group test
     When I request "/groups" with method "POST" with json
       | key  | value |
-      | name | test  |
+      | name | TEST  |
     Then I expect "201" as status code
     And  I set response field "id" to context "group_id"
 
@@ -116,7 +122,7 @@ Feature: group feature
     Then I expect "200" as status code
     And  I extract resources from response
     And  I expect response resources length is "1"
-    And  I expect one resource contains "name" equals to "test"
+    And  I expect one resource contains "name" equals to "TEST"
 
     # Dissociate current user of group test
     When I request "/groups/[group_id]/users/admin" with method "DELETE"
@@ -136,26 +142,26 @@ Feature: group feature
 
   Scenario: Should add sub group to a group
     Given I initialize the admin user
-    And   I clean group "test_1"
-    And   I clean group "test_2"
-    And   I clean group "test_3"
+    And   I clean group "TEST_1"
+    And   I clean group "TEST_2"
+    And   I clean group "TEST_3"
 
     # Create all groups
     When I request "/groups" with method "POST" with json
       | key  | value  |
-      | name | test_1 |
+      | name | TEST_1 |
     Then I expect "201" as status code
     And  I set response field "id" to context "group_test_1_id"
 
     When I request "/groups" with method "POST" with json
       | key  | value  |
-      | name | test_2 |
+      | name | TEST_2 |
     Then I expect "201" as status code
     And  I set response field "id" to context "group_test_2_id"
 
     When I request "/groups" with method "POST" with json
       | key  | value  |
-      | name | test_3 |
+      | name | TEST_3 |
     Then I expect "201" as status code
     And  I set response field "id" to context "group_test_3_id"
 
@@ -187,7 +193,7 @@ Feature: group feature
     And  I extract resources from response
     And  I expect response resources length is "1"
     And  I expect one resource contains "id" equals to "[group_test_1_id]"
-    And  I expect one resource contains "name" equals to "test_1"
+    And  I expect one resource contains "name" equals to "TEST_1"
     And  I expect one resource contains "isDirect" equals to "true" as "boolean"
 
     When I request "/groups/[group_test_3_id]/groups" with method "GET"
@@ -196,8 +202,8 @@ Feature: group feature
     And  I expect response resources length is "2"
     And  I expect one resource contains "id" equals to "[group_test_1_id]"
     And  I expect one resource contains "id" equals to "[group_test_2_id]"
-    And  I expect one resource contains "name" equals to "test_1"
-    And  I expect one resource contains "name" equals to "test_2"
+    And  I expect one resource contains "name" equals to "TEST_1"
+    And  I expect one resource contains "name" equals to "TEST_2"
     And  I expect one resource contains "isDirect" equals to "true" as "boolean"
     And  I expect one resource contains "isDirect" equals to "false" as "boolean"
 
@@ -224,5 +230,5 @@ Feature: group feature
     And  I extract resources from response
     And  I expect response resources length is "1"
     And  I expect one resource contains "id" equals to "[group_test_2_id]"
-    And  I expect one resource contains "name" equals to "test_2"
+    And  I expect one resource contains "name" equals to "TEST_2"
     And  I expect one resource contains "isDirect" equals to "true" as "boolean"

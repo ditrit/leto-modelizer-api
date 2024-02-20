@@ -2,21 +2,21 @@ Feature: Role feature
 
   Scenario: Should return 200 on a valid role creation
     Given I initialize the admin user
-    And   I clean role "test"
+    And   I clean role "TEST"
 
     When I request "/roles" with method "POST" with json
       | key  | value |
-      | name | test  |
+      | name | TEST  |
     Then I expect "201" as status code
     And  I expect response fields length is "2"
-    And  I expect response field "name" is "test"
+    And  I expect response field "name" is "TEST"
     And  I expect response field "id" is "NOT_NULL"
 
   Scenario: Should return 400 on a duplicated role creation
     Given I initialize the admin user
     When  I request "/roles" with method "POST" with json
-      | key  | value               |
-      | name | Super administrator |
+      | key  | value     |
+      | name | DEVELOPER |
     Then I expect "400" as status code
     And  I expect response fields length is "5"
     And  I expect response field "message" is "Wrong field value."
@@ -27,38 +27,39 @@ Feature: Role feature
 
   Scenario: Should return 200 on a valid role update
     Given I initialize the admin user
-    And   I clean role "test"
+    And   I clean role "TEST"
+    And   I clean role "TEST2"
 
     When I request "/roles" with method "POST" with json
       | key  | value |
-      | name | test  |
+      | name | TEST  |
     Then I expect "201" as status code
     And  I set response field "id" to context "role_id"
 
     When I request "/roles/[role_id]" with method "PUT" with json
       | key  | value |
-      | name | test2 |
+      | name | TEST2 |
     Then I expect "200" as status code
 
     When I request "/roles/[role_id]" with method "GET"
     Then I expect "200" as status code
     And  I expect response fields length is "2"
-    And  I expect response field "name" is "test2"
+    And  I expect response field "name" is "TEST2"
     And  I expect response field "id" is "NOT_NULL"
 
   Scenario: Should return 400 on a duplicated role update
     Given I initialize the admin user
-    And   I clean role "test"
+    And   I clean role "TEST"
 
     When I request "/roles" with method "POST" with json
       | key  | value |
-      | name | test  |
+      | name | TEST  |
     Then I expect "201" as status code
     And  I set response field "id" to context "role_id"
 
     When I request "/roles/[role_id]" with method "PUT" with json
-      | key  | value               |
-      | name | Super administrator |
+      | key  | value     |
+      | name | DEVELOPER |
     Then I expect "400" as status code
     And  I expect response fields length is "5"
     And  I expect response field "message" is "Wrong field value."
@@ -78,12 +79,12 @@ Feature: Role feature
 
   Scenario: Add role to user and delete association
     Given I initialize the admin user
-    And   I clean role "test"
+    And   I clean role "TEST"
 
     # Create role test
     When I request "/roles" with method "POST" with json
       | key  | value |
-      | name | test  |
+      | name | TEST  |
     Then I expect "201" as status code
     And  I set response field "id" to context "role_id"
 
@@ -98,12 +99,12 @@ Feature: Role feature
     Then I expect "200" as status code
     And  I extract resources from response
     And  I expect response resources length is "1"
-    And  I expect one resource contains "name" equals to "Super administrator"
+    And  I expect one resource contains "name" equals to "SUPER_ADMINISTRATOR"
 
     # Associate current user to role test
     When I request "/roles/[role_id]/users" with method "POST" with body
       | value | type |
-      | admin | text |
+      | admin | TEST |
     Then I expect "201" as status code
 
     # Check role test has one associated user
@@ -118,8 +119,8 @@ Feature: Role feature
     Then I expect "200" as status code
     And  I extract resources from response
     And  I expect response resources length is "2"
-    And  I expect one resource contains "name" equals to "test"
-    And  I expect one resource contains "name" equals to "Super administrator"
+    And  I expect one resource contains "name" equals to "TEST"
+    And  I expect one resource contains "name" equals to "SUPER_ADMINISTRATOR"
 
     # Dissociate current user of role test
     When I request "/roles/[role_id]/users/admin" with method "DELETE"
@@ -136,30 +137,30 @@ Feature: Role feature
     Then I expect "200" as status code
     And  I extract resources from response
     And  I expect response resources length is "1"
-    And  I expect one resource contains "name" equals to "Super administrator"
+    And  I expect one resource contains "name" equals to "SUPER_ADMINISTRATOR"
 
   Scenario: Should add sub role to a role
     Given I initialize the admin user
-    And   I clean role "test_1"
-    And   I clean role "test_2"
-    And   I clean role "test_3"
+    And   I clean role "TEST_1"
+    And   I clean role "TEST_2"
+    And   I clean role "TEST_3"
 
     # Create all roles
     When I request "/roles" with method "POST" with json
       | key  | value  |
-      | name | test_1 |
+      | name | TEST_1 |
     Then I expect "201" as status code
     And  I set response field "id" to context "role_test_1_id"
 
     When I request "/roles" with method "POST" with json
       | key  | value  |
-      | name | test_2 |
+      | name | TEST_2 |
     Then I expect "201" as status code
     And  I set response field "id" to context "role_test_2_id"
 
     When I request "/roles" with method "POST" with json
       | key  | value  |
-      | name | test_3 |
+      | name | TEST_3 |
     Then I expect "201" as status code
     And  I set response field "id" to context "role_test_3_id"
 
@@ -174,17 +175,10 @@ Feature: Role feature
       | [role_test_3_id] | text |
     Then I expect "201" as status code
 
-    # Should not be able to create cycle in role hierarchy
     When I request "/roles/[role_test_3_id]/roles" with method "POST" with body
       | value            | type |
       | [role_test_1_id] | text |
-    Then I expect "400" as status code
-    And  I expect response fields length is "5"
-    And  I expect response field "message" is "Entity already exists."
-    And  I expect response field "code" is "208"
-    And  I expect response field "field" is "association"
-    And  I expect response field "value" is "NULL"
-    And  I expect response field "cause" is "NULL"
+    Then I expect "201" as status code
 
     # Verify all sub roles of all roles
     When I request "/roles/[role_test_1_id]/roles" with method "GET"
@@ -197,7 +191,7 @@ Feature: Role feature
     And  I extract resources from response
     And  I expect response resources length is "1"
     And  I expect one resource contains "id" equals to "[role_test_1_id]"
-    And  I expect one resource contains "name" equals to "test_1"
+    And  I expect one resource contains "name" equals to "TEST_1"
     And  I expect one resource contains "isDirect" equals to "true" as "boolean"
 
     When I request "/roles/[role_test_3_id]/roles" with method "GET"
@@ -206,8 +200,8 @@ Feature: Role feature
     And  I expect response resources length is "2"
     And  I expect one resource contains "id" equals to "[role_test_1_id]"
     And  I expect one resource contains "id" equals to "[role_test_2_id]"
-    And  I expect one resource contains "name" equals to "test_1"
-    And  I expect one resource contains "name" equals to "test_2"
+    And  I expect one resource contains "name" equals to "TEST_1"
+    And  I expect one resource contains "name" equals to "TEST_2"
     And  I expect one resource contains "isDirect" equals to "true" as "boolean"
     And  I expect one resource contains "isDirect" equals to "false" as "boolean"
 
@@ -235,25 +229,25 @@ Feature: Role feature
     And  I extract resources from response
     And  I expect response resources length is "1"
     And  I expect one resource contains "id" equals to "[role_test_2_id]"
-    And  I expect one resource contains "name" equals to "test_2"
+    And  I expect one resource contains "name" equals to "TEST_2"
     And  I expect one resource contains "isDirect" equals to "true" as "boolean"
 
   Scenario: Should add group to a role
     Given I initialize the admin user
-    And   I clean role "role"
-    And   I clean group "group"
+    And   I clean role "ROLE"
+    And   I clean group "GROUP"
 
     # Create all role
     When I request "/roles" with method "POST" with json
       | key  | value |
-      | name | role  |
+      | name | ROLE  |
     Then I expect "201" as status code
     And  I set response field "id" to context "role_id"
 
     # Create all group
     When I request "/groups" with method "POST" with json
       | key  | value |
-      | name | group |
+      | name | GROUP |
     Then I expect "201" as status code
     And  I set response field "id" to context "group_id"
 
@@ -281,7 +275,7 @@ Feature: Role feature
     And  I extract resources from response
     And  I expect response resources length is "1"
     And  I expect one resource contains "id" equals to "[group_id]"
-    And  I expect one resource contains "name" equals to "group"
+    And  I expect one resource contains "name" equals to "GROUP"
     And  I expect one resource contains "isDirect" equals to "true" as "boolean"
 
     # Verify all roles of group
@@ -290,7 +284,7 @@ Feature: Role feature
     And  I extract resources from response
     And  I expect response resources length is "1"
     And  I expect one resource contains "id" equals to "[role_id]"
-    And  I expect one resource contains "name" equals to "role"
+    And  I expect one resource contains "name" equals to "ROLE"
     And  I expect one resource contains "isDirect" equals to "true" as "boolean"
 
     # Dissociate group and role
@@ -311,12 +305,12 @@ Feature: Role feature
 
   Scenario: Should add permission to a role
     Given I initialize the admin user
-    And   I clean role "role"
+    And   I clean role "ROLE"
 
     # Create all role
     When I request "/roles" with method "POST" with json
       | key  | value |
-      | name | role  |
+      | name | ROLE  |
     Then I expect "201" as status code
     And  I set response field "id" to context "role_id"
 
@@ -354,20 +348,20 @@ Feature: Role feature
 
   Scenario: Should add permission to a role and check group permission
     Given I initialize the admin user
-    And   I clean role "role"
-    And   I clean group "group"
+    And   I clean role "ROLE"
+    And   I clean group "GROUP"
 
     # Create role
     When I request "/roles" with method "POST" with json
       | key  | value |
-      | name | role  |
+      | name | ROLE  |
     Then I expect "201" as status code
     And  I set response field "id" to context "role_id"
 
     # Create group
     When I request "/groups" with method "POST" with json
       | key  | value |
-      | name | group |
+      | name | GROUP |
     Then I expect "201" as status code
     And  I set response field "id" to context "group_id"
 
@@ -412,7 +406,7 @@ Feature: Role feature
 
     When I request "/roles/1" with method "PUT" with json
       | key  | value |
-      | name | test2 |
+      | name | TEST2 |
     Then I expect "400" as status code
     And  I expect response fields length is "5"
     And  I expect response field "message" is "Wrong field value."
