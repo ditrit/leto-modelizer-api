@@ -1,5 +1,6 @@
 package com.ditrit.letomodelizerapi.controller;
 
+import jakarta.ws.rs.core.CacheControl;
 import jakarta.ws.rs.core.UriInfo;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
@@ -44,5 +45,28 @@ public interface DefaultController {
             return HttpStatus.PARTIAL_CONTENT.value();
         }
         return HttpStatus.OK.value();
+    }
+
+    /**
+     * Generates a CacheControl object configured with specific caching strategies based on the provided maximum age.
+     * This method sets up caching policies that are suitable for content that can be cached privately by user agents
+     * but must be revalidated once the max age expires. It allows for a balance between efficient caching and ensuring
+     * that users receive the most up-to-date content when necessary.
+     *
+     * @param maxAge the maximum age, in seconds, that the content should be considered fresh. After this period,
+     *               caches must check back with the origin server to confirm that the content is still current.
+     * @return a CacheControl object configured with the specified maximum age and additional caching strategies,
+     *         including setting the response to be private, enabling must-revalidate, and disabling no-cache and
+     *         no-store.
+     */
+    default CacheControl getCacheControl(String maxAge) {
+        CacheControl cacheControl = new CacheControl();
+        cacheControl.setNoCache(false);
+        cacheControl.setNoStore(false);
+        cacheControl.setPrivate(true);
+        cacheControl.setMustRevalidate(true);
+        cacheControl.setMaxAge(Integer.valueOf(maxAge));
+
+        return cacheControl;
     }
 }

@@ -52,8 +52,11 @@ import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Implementation of the PermissionService interface.
@@ -67,6 +70,10 @@ import java.util.Map;
 @Transactional
 public class LibraryServiceImpl implements LibraryService {
 
+    /**
+     * Format string for constructing URLs.
+     */
+    private static final String URL_FORMAT = "%s%s%s";
     /**
      * The LibraryRepository instance is injected by Spring's dependency injection mechanism.
      * This repository is used for performing database operations related to Library entities, such as querying,
@@ -229,8 +236,6 @@ public class LibraryServiceImpl implements LibraryService {
      * @param id the optional ID of the library to update; if null, a new library entity is created
      * @return the saved or updated Library entity
      * @throws JsonProcessingException if there is an error reading the JSON data into a JsonNode
-     * Note: JsonProcessingException is mentioned in the method signature for clarity, but as noted, it cannot actually
-     * be thrown due to prior validation of the JSON data.
      */
     Library save(final String url, final Long id) throws JsonProcessingException {
         String libraryValue = downloadLibrary(String.format("%sindex.json", url));
@@ -330,9 +335,11 @@ public class LibraryServiceImpl implements LibraryService {
     }
 
     @Override
-    public Page<Library> findAll(final User user, final Map<String, String> filters, final Pageable pageable) {
-        return userLibraryViewRepository.findAllByUserId(
-                user.getId(),
+    public Page<Library> findAll(final User user, final Map<String, String> immutableFilters, final Pageable pageable) {
+        Map<String, String> filters = new HashMap<>(immutableFilters);
+        filters.put("userId", user.getId().toString());
+
+        return userLibraryViewRepository.findAll(
                 new SpecificationHelper<>(UserLibraryView.class, filters),
                 PageRequest.of(pageable.getPageNumber(), pageable.getPageSize())
         ).map(new UserLibraryViewToLibraryFunction());
@@ -355,5 +362,135 @@ public class LibraryServiceImpl implements LibraryService {
                 new SpecificationHelper<>(UserLibraryTemplateView.class, filters),
                 PageRequest.of(pageable.getPageNumber(), pageable.getPageSize())
         ).map(new UserLibraryTemplateViewToLibraryTemplateFunction());
+    }
+
+    @Override
+    public LibraryTemplate getTemplateById(final Long id) {
+        return libraryTemplateRepository.findById(id)
+                .orElseThrow(() -> new ApiException(ErrorType.ENTITY_NOT_FOUND, "id", id.toString()));
+    }
+
+    @Override
+    public HttpResponse<byte[]> getIcon(final Long id) {
+        Library library = findById(id);
+
+        if (library.getIcon() == null) {
+            throw new ApiException(ErrorType.EMPTY_VALUE, "icon");
+        }
+
+        return downloadLibraryFile(String.format("%s%s", library.getUrl(), library.getIcon()), library.getIcon());
+    }
+
+    @Override
+    public HttpResponse<byte[]> getTemplateIcon(final LibraryTemplate libraryTemplate) {
+        if (libraryTemplate.getIcon() == null) {
+            throw new ApiException(ErrorType.EMPTY_VALUE, "icon");
+        }
+
+        Library library = findById(libraryTemplate.getLibraryId());
+        String url = String.format(
+                URL_FORMAT,
+                library.getUrl(),
+                libraryTemplate.getBasePath(),
+                libraryTemplate.getIcon()
+        );
+
+        return downloadLibraryFile(url, libraryTemplate.getIcon());
+    }
+
+    @Override
+    public HttpResponse<byte[]> getTemplateSchema(final LibraryTemplate libraryTemplate, final Long index) {
+        if (libraryTemplate.getSchemas().size() <= index) {
+            throw new ApiException(ErrorType.WRONG_VALUE, "index", index.toString());
+        }
+
+        Library library = findById(libraryTemplate.getLibraryId());
+        String schema = libraryTemplate.getSchemas().get(index.intValue());
+        String url = String.format(
+                URL_FORMAT,
+                library.getUrl(),
+                libraryTemplate.getBasePath(),
+                schema
+        );
+        return downloadLibraryFile(url, schema);
+    }
+
+    @Override
+    public HttpResponse<byte[]> getTemplateFile(final LibraryTemplate libraryTemplate, final Long index) {
+        if (libraryTemplate.getFiles().size() <= index) {
+            throw new ApiException(ErrorType.WRONG_VALUE, "index", index.toString());
+        }
+
+        Library library = findById(libraryTemplate.getLibraryId());
+        String file = libraryTemplate.getFiles().get(index.intValue());
+        String url = String.format(
+                URL_FORMAT,
+                library.getUrl(),
+                libraryTemplate.getBasePath(),
+                file
+        );
+        return downloadLibraryFile(url, file);
+    }
+
+    /**
+     * Downloads a file from the specified URL and returns the file content as a byte array wrapped in an HttpResponse.
+     * This method sends an HTTP GET request to the given URL to download the file. It handles HTTP responses that are
+     * not in the 2xx success range by throwing an ApiException with a specific error type related to library file
+     * download errors.
+     * If the method encounters any issues with the URI syntax, IO exceptions, or is interrupted during the operation,
+     * it similarly throws an ApiException with details of the error.
+     *
+     * @param url the URL from which the file is to be downloaded.
+     * @param file the name of the file being downloaded, used for error reporting purposes.
+     * @return an HttpResponse object containing the byte array of the downloaded file.
+     * @throws ApiException if there is an error during the download process, including non-success HTTP response codes,
+     *         URI syntax errors, IO exceptions, or if the thread is interrupted.
+     */
+    public HttpResponse<byte[]> downloadLibraryFile(final String url, final String file) {
+        try {
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(new URI(url))
+                    .GET()
+                    .build();
+
+            HttpResponse<byte[]> response = HttpClient
+                    .newBuilder()
+                    .build()
+                    .send(request, HttpResponse.BodyHandlers.ofByteArray());
+
+            if (!HttpStatus.valueOf(response.statusCode()).is2xxSuccessful()) {
+                throw new ApiException(ErrorType.LIBRARY_FILE_DOWNLOAD_ERROR, "file", file);
+            }
+
+            return response;
+        } catch (URISyntaxException | IOException e) {
+            throw new ApiException(ErrorType.LIBRARY_FILE_DOWNLOAD_ERROR, "file", file);
+        } catch (InterruptedException e) {
+            log.warn("InterruptedException during library file download with {}", url, e);
+            Thread.currentThread().interrupt();
+            throw new ApiException(ErrorType.LIBRARY_FILE_DOWNLOAD_ERROR, "file", file);
+        }
+    }
+
+    @Override
+    public String getFileName(final boolean isSchema, final LibraryTemplate libraryTemplate, final Long index) {
+        String filePath;
+
+        if (isSchema) {
+            filePath = libraryTemplate.getSchemas().get(index.intValue());
+        } else {
+            filePath = libraryTemplate.getFiles().get(index.intValue());
+        }
+
+        Pattern pattern = Pattern.compile("([^/]+)");
+        Matcher matcher = pattern.matcher(filePath);
+
+        String fileName = filePath;
+
+        while (matcher.find()) {
+            fileName = matcher.group();
+        }
+
+        return fileName;
     }
 }

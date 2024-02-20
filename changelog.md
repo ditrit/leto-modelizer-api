@@ -58,8 +58,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   * For all libraries:
     * `GET    /api/libraries`, to get all libraries.
     * `POST   /api/libraries`, to create a libraries.
+    * `GET    /api/libraries/[LIBRARY_ID]`, to get a library by id.
     * `PUT    /api/libraries/[LIBRARY_ID]`, to update a library.
     * `DELETE /api/libraries/[LIBRARY_ID]`, to delete a library.
+    * `GET    /api/libraries/[LIBRARY_ID]/icon`, to get icon of library.
+    * `GET    /api/libraries/[LIBRARY_ID]/templates`, to get all templates of library.
     * `GET    /api/libraries/templates`, to get all templates.
+    * `GET    /api/libraries/templates/[TEMPLATE_ID]`, to get a template by id.
+    * `GET    /api/libraries/templates/[TEMPLATE_ID]/icon`, to get icon of template.
+    * `GET    /api/libraries/templates/[TEMPLATE_ID]/schemas/[INDEX]`, to get schema of template.
+    * `GET    /api/libraries/templates/[TEMPLATE_ID]/files/[INDEX]`, to get file of template.
   * `/api/login`, to login.
   * `/api/redirect`, to redirect with token on leto-modelizer/leto-modelizer-admin.

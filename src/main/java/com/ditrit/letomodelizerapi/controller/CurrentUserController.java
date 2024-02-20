@@ -4,8 +4,8 @@ import com.ditrit.letomodelizerapi.controller.model.QueryFilter;
 import com.ditrit.letomodelizerapi.model.BeanMapper;
 import com.ditrit.letomodelizerapi.model.accesscontrol.AccessControlDTO;
 import com.ditrit.letomodelizerapi.model.accesscontrol.AccessControlType;
-import com.ditrit.letomodelizerapi.model.user.UserDTO;
 import com.ditrit.letomodelizerapi.model.permission.PermissionDTO;
+import com.ditrit.letomodelizerapi.model.user.UserDTO;
 import com.ditrit.letomodelizerapi.persistence.model.User;
 import com.ditrit.letomodelizerapi.service.AccessControlService;
 import com.ditrit.letomodelizerapi.service.UserPermissionService;
@@ -21,8 +21,8 @@ import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.UriInfo;
-import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
@@ -37,7 +37,6 @@ import java.util.Map;
 @Path("/users/me")
 @Produces(MediaType.APPLICATION_JSON)
 @Controller
-@AllArgsConstructor(onConstructor = @__(@Autowired))
 public class CurrentUserController implements DefaultController {
 
     /**
@@ -52,6 +51,41 @@ public class CurrentUserController implements DefaultController {
      * Service to manage access control.
      */
     private AccessControlService accessControlService;
+
+    /**
+     * The maximum age for caching user pictures.
+     * This value is typically specified in application properties and injected into the controller or service
+     * to determine how long user pictures should be cached by clients. It is expressed in a format understood
+     * by HTTP cache control headers, such as seconds.
+     */
+    private String userPictureCacheMaxAge;
+
+    /**
+     * Constructor for CurrentUserController.
+     * Initializes the controller with the necessary services for managing current user information, including user
+     * management, permission checking, and access control. It also sets the configuration for the maximum age of user
+     * picture caching based on the application's properties. This setup allows for effective handling of operations
+     * related to the current user, such as fetching user details, validating permissions, and managing access controls,
+     * while also considering performance optimizations through caching strategies for user pictures.
+     *
+     * @param userService the service responsible for managing user details and operations.
+     * @param userPermissionService the service for checking and validating user permissions.
+     * @param accessControlService the service for managing access controls and security.
+     * @param userPictureCacheMaxAge the configured maximum age for caching user pictures, specified in application
+     *                               properties, indicating how long client browsers should cache user pictures before
+     *                               requesting them again.
+     */
+    @Autowired
+    public CurrentUserController(final UserService userService,
+                                 final UserPermissionService userPermissionService,
+                                 final AccessControlService accessControlService,
+                                 final @Value("${user.picture.cache.max.age}") String userPictureCacheMaxAge) {
+        this.userService = userService;
+        this.userPermissionService = userPermissionService;
+        this.accessControlService = accessControlService;
+        this.userPictureCacheMaxAge = userPictureCacheMaxAge;
+    }
+
 
     /**
      * Endpoint to retrieve all information of current user.
@@ -84,7 +118,7 @@ public class CurrentUserController implements DefaultController {
                 .firstValue("Content-Type")
                 .orElse("application/octet-stream");
 
-        return Response.ok(response.body(), contentType).build();
+        return Response.ok(response.body(), contentType).cacheControl(getCacheControl(userPictureCacheMaxAge)).build();
     }
 
     /**

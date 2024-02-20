@@ -5,6 +5,7 @@ import com.ditrit.letomodelizerapi.model.error.ErrorType;
 import com.ditrit.letomodelizerapi.model.library.LibraryRecord;
 import com.ditrit.letomodelizerapi.persistence.model.AccessControl;
 import com.ditrit.letomodelizerapi.persistence.model.Library;
+import com.ditrit.letomodelizerapi.persistence.model.LibraryTemplate;
 import com.ditrit.letomodelizerapi.persistence.model.User;
 import com.ditrit.letomodelizerapi.persistence.repository.LibraryRepository;
 import com.ditrit.letomodelizerapi.persistence.repository.LibraryTemplateRepository;
@@ -97,6 +98,29 @@ class LibraryServiceImplTest {
 
         requestStatic.when(HttpRequest::newBuilder).thenReturn(requestBuilder);
         clientStatic.when(HttpClient::newBuilder).thenReturn(clientBuilder);
+    }
+
+    HttpResponse<byte[]> mockHttpFile(MockedStatic<HttpRequest> requestStatic, MockedStatic<HttpClient> clientStatic) throws IOException, InterruptedException {
+        HttpResponse<byte[]> expectedResponse = Mockito.mock(HttpResponse.class);
+        HttpClient client = Mockito.mock(HttpClient.class);
+        HttpRequest request = Mockito.mock(HttpRequest.class);
+        HttpClient.Builder clientBuilder = Mockito.mock(HttpClient.Builder.class);
+        HttpRequest.Builder requestBuilder = Mockito.mock(HttpRequest.Builder.class);
+
+        Mockito.when(expectedResponse.statusCode()).thenReturn(HttpStatus.OK.value());
+        Mockito.when(requestBuilder.uri(Mockito.any())).thenReturn(requestBuilder);
+        Mockito.when(requestBuilder.GET()).thenReturn(requestBuilder);
+        Mockito.when(requestBuilder.build()).thenReturn(request);
+
+        HttpResponse.BodyHandler<byte[]> captor = HttpResponse.BodyHandlers.ofByteArray();
+
+        Mockito.when(client.send(Mockito.any(), Mockito.any(captor.getClass()))).thenReturn(expectedResponse);
+        Mockito.when(clientBuilder.build()).thenReturn(client);
+
+        requestStatic.when(HttpRequest::newBuilder).thenReturn(requestBuilder);
+        clientStatic.when(HttpClient::newBuilder).thenReturn(clientBuilder);
+
+        return expectedResponse;
     }
 
     @Test
@@ -202,6 +226,113 @@ class LibraryServiceImplTest {
         assertEquals(ErrorType.WRONG_VALUE.getStatus(), exception.getStatus());
         assertEquals("url", exception.getError().getField());
         assertEquals("test", exception.getError().getValue());
+        Mockito.reset();
+        requestStatic.close();
+        clientStatic.close();
+    }
+
+    @Test
+    @DisplayName("Test downloadLibraryFile: should return valid response")
+    void testDownloadLibraryFile() throws IOException, InterruptedException {
+        MockedStatic<HttpRequest> requestStatic = Mockito.mockStatic(HttpRequest.class);
+        MockedStatic<HttpClient> clientStatic = Mockito.mockStatic(HttpClient.class);
+        HttpResponse<Object> expectedResponse = Mockito.mock(HttpResponse.class);
+        HttpClient client = Mockito.mock(HttpClient.class);
+        HttpRequest request = Mockito.mock(HttpRequest.class);
+        HttpClient.Builder clientBuilder = Mockito.mock(HttpClient.Builder.class);
+        HttpRequest.Builder requestBuilder = Mockito.mock(HttpRequest.Builder.class);
+
+        Mockito.when(expectedResponse.statusCode()).thenReturn(HttpStatus.OK.value());
+        Mockito.when(requestBuilder.uri(Mockito.any())).thenReturn(requestBuilder);
+        Mockito.when(requestBuilder.GET()).thenReturn(requestBuilder);
+        Mockito.when(requestBuilder.build()).thenReturn(request);
+
+        Mockito.when(client.send(Mockito.any(), Mockito.any())).thenReturn(expectedResponse);
+        Mockito.when(clientBuilder.build()).thenReturn(client);
+
+        requestStatic.when(HttpRequest::newBuilder).thenReturn(requestBuilder);
+        clientStatic.when(HttpClient::newBuilder).thenReturn(clientBuilder);
+
+        LibraryServiceImpl service = newInstance("http://localhost:8080/test/");
+
+        assertEquals(expectedResponse, service.downloadLibraryFile("test", "test.svg"));
+
+        Mockito.reset();
+        requestStatic.close();
+        clientStatic.close();
+    }
+
+    @Test
+    @DisplayName("Test downloadLibraryFile: should throw an error on NOT_FOUND error")
+    void testDownloadLibraryFileThrowNotFound() throws IOException, InterruptedException {
+        MockedStatic<HttpRequest> requestStatic = Mockito.mockStatic(HttpRequest.class);
+        MockedStatic<HttpClient> clientStatic = Mockito.mockStatic(HttpClient.class);
+        HttpResponse<Object> expectedResponse = Mockito.mock(HttpResponse.class);
+        HttpClient client = Mockito.mock(HttpClient.class);
+        HttpRequest request = Mockito.mock(HttpRequest.class);
+        HttpClient.Builder clientBuilder = Mockito.mock(HttpClient.Builder.class);
+        HttpRequest.Builder requestBuilder = Mockito.mock(HttpRequest.Builder.class);
+
+        Mockito.when(expectedResponse.statusCode()).thenReturn(HttpStatus.NOT_FOUND.value());
+        Mockito.when(requestBuilder.uri(Mockito.any())).thenReturn(requestBuilder);
+        Mockito.when(requestBuilder.GET()).thenReturn(requestBuilder);
+        Mockito.when(requestBuilder.build()).thenReturn(request);
+
+        Mockito.when(client.send(Mockito.any(), Mockito.any())).thenReturn(expectedResponse);
+        Mockito.when(clientBuilder.build()).thenReturn(client);
+
+        requestStatic.when(HttpRequest::newBuilder).thenReturn(requestBuilder);
+        clientStatic.when(HttpClient::newBuilder).thenReturn(clientBuilder);
+
+        ApiException exception = null;
+
+        try {
+            newInstance("http://localhost:8080/test/").downloadLibraryFile("test", "test.svg");
+        } catch (ApiException e) {
+            exception = e;
+        }
+
+        assertNotNull(exception);
+        assertEquals(ErrorType.LIBRARY_FILE_DOWNLOAD_ERROR.getStatus(), exception.getStatus());
+        assertEquals("file", exception.getError().getField());
+        assertEquals("test.svg", exception.getError().getValue());
+        Mockito.reset();
+        requestStatic.close();
+        clientStatic.close();
+    }
+
+    @Test
+    @DisplayName("Test downloadLibraryFile: should throw an error on ioexception")
+    void testDownloadLibraryFileThrowError() throws IOException, InterruptedException {
+        MockedStatic<HttpRequest> requestStatic = Mockito.mockStatic(HttpRequest.class);
+        MockedStatic<HttpClient> clientStatic = Mockito.mockStatic(HttpClient.class);
+        HttpClient client = Mockito.mock(HttpClient.class);
+        HttpRequest request = Mockito.mock(HttpRequest.class);
+        HttpClient.Builder clientBuilder = Mockito.mock(HttpClient.Builder.class);
+        HttpRequest.Builder requestBuilder = Mockito.mock(HttpRequest.Builder.class);
+
+        Mockito.when(requestBuilder.uri(Mockito.any())).thenReturn(requestBuilder);
+        Mockito.when(requestBuilder.GET()).thenReturn(requestBuilder);
+        Mockito.when(requestBuilder.build()).thenReturn(request);
+
+        Mockito.when(client.send(Mockito.any(), Mockito.any())).thenThrow(new IOException("test"));
+        Mockito.when(clientBuilder.build()).thenReturn(client);
+
+        requestStatic.when(HttpRequest::newBuilder).thenReturn(requestBuilder);
+        clientStatic.when(HttpClient::newBuilder).thenReturn(clientBuilder);
+
+        ApiException exception = null;
+
+        try {
+            newInstance("http://localhost:8080/test/").downloadLibraryFile("test", "test.svg");
+        } catch (ApiException e) {
+            exception = e;
+        }
+
+        assertNotNull(exception);
+        assertEquals(ErrorType.LIBRARY_FILE_DOWNLOAD_ERROR.getStatus(), exception.getStatus());
+        assertEquals("file", exception.getError().getField());
+        assertEquals("test.svg", exception.getError().getValue());
         Mockito.reset();
         requestStatic.close();
         clientStatic.close();
@@ -496,7 +627,7 @@ class LibraryServiceImplTest {
     void testFindAllByUser() {
         LibraryServiceImpl service = newInstance("http://localhost:8080/test/");
 
-        Mockito.when(userLibraryViewRepository.findAllByUserId(Mockito.any(), Mockito.any(Specification.class), Mockito.any())).thenReturn(Page.empty());
+        Mockito.when(userLibraryViewRepository.findAll(Mockito.any(Specification.class), Mockito.any())).thenReturn(Page.empty());
         User user = new User();
         user.setId(1L);
         assertEquals(Page.empty(), service.findAll(user, Map.of(), PageRequest.of(1, 1)));
@@ -521,5 +652,213 @@ class LibraryServiceImplTest {
         User user = new User();
         user.setId(1L);
         assertEquals(Page.empty(), service.findAllTemplates(user, Map.of(), PageRequest.of(1, 1)));
+    }
+
+    @Test
+    @DisplayName("Test getTemplateById: should return library template")
+    void testGetTemplateById() throws IOException {
+        LibraryServiceImpl service = newInstance("http://localhost:8080/test/");
+        LibraryTemplate expectedLibraryTemplate = new LibraryTemplate();
+        expectedLibraryTemplate.setId(1L);
+        Mockito.when(libraryTemplateRepository.findById(1l)).thenReturn(Optional.of(expectedLibraryTemplate));
+
+        assertEquals(expectedLibraryTemplate, service.getTemplateById(1L));
+    }
+
+    @Test
+    @DisplayName("Test getTemplateById: should throw exception")
+    void testGetTemplateByIdError() {
+        LibraryServiceImpl service = newInstance("http://localhost:8080/test/");
+        Mockito.when(libraryTemplateRepository.findById(1l)).thenReturn(Optional.empty());
+        ApiException exception = null;
+
+        try {
+            service.getTemplateById(1l);
+        } catch (ApiException e) {
+            exception = e;
+        }
+
+        assertNotNull(exception);
+        assertEquals(ErrorType.ENTITY_NOT_FOUND.getStatus(), exception.getStatus());
+        assertEquals(ErrorType.ENTITY_NOT_FOUND.getMessage(), exception.getMessage());
+        assertEquals("id", exception.getError().getField());
+        assertEquals("1", exception.getError().getValue());
+    }
+
+    @Test
+    @DisplayName("Test getIcon: should return icon")
+    void testGetIcon() throws IOException, InterruptedException {
+        MockedStatic<HttpRequest> requestStatic = Mockito.mockStatic(HttpRequest.class);
+        MockedStatic<HttpClient> clientStatic = Mockito.mockStatic(HttpClient.class);
+        LibraryServiceImpl service = newInstance("http://localhost:8080/test/");
+        Library library = new Library();
+        library.setId(1L);
+        library.setIcon("icon.svg");
+        Mockito.when(libraryRepository.findById(1l)).thenReturn(Optional.of(library));
+        HttpResponse<byte[]> expectedResponse = mockHttpFile(requestStatic, clientStatic);
+
+        assertEquals(expectedResponse, service.getIcon(1L));
+        Mockito.reset();
+        requestStatic.close();
+        clientStatic.close();
+    }
+
+    @Test
+    @DisplayName("Test getIcon: should throw exception")
+    void testGetIconError() {
+        LibraryServiceImpl service = newInstance("http://localhost:8080/test/");
+        Library library = new Library();
+        Mockito.when(libraryRepository.findById(1l)).thenReturn(Optional.of(library));
+        ApiException exception = null;
+
+        try {
+            service.getIcon(1l);
+        } catch (ApiException e) {
+            exception = e;
+        }
+
+        assertNotNull(exception);
+        assertEquals(ErrorType.EMPTY_VALUE.getStatus(), exception.getStatus());
+        assertEquals(ErrorType.EMPTY_VALUE.getMessage(), exception.getMessage());
+        assertEquals("icon", exception.getError().getField());
+    }
+
+    @Test
+    @DisplayName("Test getTemplateIcon: should return icon")
+    void testGetTemplateIcon() throws IOException, InterruptedException {
+        MockedStatic<HttpRequest> requestStatic = Mockito.mockStatic(HttpRequest.class);
+        MockedStatic<HttpClient> clientStatic = Mockito.mockStatic(HttpClient.class);
+        LibraryServiceImpl service = newInstance("http://localhost:8080/test/");
+        LibraryTemplate libraryTemplate = new LibraryTemplate();
+        libraryTemplate.setId(1L);
+        libraryTemplate.setIcon("icon.svg");
+        Library library = new Library();
+        library.setId(2L);
+        Mockito.when(libraryRepository.findById(Mockito.any())).thenReturn(Optional.of(library));
+        HttpResponse<byte[]> expectedResponse = mockHttpFile(requestStatic, clientStatic);
+
+        assertEquals(expectedResponse, service.getTemplateIcon(libraryTemplate));
+        Mockito.reset();
+        requestStatic.close();
+        clientStatic.close();
+    }
+
+    @Test
+    @DisplayName("Test getTemplateIcon: should throw exception")
+    void testGetTemplateIconError() {
+        LibraryServiceImpl service = newInstance("http://localhost:8080/test/");
+        LibraryTemplate libraryTemplate = new LibraryTemplate();
+        ApiException exception = null;
+
+        try {
+            service.getTemplateIcon(libraryTemplate);
+        } catch (ApiException e) {
+            exception = e;
+        }
+
+        assertNotNull(exception);
+        assertEquals(ErrorType.EMPTY_VALUE.getStatus(), exception.getStatus());
+        assertEquals(ErrorType.EMPTY_VALUE.getMessage(), exception.getMessage());
+        assertEquals("icon", exception.getError().getField());
+    }
+
+    @Test
+    @DisplayName("Test getTemplateSchema: should return schema")
+    void testGetTemplateSchema() throws IOException, InterruptedException {
+        MockedStatic<HttpRequest> requestStatic = Mockito.mockStatic(HttpRequest.class);
+        MockedStatic<HttpClient> clientStatic = Mockito.mockStatic(HttpClient.class);
+        LibraryServiceImpl service = newInstance("http://localhost:8080/test/");
+        LibraryTemplate libraryTemplate = new LibraryTemplate();
+        libraryTemplate.setId(1L);
+        libraryTemplate.setIcon("icon.svg");
+        libraryTemplate.setSchemas(List.of("test.svg"));
+        Library library = new Library();
+        library.setId(2L);
+        Mockito.when(libraryRepository.findById(Mockito.any())).thenReturn(Optional.of(library));
+        HttpResponse<byte[]> expectedResponse = mockHttpFile(requestStatic, clientStatic);
+
+        assertEquals(expectedResponse, service.getTemplateSchema(libraryTemplate, 0L));
+        Mockito.reset();
+        requestStatic.close();
+        clientStatic.close();
+    }
+
+    @Test
+    @DisplayName("Test getTemplateSchema: should throw exception")
+    void testGetTemplateSchemaError() {
+        LibraryServiceImpl service = newInstance("http://localhost:8080/test/");
+        LibraryTemplate libraryTemplate = new LibraryTemplate();
+        libraryTemplate.setSchemas(List.of("test.svg"));
+        ApiException exception = null;
+
+        try {
+            service.getTemplateSchema(libraryTemplate, 1L);
+        } catch (ApiException e) {
+            exception = e;
+        }
+
+        assertNotNull(exception);
+        assertEquals(ErrorType.WRONG_VALUE.getStatus(), exception.getStatus());
+        assertEquals(ErrorType.WRONG_VALUE.getMessage(), exception.getMessage());
+        assertEquals("index", exception.getError().getField());
+        assertEquals("1", exception.getError().getValue());
+    }
+
+    @Test
+    @DisplayName("Test getTemplateFile: should return file")
+    void testGetTemplateFile() throws IOException, InterruptedException {
+        MockedStatic<HttpRequest> requestStatic = Mockito.mockStatic(HttpRequest.class);
+        MockedStatic<HttpClient> clientStatic = Mockito.mockStatic(HttpClient.class);
+        LibraryServiceImpl service = newInstance("http://localhost:8080/test/");
+        LibraryTemplate libraryTemplate = new LibraryTemplate();
+        libraryTemplate.setId(1L);
+        libraryTemplate.setIcon("icon.svg");
+        libraryTemplate.setFiles(List.of("test.svg"));
+        Library library = new Library();
+        library.setId(2L);
+        Mockito.when(libraryRepository.findById(Mockito.any())).thenReturn(Optional.of(library));
+        HttpResponse<byte[]> expectedResponse = mockHttpFile(requestStatic, clientStatic);
+
+        assertEquals(expectedResponse, service.getTemplateFile(libraryTemplate, 0L));
+        Mockito.reset();
+        requestStatic.close();
+        clientStatic.close();
+    }
+
+    @Test
+    @DisplayName("Test getTemplateFile: should throw exception")
+    void testGetTemplateFileError() {
+        LibraryServiceImpl service = newInstance("http://localhost:8080/test/");
+        LibraryTemplate libraryTemplate = new LibraryTemplate();
+        libraryTemplate.setFiles(List.of("test.svg"));
+        ApiException exception = null;
+
+        try {
+            service.getTemplateFile(libraryTemplate, 1L);
+        } catch (ApiException e) {
+            exception = e;
+        }
+
+        assertNotNull(exception);
+        assertEquals(ErrorType.WRONG_VALUE.getStatus(), exception.getStatus());
+        assertEquals(ErrorType.WRONG_VALUE.getMessage(), exception.getMessage());
+        assertEquals("index", exception.getError().getField());
+        assertEquals("1", exception.getError().getValue());
+    }
+
+    @Test
+    @DisplayName("Test getFileName: should return filename")
+    void testGetFileName() {
+        LibraryServiceImpl service = newInstance("http://localhost:8080/test/");
+        LibraryTemplate template = new LibraryTemplate();
+        template.setFiles(List.of("/other1/test1/file1.xml", "/test2/file2.xml", "file3.xml"));
+        template.setSchemas(List.of("/other3/test3/schema1.xml", "/test4/schema2.xml", "schema3.xml"));
+
+        assertEquals("file1.xml", service.getFileName(false, template, 0L));
+        assertEquals("file2.xml", service.getFileName(false, template, 1L));
+        assertEquals("file3.xml", service.getFileName(false, template, 2L));
+        assertEquals("schema1.xml", service.getFileName(true, template, 0L));
+        assertEquals("schema2.xml", service.getFileName(true, template, 1L));
+        assertEquals("schema3.xml", service.getFileName(true, template, 2L));
     }
 }

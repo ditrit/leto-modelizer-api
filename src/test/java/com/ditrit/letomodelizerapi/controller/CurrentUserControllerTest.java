@@ -86,6 +86,7 @@ class CurrentUserControllerTest extends MockHelper {
     @Test
     @DisplayName("Test getPicture: should return valid response.")
     void testGetPicture() {
+        CurrentUserController controller = new CurrentUserController(userService, userPermissionService, accessControlService, "1");
         User user = new User();
         user.setId(1L);
         user.setEmail("email");

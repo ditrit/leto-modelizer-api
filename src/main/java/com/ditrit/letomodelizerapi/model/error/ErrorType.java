@@ -64,7 +64,11 @@ public enum ErrorType {
     /**
      * Error to call when json of library is invalid.
      */
-    WRONG_LIBRARY_VALUE(210, "Index.json of library is invalid.", HttpStatus.BAD_REQUEST);
+    WRONG_LIBRARY_VALUE(210, "Index.json of library is invalid.", HttpStatus.BAD_REQUEST),
+    /**
+     * Error to call when a file of library can't be downloaded.
+     */
+    LIBRARY_FILE_DOWNLOAD_ERROR(211, "Library file can't be downloaded", HttpStatus.BAD_REQUEST);
 
     /**
      * Error code.
