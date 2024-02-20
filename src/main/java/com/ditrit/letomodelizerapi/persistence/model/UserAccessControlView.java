@@ -76,4 +76,15 @@ public class UserAccessControlView {
     @Column(name = "type", nullable = false)
     @FilterType(type = FilterType.Type.TEXT)
     private AccessControlType type;
+
+    /**
+     * Indicates whether the access control relationship is direct.
+     * This field distinguishes between direct and indirect relationships in the access control tree.
+     * A direct relationship implies that the current access control is immediately subordinate to the parent,
+     * without any intermediate access controls in between. This is useful for understanding the immediate
+     * hierarchical structure and for operations that depend on direct lineage.
+     */
+    @Column(name = "direct")
+    @FilterType(type = FilterType.Type.BOOLEAN)
+    private Boolean isDirect;
 }
