@@ -24,7 +24,7 @@ WITH RECURSIVE all_access_controls AS (
         all_access_controls.parent = access_controls_tree.current
 )
 SELECT
-    encode(digest(concat(all_access_controls.aco_id::text, all_access_controls.parent::text), 'sha256'), 'hex') AS "aca_id",
+    concat(all_access_controls.aco_id::text, all_access_controls.parent::text) AS "aca_id",
     all_access_controls.aco_id,
     access_controls.name,
     access_controls.type::text,
