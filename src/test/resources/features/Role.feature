@@ -398,3 +398,78 @@ Feature: Role feature
     And  I expect one resource contains "action" equals to "ACCESS"
     And  I expect one resource contains "entity" equals to "ADMIN"
     And  I expect one resource contains "isDirect" equals to "false" as "boolean"
+
+  Scenario: Verify super admin role can't be modified or deleted
+    Given I initialize the admin user
+
+    When I request "/roles/1" with method "DELETE"
+    Then I expect "400" as status code
+    And  I expect response fields length is "5"
+    And  I expect response field "message" is "Wrong field value."
+    And  I expect response field "code" is "206"
+    And  I expect response field "field" is "id"
+    And  I expect response field "value" is "1"
+
+    When I request "/roles/1" with method "PUT" with json
+      | key  | value |
+      | name | test2 |
+    Then I expect "400" as status code
+    And  I expect response fields length is "5"
+    And  I expect response field "message" is "Wrong field value."
+    And  I expect response field "code" is "206"
+    And  I expect response field "field" is "id"
+    And  I expect response field "value" is "1"
+
+    When I request "/roles/1/roles" with method "POST" with body
+      | value | type |
+      | 2     | text |
+    Then I expect "400" as status code
+    And  I expect response fields length is "5"
+    And  I expect response field "message" is "Wrong field value."
+    And  I expect response field "code" is "206"
+    And  I expect response field "field" is "id"
+    And  I expect response field "value" is "1"
+
+    When I request "/roles/1/roles/2" with method "DELETE"
+    Then I expect "400" as status code
+    And  I expect response fields length is "5"
+    And  I expect response field "message" is "Wrong field value."
+    And  I expect response field "code" is "206"
+    And  I expect response field "field" is "id"
+    And  I expect response field "value" is "1"
+
+    When I request "/roles/1/groups" with method "POST" with body
+      | value | type |
+      | 2     | text |
+    Then I expect "400" as status code
+    And  I expect response fields length is "5"
+    And  I expect response field "message" is "Wrong field value."
+    And  I expect response field "code" is "206"
+    And  I expect response field "field" is "id"
+    And  I expect response field "value" is "1"
+
+    When I request "/roles/1/groups/2" with method "DELETE"
+    Then I expect "400" as status code
+    And  I expect response fields length is "5"
+    And  I expect response field "message" is "Wrong field value."
+    And  I expect response field "code" is "206"
+    And  I expect response field "field" is "id"
+    And  I expect response field "value" is "1"
+
+    When I request "/roles/1/permissions" with method "POST" with body
+      | value | type |
+      | 2     | text |
+    Then I expect "400" as status code
+    And  I expect response fields length is "5"
+    And  I expect response field "message" is "Wrong field value."
+    And  I expect response field "code" is "206"
+    And  I expect response field "field" is "id"
+    And  I expect response field "value" is "1"
+
+    When I request "/roles/1/permissions/2" with method "DELETE"
+    Then I expect "400" as status code
+    And  I expect response fields length is "5"
+    And  I expect response field "message" is "Wrong field value."
+    And  I expect response field "code" is "206"
+    And  I expect response field "field" is "id"
+    And  I expect response field "value" is "1"
