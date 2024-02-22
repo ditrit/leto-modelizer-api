@@ -1,9 +1,9 @@
 package com.ditrit.letomodelizerapi.controller;
 
 
-import com.ditrit.letomodelizerapi.model.BeanMapper;
 import com.ditrit.letomodelizerapi.model.csrf.UserCsrfTokenDTO;
 import com.ditrit.letomodelizerapi.persistence.model.User;
+import com.ditrit.letomodelizerapi.persistence.model.UserCsrfToken;
 import com.ditrit.letomodelizerapi.service.UserCsrfTokenService;
 import com.ditrit.letomodelizerapi.service.UserPermissionService;
 import com.ditrit.letomodelizerapi.service.UserService;
@@ -62,11 +62,16 @@ public class CsrfController {
         HttpSession session = request.getSession();
         User user = userService.getFromSession(session);
         userPermissionService.checkIsAdmin(user, null);
-        CsrfToken csrfToken = (CsrfToken) request.getAttribute("_csrf");
-        UserCsrfTokenDTO token = new BeanMapper<>(UserCsrfTokenDTO.class)
-                .apply(userCsrfTokenService.findByLogin(user.getLogin()));
 
+        CsrfToken csrfToken = (CsrfToken) request.getAttribute("_csrf");
+
+        UserCsrfTokenDTO token = new UserCsrfTokenDTO();
+        token.setToken(csrfToken.getToken());
         token.setHeaderName(csrfToken.getHeaderName());
+
+        UserCsrfToken userToken = userCsrfTokenService.findByLogin(user.getLogin());
+
+        token.setExpirationDate(userToken.getExpirationDate());
 
         return Response.ok(token).build();
     }
