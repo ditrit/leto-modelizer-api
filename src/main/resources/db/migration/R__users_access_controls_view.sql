@@ -24,7 +24,7 @@ WITH RECURSIVE all_access_controls AS (
         all_access_controls.aco_id = access_controls_tree.current
 )
 SELECT DISTINCT
-    encode(digest(concat(users.usr_id::text, access_controls.aco_id::text), 'sha256'), 'hex') AS "usa_id",
+    concat(users.usr_id::text, access_controls.aco_id::text) AS "usa_id",
     users.usr_id,
     users.login,
     users.email,

@@ -22,7 +22,7 @@ WITH RECURSIVE all_access_controls AS (
         all_access_controls.aco_id = access_controls_tree.current
 )
 SELECT DISTINCT
-    encode(digest(concat(all_access_controls.usr_id::text, library_templates.lib_id::text), 'sha256'), 'hex') AS "ult_id",
+    concat(all_access_controls.usr_id::text, library_templates.lib_id::text) AS "ult_id",
     all_access_controls.usr_id,
     library_templates.*
 FROM
