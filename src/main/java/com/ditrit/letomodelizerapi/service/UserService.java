@@ -24,6 +24,20 @@ public interface UserService {
     User save(UserRecord user);
 
     /**
+     * Creates an administrator user with the specified login.
+     * This method is responsible for creating a new user entity with administrative privileges based on the provided
+     * login.
+     * The created user is granted administrator rights, making them capable of performing administrative tasks within
+     * the application.
+     * This function is typically used during application initialization or setup processes to ensure that at least one
+     * administrator exists in the system.
+     *
+     * @param login the login identifier for the new administrator user.
+     * @return the created User entity with administrator privileges.
+     */
+    User createAdmin(String login);
+
+    /**
      * Retrieves the user associated with the current session.
      *
      * @param session The HttpSession from which the user is to be retrieved.

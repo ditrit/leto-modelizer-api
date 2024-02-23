@@ -26,6 +26,7 @@ services:
       GITHUB_CLIENT_ID: ${GITHUB_CLIENT_ID}
       GITHUB_CLIENT_SECRET: ${GITHUB_CLIENT_SECRET}
       LIBRARY_HOST_WHITELIST: http://libraries/
+      SUPER_ADMINISTRATOR_LOGIN: ${SUPER_ADMINISTRATOR_LOGIN}
     ports:
       - "8443:8443"
     depends_on:

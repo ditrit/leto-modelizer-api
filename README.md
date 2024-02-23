@@ -83,11 +83,13 @@ However, their access is restricted in administrative functions outside their sc
 
 ### Manage user groups
 
-The application offers full functionality for managing groups and the users within these groups, enabling precise control over access and roles assigned to each member.
+The application offers full functionality for managing groups and the users within these groups, enabling precise
+control over access and roles assigned to each member.
 
 ### Manage libraries
 
-The application provides robust tools for managing a library of templates and controlling who has access to these resources, ensuring that the right individuals can utilize specific templates as needed.
+The application provides robust tools for managing a library of templates and controlling who has access to these
+resources, ensuring that the right individuals can utilize specific templates as needed.
 
 ## Getting Started
 
@@ -217,7 +219,8 @@ enabling secure and streamlined user authentication.
 | LETO_ADMIN_URL                      | No, default: `http://localhost:9000/`                      | A configuration parameter to set the redirection URL on valid authentication for Leto-modelizer-admin.                                                                                                                                                                                                            |
 | LIBRARY_HOST_WHITELIST              | No, default: ``                                            | A configuration parameter that defines a comma-separated list of trusted hostnames or IP addresses, allowing the host for library download.                                                                                                                                                                       |
 | CSRF_TOKEN_TIMEOUT                  | No, default: `3600`                                        | A configuration parameter that specifies the duration (in seconds) for which a Cross-Site Request Forgery (CSRF) token remains valid. This setting is used to prevent CSRF attacks by ensuring that the token used in a client session expires after a certain period, requiring a new token for future requests. |
-| USER_SESSION_TIMEOUT                | No, default: `3600`                                        | A configuration parameter that defines the time (in seconds) a user's session remains active without any activity. After this period, the user is automatically logged out to help protect against unauthorized access and to manage server resource utilization efficiently.                                     | 
+| USER_SESSION_TIMEOUT                | No, default: `3600`                                        | A configuration parameter that defines the time (in seconds) a user's session remains active without any activity. After this period, the user is automatically logged out to help protect against unauthorized access and to manage server resource utilization efficiently.                                     |
+| SUPER_ADMINISTRATOR_LOGIN           | No                                                         | A configuration parameter that defines the username on Github of the SUPER_ADMINISTRATOR. It will create user if it doesn't exist and associate it to the `SUPER_ADMINISTRATOR` role.                                                                                                                             |
 
 > Notes: `GITHUB_ENTERPRISE_*` variables are only required on self-hosted GitHub.
 
@@ -257,6 +260,13 @@ Then run your docker compose with this command:
 ```shell
 docker-compose --env-file [env_name].env up
 ```
+
+### Init super administrator
+
+To init super administrator, add environment variable with the GitHub username to associate this user with the
+role `SUPER_ADMINISTRATOR`.
+
+Environment variable name to use: `SUPER_ADMINISTRATOR_LOGIN`.
 
 ## License
 

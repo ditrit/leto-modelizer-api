@@ -61,7 +61,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public User save(final UserRecord userRecord) {
         User user = userRepository.findByLogin(userRecord.login())
-            .orElse(new User());
+                .orElse(new User());
 
         user.setEmail(userRecord.email());
         user.setLogin(userRecord.login());
@@ -69,6 +69,17 @@ public class UserServiceImpl implements UserService {
         user.setPicture(userRecord.picture());
 
         return userRepository.save(user);
+    }
+
+    @Override
+    public User createAdmin(final String login) {
+        return userRepository.findByLogin(login).orElseGet(() -> {
+            log.info("Create user with login {}", login);
+            User user = new User();
+            user.setLogin(login);
+
+            return userRepository.save(user);
+        });
     }
 
     @Override
