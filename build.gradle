@@ -59,27 +59,9 @@ dependencies {
 }
 
 tasks.named('test') {
-	useJUnitPlatform {
-		includeTags "unit", "integration"
-	}
+	useJUnitPlatform()
 	systemProperty("cucumber.junit-platform.naming-strategy", "long")
 	finalizedBy jacocoTestReport
-}
-
-tasks.register("unitTest", Test) {
-	mustRunAfter check
-	useJUnitPlatform {
-		includeTags "unit"
-	}
-	finalizedBy jacocoTestReport
-}
-
-tasks.register("integrationTest", Test) {
-	useJUnitPlatform {
-		includeTags "integration"
-	}
-	systemProperty("cucumber.junit-platform.naming-strategy", "long")
-	mustRunAfter check
 }
 
 checkstyle {
