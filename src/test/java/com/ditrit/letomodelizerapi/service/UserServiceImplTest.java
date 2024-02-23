@@ -277,4 +277,23 @@ class UserServiceImplTest {
         service.deleteByLogin("test");
         Mockito.verify(userRepository, Mockito.times(1)).delete(Mockito.any());
     }
+
+    @Test
+    @DisplayName("Test createAdmin: should return user")
+    void testCreateAdmin() {
+        User expectedUser = new User();
+        Mockito.when(userRepository.findByLogin(Mockito.any())).thenReturn(Optional.of(expectedUser));
+
+        assertEquals(expectedUser, service.createAdmin("login"));
+    }
+
+    @Test
+    @DisplayName("Test createAdmin: should return created user")
+    void testCreateAdminCreated() {
+        User expectedUser = new User();
+        Mockito.when(userRepository.findByLogin(Mockito.any())).thenReturn(Optional.empty());
+        Mockito.when(userRepository.save(Mockito.any())).thenReturn(expectedUser);
+
+        assertEquals(expectedUser, service.createAdmin("login"));
+    }
 }
