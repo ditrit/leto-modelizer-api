@@ -58,6 +58,7 @@ public class CsrfController {
      * @return a Response object containing the UserCsrfTokenDTO, which includes the CSRF token details.
      */
     @GET
+    @Produces(MediaType.APPLICATION_JSON)
     public Response getCsrfToken(final @Context HttpServletRequest request) {
         HttpSession session = request.getSession();
         User user = userService.getFromSession(session);

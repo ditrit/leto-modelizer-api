@@ -10,10 +10,8 @@ import jakarta.ws.rs.core.Response;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 
@@ -45,15 +43,13 @@ public class HomeController {
      * landing page indicating a successful login process.
      *
      * @return A static page that redirects to LetoModelizer upon successful authentication.
-     * @throws FileNotFoundException if the static resource for the redirection page is not found.
      */
     @GET
     @PermitAll
-    public Response home() throws FileNotFoundException {
-        File file = new File(getClass().getClassLoader().getResource("static/index.html").getFile());
-        FileInputStream fileInputStream = new FileInputStream(file);
+    public Response home() {
+        InputStream stream = this.getClass().getClassLoader().getResourceAsStream("index.html");
 
-        return Response.ok(fileInputStream).type("text/html").build();
+        return Response.ok(stream).type("text/html").build();
     }
 
     /**

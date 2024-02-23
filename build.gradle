@@ -1,6 +1,6 @@
 plugins {
 	id 'java'
-	id 'org.springframework.boot' version '3.2.2'
+	id 'org.springframework.boot' version '3.2.3'
 	id 'io.spring.dependency-management' version '1.1.4'
 	id 'checkstyle'
 	id 'com.github.ben-manes.versions' version '0.51.0'
@@ -50,7 +50,7 @@ dependencies {
 	implementation 'commons-beanutils:commons-beanutils:1.9.4'
 	implementation 'com.github.erosb:json-sKema:0.11.0'
 	compileOnly 'org.projectlombok:lombok'
-	runtimeOnly 'org.postgresql:postgresql:42.7.1'
+	runtimeOnly 'org.postgresql:postgresql:42.7.2'
 	annotationProcessor 'org.projectlombok:lombok'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testImplementation 'io.cucumber:cucumber-java:7.15.0'
@@ -59,27 +59,9 @@ dependencies {
 }
 
 tasks.named('test') {
-	useJUnitPlatform {
-		includeTags "unit", "integration"
-	}
+	useJUnitPlatform()
 	systemProperty("cucumber.junit-platform.naming-strategy", "long")
 	finalizedBy jacocoTestReport
-}
-
-tasks.register("unitTest", Test) {
-	mustRunAfter check
-	useJUnitPlatform {
-		includeTags "unit"
-	}
-	finalizedBy jacocoTestReport
-}
-
-tasks.register("integrationTest", Test) {
-	useJUnitPlatform {
-		includeTags "integration"
-	}
-	systemProperty("cucumber.junit-platform.naming-strategy", "long")
-	mustRunAfter check
 }
 
 checkstyle {

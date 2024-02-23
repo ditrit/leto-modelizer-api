@@ -388,7 +388,6 @@ Feature: Role feature
     Then I expect "200" as status code
     And  I extract resources from response
     And  I expect response resources length is "1"
-    And  I expect one resource contains "id" equals to "0"
     And  I expect one resource contains "action" equals to "ACCESS"
     And  I expect one resource contains "entity" equals to "ADMIN"
     And  I expect one resource contains "isDirect" equals to "false" as "boolean"

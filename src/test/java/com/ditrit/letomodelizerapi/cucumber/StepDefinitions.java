@@ -10,7 +10,11 @@ import io.cucumber.java.en.And;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
-import jakarta.ws.rs.client.*;
+import jakarta.ws.rs.client.Client;
+import jakarta.ws.rs.client.ClientBuilder;
+import jakarta.ws.rs.client.Entity;
+import jakarta.ws.rs.client.Invocation;
+import jakarta.ws.rs.client.WebTarget;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import org.apache.commons.lang.text.StrSubstitutor;
@@ -32,7 +36,11 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.*;
+import java.util.Base64;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import static org.junit.Assert.*;
@@ -47,6 +55,7 @@ public class StepDefinitions {
 
     static {
         globalContext = new HashMap<>();
+        globalContext.put("LIBRARY_HOST", "libraries");
         try {
             sslcontext = SSLContext.getInstance("TLS");
 
@@ -65,7 +74,6 @@ public class StepDefinitions {
             .hostnameVerifier((s1, s2) -> true)
             .build();
     private final ObjectMapper mapper = new ObjectMapper();
-    private boolean authenticate = false;
     private int statusCode;
     private JsonNode json;
     private JsonNode resources;
@@ -164,7 +172,7 @@ public class StepDefinitions {
         ObjectNode json = JsonNodeFactory.instance.objectNode();
         list.forEach((map) -> {
             String key = map.get("key");
-            String value = map.get("value");
+            String value = replaceWithContext(map.get("value"));
             String type = map.get("type");
 
             if ("integer".equals(type)) {
@@ -219,7 +227,8 @@ public class StepDefinitions {
 
         statusCode = response.getStatus();
         LOGGER.info("Receive {} as status code", statusCode);
-        if (statusCode != 204) {
+        LOGGER.info("Receive {} as content type", response.getMediaType());
+        if (statusCode != 204 && MediaType.valueOf(MediaType.APPLICATION_JSON).isCompatible(response.getMediaType())) {
             try {
                 json = mapper.readTree(response.readEntity(String.class));
                 LOGGER.info("With body: {}", json);

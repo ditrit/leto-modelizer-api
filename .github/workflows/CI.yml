@@ -70,6 +70,9 @@ jobs:
         run: docker build -t leto-modelizer-api .
       - name: Run application
         run: docker compose up -d
+        env:
+          GITHUB_CLIENT_ID: test
+          GITHUB_CLIENT_SECRET: test
       - name: Setup Gradle
         uses: gradle/gradle-build-action@v2
       - name: Execute tests
