@@ -109,6 +109,9 @@ public class StepDefinitions {
             stmt.close();
             conn.close();
             globalContext.put("COOKIE_SESSION", "NmNiN2NkZTAtMGMzYi00MzA0LWFjYWItYWE1ODcyMmE4ZTc4");
+            request("/csrf");
+            globalContext.put("CSRF_HEADER", json.get("headerName").asText());
+            globalContext.put("CSRF_TOKEN", json.get("token").asText());
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -197,6 +200,9 @@ public class StepDefinitions {
             builder.header("Content-Type", contentType);
         }
 
+        if (globalContext.containsKey("CSRF_HEADER")) {
+            builder.header(globalContext.get("CSRF_HEADER"), globalContext.get("CSRF_TOKEN"));
+        }
 
         LOGGER.info("{} request to {}", method, uri);
         if (body == null) {

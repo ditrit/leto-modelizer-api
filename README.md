@@ -28,16 +28,66 @@ activated or deactivated for users, groups and roles.
 
 List of permissions:
 
-- `admin`: allows user to access and use `leto-modelizer-admin`.
-- `create_project`: allows user to create a project in `leto-modelizer`.
-- `create_project_from_template`: allows user to create a project from template in `leto-modelizer`.
-- `create_diagram`: allows user to create a diagram in `leto-modelizer`.
-- `create_diagram_from_template`: allows user to create a diagram from template in `leto-modelizer`.
-- `delete_diagram`: allows user to delete a diagram in `leto-modelizer`.
-- `create_component`: allows user to create a component in `leto-modelizer`.
-- `create_component_from_template`: allows user to create a component from template in `leto-modelizer`.
-- `delete_component`: allows user to delete a component in `leto-modelizer`.
-- `use_text_editor`: allows user to use the text editor in `leto-modelizer`.
+| Permission object                                                | Description                                                                                                                                                           |
+|------------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `{"entity": "ADMIN", "action": "ACCESS"}`                        | Allows user to access and use `leto-modelizer-admin`.                                                                                                                 |
+| `{"entity": "PROJECT", "action": "CREATE"}`                      | Allows user to create a project in `leto-modelizer`.                                                                                                                  |
+| `{"entity": "PROJECT_TEMPLATE", "action": "CREATE"}`             | Allows user to create a project from template in `leto-modelizer`.                                                                                                    |
+| `{"entity": "DIAGRAM", "action": "CREATE"}`                      | Allows user to create a diagram in `leto-modelizer`.                                                                                                                  |
+| `{"entity": "DIAGRAM", "action": "DELETE"}`                      | Allows user to delete a diagram in `leto-modelizer`.                                                                                                                  |
+| `{"entity": "DIAGRAM_TEMPLATE", "action": "CREATE"}`             | Allows user to create a diagram from template in `leto-modelizer`.                                                                                                    |
+| `{"entity": "COMPONENT", "action": "CREATE"}`                    | Allows user to create a component in `leto-modelizer`.                                                                                                                |
+| `{"entity": "COMPONENT_TEMPLATE", "action": "CREATE"}`           | Allows user to create a component from template in `leto-modelizer`.                                                                                                  |
+| `{"entity": "LIBRARY", "action": "ACCESS", "libraryId": LIB_ID}` | Allows users to access and utilize a library along with all its templates.<br/>If `LIB_ID` is null, it signifies that users can view and use all available libraries. |
+| `{"entity": "LIBRARY", "action": "CREATE"}`                      | Allows user to register a library in `leto-modelizer-admin`.                                                                                                          |
+| `{"entity": "LIBRARY", "action": "DELETE", "libraryId": LIB_ID}` | Allows users to delete a specific library.<br/>If `LIB_ID` is null, it signifies that users can delete any of all available libraries.                                |
+| `{"entity": "LIBRARY", "action": "UPDATE", "libraryId": LIB_ID}` | Allows users to update a specific library.<br/>If `LIB_ID` is null, it signifies that users can update any of all available libraries.                                |
+
+### Manage roles
+
+This section allows administrators to define and manage roles within the application.
+
+A role represents a collection of permissions that can be assigned to users or groups, defining what actions they can
+perform.
+
+Here, you can create new roles, edit existing ones, and assign or unassign permissions to them.
+
+This feature ensures that users only have access to the functionalities necessary for their job roles, enhancing
+security and operational efficiency.
+
+By default, three roles are created to cater to different levels of access and management needs:
+
+- `SUPER_ADMINISTRATOR`
+
+This role is granted all permissions across the application, allowing for full control over every aspect, including user
+management, configuration settings, and content creation.
+
+Users with this role can perform any action without restrictions.
+
+**This role can't be updated or deleted.**
+
+- `ADMINISTRATOR`
+
+Users assigned to the ADMIN role have exclusive access to the administration application.
+
+This role is tailored for users who manage application settings, user roles, and permissions but do not require full
+access to the entire application's content and features.
+
+- `DEVELOPER`
+
+This role is designed for users who primarily work on projects, diagrams, and components.
+
+They have all permissions related to these areas, enabling them to create, modify, and delete project-related content.
+
+However, their access is restricted in administrative functions outside their scope.
+
+### Manage user groups
+
+The application offers full functionality for managing groups and the users within these groups, enabling precise control over access and roles assigned to each member.
+
+### Manage libraries
+
+The application provides robust tools for managing a library of templates and controlling who has access to these resources, ensuring that the right individuals can utilize specific templates as needed.
 
 ## Getting Started
 
@@ -196,6 +246,9 @@ GITHUB_CLIENT_ID=YOUR_CLIENT_ID
 GITHUB_CLIENT_SECRET=YOUR_CLIENT_SECRET
 LETO_MODELIZER_URL=http://localhost:8080/
 LETO_ADMIN_URL=http://localhost:9000/
+LIBRARY_HOST_WHITELIST=https://github.com/ditrit/
+CSRF_TOKEN_TIMEOUT=3600
+USER_SESSION_TIMEOUT=3600
 ```
 
 See Configuration section for more details.
