@@ -16,7 +16,8 @@ CREATE TABLE IF NOT EXISTS library_templates (
     update_date       TIMESTAMP NOT NULL DEFAULT now()
 );
 
-COMMENT ON TYPE   library_template_type               IS 'An ENUM type representing the different type of template.';
+-- Unsupported by cockroachdb
+-- COMMENT ON TYPE   library_template_type               IS 'An ENUM type representing the different type of template.';
 
 COMMENT ON TABLE  library_templates                   IS 'This table stores information about various libraries used within the diagram system.';
 COMMENT ON COLUMN library_templates.lit_id            IS 'Primary key, serial.';

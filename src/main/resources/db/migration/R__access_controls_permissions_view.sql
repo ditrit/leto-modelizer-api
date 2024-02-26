@@ -46,4 +46,5 @@ on
 WHERE permissions.per_id IS NOT NULL
 ORDER BY all_access_controls.aco_id, permissions.per_id;
 
-COMMENT ON VIEW access_controls_permissions_view IS 'This view provides a consolidated look at access controls permissions across the system. It combines information from various tables to present a clear picture of which permissions are assigned to which access_controls. The view employs a recursive CTE (Common Table Expression) to traverse the hierarchical structure of access controls and match them with corresponding permissions. The final output includes unique combinations of accces control and permission IDs, permission details, and associated library IDs.';
+-- Unsupported by cockroachdb
+-- COMMENT ON VIEW access_controls_permissions_view IS 'This view provides a consolidated look at access controls permissions across the system. It combines information from various tables to present a clear picture of which permissions are assigned to which access_controls. The view employs a recursive CTE (Common Table Expression) to traverse the hierarchical structure of access controls and match them with corresponding permissions. The final output includes unique combinations of accces control and permission IDs, permission details, and associated library IDs.';

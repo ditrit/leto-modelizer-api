@@ -44,4 +44,5 @@ LEFT OUTER JOIN
 ON
     users.usr_id = all_access_controls.usr_id;
 
-COMMENT ON VIEW users_access_controls_view IS 'This view provides a consolidated look at user access controls across the system. It combines information from various tables to present a clear picture of which access controls are assigned to which users. The view employs a recursive CTE (Common Table Expression) to traverse the hierarchical structure of access controls. The final output includes unique combinations of IDs and access control details.';
+-- Unsupported by cockroachdb
+-- COMMENT ON VIEW users_access_controls_view IS 'This view provides a consolidated look at user access controls across the system. It combines information from various tables to present a clear picture of which access controls are assigned to which users. The view employs a recursive CTE (Common Table Expression) to traverse the hierarchical structure of access controls. The final output includes unique combinations of IDs and access control details.';

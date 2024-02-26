@@ -43,4 +43,5 @@ AND permissions.action = 'ACCESS'
 WHERE
     permissions.lib_id IS NOT NULL;
 
-COMMENT ON VIEW users_libraries_view IS 'The users_libraries_view is a database view designed to provide a comprehensive overview of user access to libraries. It leverages a recursive common table expression (CTE) to traverse access control hierarchies and aggregates this information to determine which libraries each user can access.';
+-- Unsupported by cockroachdb
+-- COMMENT ON VIEW users_libraries_view IS 'The users_libraries_view is a database view designed to provide a comprehensive overview of user access to libraries. It leverages a recursive common table expression (CTE) to traverse access control hierarchies and aggregates this information to determine which libraries each user can access.';

@@ -11,8 +11,9 @@ CREATE TABLE IF NOT EXISTS permissions (
     UNIQUE (entity, action, lib_id)
 );
 
-COMMENT ON TYPE   entity_type             IS 'An ENUM type representing the various types of entities for which permissions can be set.';
-COMMENT ON TYPE   action_type             IS 'An ENUM type representing the different actions that can be controlled through permissions.';
+-- Unsupported by cockroachdb
+-- COMMENT ON TYPE   entity_type             IS 'An ENUM type representing the various types of entities for which permissions can be set.';
+-- COMMENT ON TYPE   action_type             IS 'An ENUM type representing the different actions that can be controlled through permissions.';
 
 COMMENT ON TABLE  permissions             IS 'This table stores permission settings for various entities within the system.';
 COMMENT ON COLUMN permissions.per_id      IS 'Primary key, serial.';

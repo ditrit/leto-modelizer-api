@@ -44,4 +44,5 @@ WHERE
     permissions.lib_id IS NOT NULL
 AND library_templates.lit_id IS NOT NULL;
 
-COMMENT ON VIEW users_library_templates_view IS 'The users_library_templates_view is a database view designed to provide a comprehensive overview of user access to library templates. It leverages a recursive common table expression (CTE) to traverse access control hierarchies and aggregates this information to determine which library templates each user can access.';
+-- Unsupported by cockroachdb
+-- COMMENT ON VIEW users_library_templates_view IS 'The users_library_templates_view is a database view designed to provide a comprehensive overview of user access to library templates. It leverages a recursive common table expression (CTE) to traverse access control hierarchies and aggregates this information to determine which library templates each user can access.';
