@@ -97,7 +97,7 @@ resources, ensuring that the right individuals can utilize specific templates as
 
 - java - v21
 - gradle - v8.5
-- postgres - v16
+- cockroachdb - v23.1.15
 
 This server is based on [Spring boot](https://spring.io/projects/spring-boot/)
 and [Jersey](https://eclipse-ee4j.github.io/jersey/).
@@ -132,6 +132,23 @@ To generate certificate, run this command at the root of your project folder:
 
 ```shell
 keytool -genkey -alias myKeyAlias -keyalg RSA -keysize 2048 -keystore src/main/resources/keystore.jks -validity 3650
+```
+
+### Generate certificate for cockroachdb
+
+```shell
+# Step 1: Create a Directory for Certificates
+mkdir -p ./cockroach-certs
+
+# Step 2: Generate the CA (Certificate Authority) Certificate and Key
+docker run -v ./cockroach-certs:/cockroach-certs cockroachdb/cockroach:v23.1.15 cert create-ca --certs-dir=/cockroach-certs --ca-key=/cockroach-certs/ca.key
+
+# Step 3: Generate the CockroachDB Node Certificate and Key
+docker run -v ./cockroach-certs:/cockroach-certs cockroachdb/cockroach:v23.1.15 cert create-node localhost db $(hostname) --certs-dir=/cockroach-certs --ca-key=/cockroach-certs/ca.key
+
+# Step 4: Generate the Client Certificate and Key for the root User
+docker run -v ./cockroach-certs:/cockroach-certs cockroachdb/cockroach:v23.1.15 cert create-client root --certs-dir=/cockroach-certs --ca-key=/cockroach-certs/ca.key
+
 ```
 
 ### Run server
@@ -203,7 +220,7 @@ enabling secure and streamlined user authentication.
 
 | Variable                            | Required                                                   | Description                                                                                                                                                                                                                                                                                                       |
 |-------------------------------------|------------------------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| DATABASE_HOST                       | No, default: `localhost:5432`                              | A configuration parameter that specifies the hostname or IP address of the server where the database is hosted.                                                                                                                                                                                                   |
+| DATABASE_HOST                       | No, default: `localhost:26257`                             | A configuration parameter that specifies the hostname or IP address of the server where the database is hosted.                                                                                                                                                                                                   |
 | DATABASE_NAME                       | No, default: `leto_db`                                     | A configuration parameter that specifies the name of the specific database to be accessed on the server.                                                                                                                                                                                                          |
 | DATABASE_USER                       | No, default: `leto_admin`                                  | A configuration parameter indicating the username used to authenticate with the database server.                                                                                                                                                                                                                  |
 | DATABASE_PASSWORD                   | No, default: `password`                                    | A configuration parameter that specifies the password for authenticating the designated user with the database server.                                                                                                                                                                                            |
@@ -236,8 +253,7 @@ POSTGRES_USER=leto_admin
 POSTGRES_PASSWORD=password
 
 # Api configuration
-DATABASE_HOST=localhost
-DATABASE_PORT=5432
+DATABASE_HOST=localhost:26257
 DATABASE_NAME=leto_db
 DATABASE_USER=leto_admin
 DATABASE_PASSWORD=password

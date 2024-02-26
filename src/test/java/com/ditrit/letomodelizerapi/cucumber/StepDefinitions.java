@@ -81,7 +81,7 @@ public class StepDefinitions {
 
     @Given("I initialize the admin user")
     public void initAdmin() {
-        String url = "jdbc:postgresql://localhost:5432/leto_db";
+        String url = "jdbc:postgresql://localhost:26257/leto_db";
         String user = "leto_admin";
         String password = "password";
 

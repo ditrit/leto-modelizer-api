@@ -31,7 +31,7 @@ To configure it, got to `Settings > Editor > General > Auto Import`, then check 
 Setup database with docker:
 
 ```shell
-docker run -p 5432:5432 --rm -ti --name postgres -e POSTGRES_USER=leto_admin -e POSTGRES_PASSWORD=password -e POSTGRES_DB=leto_db postgres:16
+docker run -v "./init-db.sql:/docker-entrypoint-initdb.d/init-db.sql" -v "./cockroach-certs:/certs" -p 26257:26257 -p 8080:8080 --restart always cockroachdb/cockroach:v23.1.15 start-single-node --certs-dir=/certs --advertise-addr=localhost
 ```
 
 Once database is setup you can run :
