@@ -38,7 +38,7 @@ public class Permission extends AbstractEntity {
      */
     @Column(name = "entity")
     @ColumnTransformer(write = "?::entity_type")
-    @FilterType(type = FilterType.Type.TEXT)
+    @FilterType(type = FilterType.Type.ENUM)
     private String entity;
 
     /**
@@ -46,7 +46,7 @@ public class Permission extends AbstractEntity {
      */
     @Column(name = "action")
     @ColumnTransformer(write = "?::action_type")
-    @FilterType(type = FilterType.Type.TEXT)
+    @FilterType(type = FilterType.Type.ENUM)
     private String action;
 
     /**
