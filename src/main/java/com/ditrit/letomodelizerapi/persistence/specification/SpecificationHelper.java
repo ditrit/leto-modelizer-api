@@ -8,6 +8,7 @@ import com.ditrit.letomodelizerapi.persistence.specification.filter.IPredicateFi
 import com.ditrit.letomodelizerapi.persistence.specification.filter.NumberPredicateFilter;
 import com.ditrit.letomodelizerapi.persistence.specification.filter.TextPredicateFilter;
 import com.ditrit.letomodelizerapi.persistence.specification.filter.TokenPredicateFilter;
+import com.ditrit.letomodelizerapi.persistence.specification.filter.UUIDPredicateFilter;
 import com.ditrit.letomodelizerapi.reflect.FieldUtils;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
@@ -86,6 +87,8 @@ public class SpecificationHelper<T> implements Specification<T> {
                 filter = new TokenPredicateFilter(name, value);
             } else if (FilterType.Type.ENUM.equals(filterType.type())) {
                 filter = new EnumPredicateFilter(name, value);
+            } else if (FilterType.Type.UUID.equals(filterType.type())) {
+                filter = new UUIDPredicateFilter(name, value);
             } else {
                 filter = new TextPredicateFilter(name, value);
             }

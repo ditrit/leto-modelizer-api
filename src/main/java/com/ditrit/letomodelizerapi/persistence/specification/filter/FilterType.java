@@ -48,5 +48,9 @@ public @interface FilterType {
          * Enum.
          */
         ENUM,
+        /**
+         * UUID.
+         */
+        UUID,
     }
 }
