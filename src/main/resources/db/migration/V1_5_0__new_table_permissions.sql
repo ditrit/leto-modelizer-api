@@ -2,10 +2,10 @@ CREATE TYPE entity_type AS ENUM ('ADMIN', 'PROJECT', 'PROJECT_TEMPLATE', 'DIAGRA
 CREATE TYPE action_type AS ENUM ('ACCESS', 'CREATE', 'DELETE', 'UPDATE');
 
 CREATE TABLE IF NOT EXISTS permissions (
-    per_id      SERIAL PRIMARY KEY,
+    per_id      UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     entity      entity_type NOT NULL,
     action      action_type NOT NULL,
-    lib_id      INTEGER REFERENCES libraries(lib_id) ON DELETE CASCADE,
+    lib_id      UUID REFERENCES libraries(lib_id) ON DELETE CASCADE,
     insert_date TIMESTAMP NOT NULL DEFAULT now(),
     update_date TIMESTAMP NOT NULL DEFAULT now(),
     UNIQUE (entity, action, lib_id)
@@ -23,18 +23,16 @@ COMMENT ON COLUMN permissions.lib_id      IS 'References the lib_id in the libra
 COMMENT ON COLUMN permissions.insert_date IS 'Creation date of this row.';
 COMMENT ON COLUMN permissions.update_date IS 'Last update date of this row.';
 
-INSERT INTO permissions(per_id, entity, action, lib_id) VALUES
-(1,  'ADMIN', 'ACCESS', NULL),
-(2,  'PROJECT', 'CREATE', NULL),
-(3,  'PROJECT_TEMPLATE', 'CREATE', NULL),
-(4,  'DIAGRAM', 'CREATE', NULL),
-(5,  'DIAGRAM', 'DELETE', NULL),
-(6,  'DIAGRAM_TEMPLATE', 'CREATE', NULL),
-(7,  'COMPONENT', 'CREATE', NULL),
-(8,  'COMPONENT_TEMPLATE', 'CREATE', NULL),
-(9,  'LIBRARY', 'ACCESS', NULL),
-(10, 'LIBRARY', 'CREATE', NULL),
-(11, 'LIBRARY', 'DELETE', NULL),
-(12, 'LIBRARY', 'UPDATE', NULL);
-
-ALTER SEQUENCE permissions_per_id_seq RESTART WITH 100;
+INSERT INTO permissions(entity, action, lib_id) VALUES
+('ADMIN', 'ACCESS', NULL),
+('PROJECT', 'CREATE', NULL),
+('PROJECT_TEMPLATE', 'CREATE', NULL),
+('DIAGRAM', 'CREATE', NULL),
+('DIAGRAM', 'DELETE', NULL),
+('DIAGRAM_TEMPLATE', 'CREATE', NULL),
+('COMPONENT', 'CREATE', NULL),
+('COMPONENT_TEMPLATE', 'CREATE', NULL),
+('LIBRARY', 'ACCESS', NULL),
+('LIBRARY', 'CREATE', NULL),
+('LIBRARY', 'DELETE', NULL),
+('LIBRARY', 'UPDATE', NULL);

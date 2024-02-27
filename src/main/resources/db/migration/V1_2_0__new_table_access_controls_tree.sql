@@ -1,7 +1,7 @@
 CREATE TABLE IF NOT EXISTS access_controls_tree (
-    act_id      SERIAL PRIMARY KEY,
-    parent      INTEGER REFERENCES access_controls(aco_id) ON DELETE CASCADE NOT NULL,
-    current     INTEGER REFERENCES access_controls(aco_id) ON DELETE CASCADE NOT NULL,
+    act_id      UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    parent      UUID REFERENCES access_controls(aco_id) ON DELETE CASCADE NOT NULL,
+    current     UUID REFERENCES access_controls(aco_id) ON DELETE CASCADE NOT NULL,
     insert_date TIMESTAMP NOT NULL DEFAULT now(),
     update_date TIMESTAMP NOT NULL DEFAULT now(),
     UNIQUE (parent, current)

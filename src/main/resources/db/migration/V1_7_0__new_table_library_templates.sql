@@ -1,8 +1,8 @@
 CREATE TYPE library_template_type AS ENUM ('PROJECT', 'DIAGRAM', 'COMPONENT');
 
 CREATE TABLE IF NOT EXISTS library_templates (
-    lit_id            SERIAL PRIMARY KEY,
-    lib_id            INTEGER REFERENCES libraries(lib_id) ON DELETE CASCADE,
+    lit_id            UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    lib_id            UUID REFERENCES libraries(lib_id) ON DELETE CASCADE,
     name              VARCHAR(255) NOT NULL,
     type              library_template_type NOT NULL,
     description       TEXT,

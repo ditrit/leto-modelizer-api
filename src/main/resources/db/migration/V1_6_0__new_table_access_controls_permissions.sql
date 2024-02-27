@@ -1,7 +1,7 @@
 CREATE TABLE IF NOT EXISTS access_controls_permissions (
-    pac_id      SERIAL PRIMARY KEY,
-    per_id      INTEGER REFERENCES permissions(per_id) ON DELETE CASCADE NOT NULL,
-    aco_id      INTEGER REFERENCES access_controls(aco_id) ON DELETE CASCADE NOT NULL,
+    pac_id      UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    per_id      UUID REFERENCES permissions(per_id) ON DELETE CASCADE NOT NULL,
+    aco_id      UUID REFERENCES access_controls(aco_id) ON DELETE CASCADE NOT NULL,
     insert_date TIMESTAMP NOT NULL DEFAULT now(),
     update_date TIMESTAMP NOT NULL DEFAULT now(),
     UNIQUE (per_id, aco_id)
@@ -15,27 +15,13 @@ COMMENT ON COLUMN access_controls_permissions.insert_date IS 'Creation date of t
 COMMENT ON COLUMN access_controls_permissions.update_date IS 'Last update date of this row.';
 
 -- Add all permissions to Super administrator.
-INSERT INTO access_controls_permissions(aco_id, per_id) VALUES (1, 1);
-INSERT INTO access_controls_permissions(aco_id, per_id) VALUES (1, 2);
-INSERT INTO access_controls_permissions(aco_id, per_id) VALUES (1, 3);
-INSERT INTO access_controls_permissions(aco_id, per_id) VALUES (1, 4);
-INSERT INTO access_controls_permissions(aco_id, per_id) VALUES (1, 5);
-INSERT INTO access_controls_permissions(aco_id, per_id) VALUES (1, 6);
-INSERT INTO access_controls_permissions(aco_id, per_id) VALUES (1, 7);
-INSERT INTO access_controls_permissions(aco_id, per_id) VALUES (1, 8);
-INSERT INTO access_controls_permissions(aco_id, per_id) VALUES (1, 9);
-INSERT INTO access_controls_permissions(aco_id, per_id) VALUES (1, 10);
-INSERT INTO access_controls_permissions(aco_id, per_id) VALUES (1, 11);
-INSERT INTO access_controls_permissions(aco_id, per_id) VALUES (1, 12);
+INSERT INTO access_controls_permissions(aco_id, per_id)
+SELECT (SELECT aco_id FROM access_controls WHERE name = 'SUPER_ADMINISTRATOR'), per_id FROM permissions;
 
 -- Add permission ['ADMIN', 'ACCESS', NULL] to Administrator.
-INSERT INTO access_controls_permissions(aco_id, per_id) VALUES (2, 1);
+INSERT INTO access_controls_permissions(aco_id, per_id)
+SELECT (SELECT aco_id FROM access_controls WHERE name = 'ADMINISTRATOR'), per_id FROM permissions WHERE entity = 'ADMIN' AND action = 'ACCESS' AND lib_id IS NULL;
 
 -- Add permission of all actions on leto-modelizer to Developer.
-INSERT INTO access_controls_permissions(aco_id, per_id) VALUES (3, 2);
-INSERT INTO access_controls_permissions(aco_id, per_id) VALUES (3, 3);
-INSERT INTO access_controls_permissions(aco_id, per_id) VALUES (3, 4);
-INSERT INTO access_controls_permissions(aco_id, per_id) VALUES (3, 5);
-INSERT INTO access_controls_permissions(aco_id, per_id) VALUES (3, 6);
-INSERT INTO access_controls_permissions(aco_id, per_id) VALUES (3, 7);
-INSERT INTO access_controls_permissions(aco_id, per_id) VALUES (3, 8);
+INSERT INTO access_controls_permissions(aco_id, per_id)
+SELECT (SELECT aco_id FROM access_controls WHERE name = 'DEVELOPER'), per_id FROM permissions WHERE entity in ('PROJECT', 'PROJECT_TEMPLATE', 'DIAGRAM', 'DIAGRAM_TEMPLATE', 'COMPONENT', 'COMPONENT_TEMPLATE');

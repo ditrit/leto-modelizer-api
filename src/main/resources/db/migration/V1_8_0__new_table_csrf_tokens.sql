@@ -1,5 +1,5 @@
 CREATE TABLE IF NOT EXISTS csrf_tokens (
-    cst_id          SERIAL PRIMARY KEY,
+    cst_id          UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     login           VARCHAR(255) REFERENCES users(login) ON DELETE CASCADE NOT NULL UNIQUE,
     token           TEXT,
     expiration_date TIMESTAMP NOT NULL,
