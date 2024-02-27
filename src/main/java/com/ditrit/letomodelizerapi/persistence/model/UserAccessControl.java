@@ -13,6 +13,7 @@ import lombok.EqualsAndHashCode;
 
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 /**
  * Represents a user access control entity in the system.
@@ -29,23 +30,23 @@ public class UserAccessControl extends AbstractEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "uac_id")
-    @FilterType(type = FilterType.Type.NUMBER)
-    private Long id;
+    @FilterType(type = FilterType.Type.UUID)
+    private UUID id;
 
     /**
      * The identifier of the user.
      */
     @Column(name = "usr_id")
-    @FilterType(type = FilterType.Type.NUMBER)
-    private Long userId;
+    @FilterType(type = FilterType.Type.UUID)
+    private UUID userId;
 
 
     /**
      * The identifier of the access control.
      */
     @Column(name = "aco_id")
-    @FilterType(type = FilterType.Type.NUMBER)
-    private Long accessControlId;
+    @FilterType(type = FilterType.Type.UUID)
+    private UUID accessControlId;
 
     /**
      * Set insertDate before persisting in repository.

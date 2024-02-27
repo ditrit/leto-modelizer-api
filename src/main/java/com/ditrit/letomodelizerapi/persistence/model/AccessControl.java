@@ -17,6 +17,7 @@ import org.hibernate.annotations.ColumnTransformer;
 
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 /**
  * Represents an access control entity in the database, which can be a ROLE, GROUP, or SCOPE.
@@ -33,8 +34,8 @@ public class AccessControl extends AbstractEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "aco_id")
-    @FilterType(type = FilterType.Type.NUMBER)
-    private Long id;
+    @FilterType(type = FilterType.Type.UUID)
+    private UUID id;
 
     /**
      * The name of the access control.

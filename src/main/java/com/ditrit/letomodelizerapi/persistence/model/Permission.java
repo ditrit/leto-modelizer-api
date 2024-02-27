@@ -14,6 +14,7 @@ import org.hibernate.annotations.ColumnTransformer;
 
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 /**
  * Represents a permission entity in the system.
@@ -30,8 +31,8 @@ public class Permission extends AbstractEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "per_id")
-    @FilterType(type = FilterType.Type.NUMBER)
-    private Long id;
+    @FilterType(type = FilterType.Type.UUID)
+    private UUID id;
 
     /**
      * The entity associated with this permission.
@@ -53,8 +54,8 @@ public class Permission extends AbstractEntity {
      * The identifier of the library associated with this permission.
      */
     @Column(name = "lib_id")
-    @FilterType(type = FilterType.Type.NUMBER)
-    private Long libraryId;
+    @FilterType(type = FilterType.Type.UUID)
+    private UUID libraryId;
 
     /**
      * Set insertDate before persisting in repository.

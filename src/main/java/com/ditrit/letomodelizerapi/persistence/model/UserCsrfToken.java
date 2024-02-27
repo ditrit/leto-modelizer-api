@@ -15,6 +15,7 @@ import java.sql.Timestamp;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
+import java.util.UUID;
 
 /**
  * Entity representing a CSRF (Cross-Site Request Forgery) token associated with a user.
@@ -54,8 +55,8 @@ public class UserCsrfToken extends AbstractEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "cst_id")
-    @FilterType(type = FilterType.Type.NUMBER)
-    private Long id;
+    @FilterType(type = FilterType.Type.UUID)
+    private UUID id;
 
     /**
      * The login identifier of the user to whom the CSRF token is associated.

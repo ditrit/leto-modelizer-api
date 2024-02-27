@@ -10,6 +10,8 @@ import jakarta.persistence.Table;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
+import java.util.UUID;
+
 /**
  * Represents a user permission entity in the system.
  */
@@ -32,8 +34,16 @@ public class UserPermission extends AbstractEntity {
      * The identifier of the user to whom this permission is assigned.
      */
     @Column(name = "usr_id")
-    @FilterType(type = FilterType.Type.NUMBER)
-    private Long userId;
+    @FilterType(type = FilterType.Type.UUID)
+    private UUID userId;
+
+
+    /**
+     * The identifier of permission.
+     */
+    @Column(name = "per_id")
+    @FilterType(type = FilterType.Type.UUID)
+    private UUID permissionId;
 
     /**
      * The entity associated with this permission.
@@ -53,6 +63,6 @@ public class UserPermission extends AbstractEntity {
      * The identifier of the library associated with this permission.
      */
     @Column(name = "lib_id")
-    @FilterType(type = FilterType.Type.NUMBER)
-    private Long libraryId;
+    @FilterType(type = FilterType.Type.UUID)
+    private UUID libraryId;
 }

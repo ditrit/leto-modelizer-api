@@ -2,6 +2,8 @@ package com.ditrit.letomodelizerapi.model.library;
 
 import lombok.Data;
 
+import java.util.UUID;
+
 /**
  * Data Transfer Object (DTO) for Library.
  * This class is used for transferring Library data between different layers of the application,
@@ -14,7 +16,7 @@ public class LibraryDTO {
     /**
      * Internal id.
      */
-    private Long id;
+    private UUID id;
 
     /**
      * URL of the library.

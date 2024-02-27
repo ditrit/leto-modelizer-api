@@ -13,6 +13,7 @@ import lombok.EqualsAndHashCode;
 
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 /**
  * Entity representing the access control hierarchy stored in the "access_controls_tree" table.
@@ -32,24 +33,24 @@ public class AccessControlTree extends AbstractEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "act_id")
-    @FilterType(type = FilterType.Type.NUMBER)
-    private Long id;
+    @FilterType(type = FilterType.Type.UUID)
+    private UUID id;
 
     /**
      * Identifier of the parent access control in the hierarchy.
      * This field represents the parent node in the access control tree structure.
      */
     @Column(name = "parent")
-    @FilterType(type = FilterType.Type.NUMBER)
-    private Long parent;
+    @FilterType(type = FilterType.Type.UUID)
+    private UUID parent;
 
     /**
      * Identifier of the current access control.
      * This field represents the current node in the access control tree structure.
      */
     @Column(name = "current")
-    @FilterType(type = FilterType.Type.NUMBER)
-    private Long current;
+    @FilterType(type = FilterType.Type.UUID)
+    private UUID current;
 
     /**
      * Set insertDate before persisting in repository.

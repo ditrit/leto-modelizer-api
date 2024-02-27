@@ -15,6 +15,7 @@ import lombok.Data;
 import org.hibernate.annotations.ColumnTransformer;
 
 import java.util.List;
+import java.util.UUID;
 
 /**
  * Represents a view entity for user library templates in the database.
@@ -39,22 +40,22 @@ public class UserLibraryTemplateView {
      * The identifier of the user to whom this template of library is assigned.
      */
     @Column(name = "usr_id")
-    @FilterType(type = FilterType.Type.NUMBER)
-    private Long userId;
+    @FilterType(type = FilterType.Type.UUID)
+    private UUID userId;
 
     /**
      * Library template ID associated with this view.
      */
     @Column(name = "lit_id")
-    @FilterType(type = FilterType.Type.NUMBER)
-    private Long libraryTemplateId;
+    @FilterType(type = FilterType.Type.UUID)
+    private UUID libraryTemplateId;
 
     /**
      * Library ID associated with this library template.
      */
     @Column(name = "lib_id")
-    @FilterType(type = FilterType.Type.NUMBER)
-    private Long libraryId;
+    @FilterType(type = FilterType.Type.UUID)
+    private UUID libraryId;
 
     /**
      * Documentation URL for the library template.

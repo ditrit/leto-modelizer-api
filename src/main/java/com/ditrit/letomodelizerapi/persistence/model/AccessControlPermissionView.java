@@ -10,6 +10,8 @@ import jakarta.persistence.Table;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
+import java.util.UUID;
+
 /**
  * Entity representing a SQL view for aggregating permissions across a hierarchy of roles within the access control
  * system.
@@ -36,15 +38,15 @@ public class AccessControlPermissionView extends AbstractEntity {
      * The identifier of the access control to whom this permission is assigned.
      */
     @Column(name = "aco_id")
-    @FilterType(type = FilterType.Type.NUMBER)
-    private Long accessControlId;
+    @FilterType(type = FilterType.Type.UUID)
+    private UUID accessControlId;
 
     /**
      * The identifier of the access control to whom this permission is assigned.
      */
     @Column(name = "per_id")
-    @FilterType(type = FilterType.Type.NUMBER)
-    private Long permissionId;
+    @FilterType(type = FilterType.Type.UUID)
+    private UUID permissionId;
 
     /**
      * The entity associated with this permission.
@@ -64,8 +66,8 @@ public class AccessControlPermissionView extends AbstractEntity {
      * The identifier of the library associated with this permission.
      */
     @Column(name = "lib_id")
-    @FilterType(type = FilterType.Type.NUMBER)
-    private Long libraryId;
+    @FilterType(type = FilterType.Type.UUID)
+    private UUID libraryId;
 
     /**
      * Boolean flag indicating whether the permission is directly assigned to the role or inherited from a parent role

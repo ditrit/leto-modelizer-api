@@ -9,6 +9,8 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import lombok.Data;
 
+import java.util.UUID;
+
 /**
  * Entity representing a view of the access control tree, stored in the "access_controls_tree_view" view.
  * This entity extends AbstractEntity and includes fields for representing a hierarchical view of access controls.
@@ -34,8 +36,8 @@ public class AccessControlTreeView {
      * This field represents the current node in the access control tree structure.
      */
     @Column(name = "aco_id")
-    @FilterType(type = FilterType.Type.NUMBER)
-    private Long accessControlId;
+    @FilterType(type = FilterType.Type.UUID)
+    private UUID accessControlId;
 
     /**
      * Type of the current access control.
@@ -55,8 +57,8 @@ public class AccessControlTreeView {
      * Identifier of the parent access control in the tree structure.
      */
     @Column(name = "parent")
-    @FilterType(type = FilterType.Type.NUMBER)
-    private Long parentAccessControlId;
+    @FilterType(type = FilterType.Type.UUID)
+    private UUID parentAccessControlId;
 
     /**
      * Name of the parent access control.

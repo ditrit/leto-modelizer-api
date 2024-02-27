@@ -9,6 +9,8 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import lombok.Data;
 
+import java.util.UUID;
+
 /**
  * Represents a view entity for user libraries in the database.
  * It includes fields for an internal ID, user ID, library ID and all library fields.
@@ -31,15 +33,15 @@ public class UserLibraryView {
      * The identifier of the user to whom this template of library is assigned.
      */
     @Column(name = "usr_id")
-    @FilterType(type = FilterType.Type.NUMBER)
-    private Long userId;
+    @FilterType(type = FilterType.Type.UUID)
+    private UUID userId;
 
     /**
      * Library ID associated with this library template.
      */
     @Column(name = "lib_id")
-    @FilterType(type = FilterType.Type.NUMBER)
-    private Long libraryId;
+    @FilterType(type = FilterType.Type.UUID)
+    private UUID libraryId;
 
     /**
      * URL of the library.
