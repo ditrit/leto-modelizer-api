@@ -80,7 +80,8 @@ public class PermissionServiceImpl implements PermissionService {
         permission.setLibraryId(libraryId);
 
         permission = permissionRepository.save(permission);
-        accessControlPermissionService.associate(Constants.SUPER_ADMINISTRATOR_ROLE_ID, permission.getId());
+        UUID superAdministratorId = accessControlRepository.findByName(Constants.SUPER_ADMINISTRATOR_ROLE_NAME).getId();
+        accessControlPermissionService.associate(superAdministratorId, permission.getId());
 
         return permission;
     }

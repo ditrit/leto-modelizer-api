@@ -16,7 +16,7 @@ public final class Constants {
     /**
      * The constant representing the role ID for the super administrator.
      */
-    public static final long SUPER_ADMINISTRATOR_ROLE_ID = 1L;
+    public static final String SUPER_ADMINISTRATOR_ROLE_NAME = "SUPER_ADMINISTRATOR";
 
     /**
      * Private constructor.

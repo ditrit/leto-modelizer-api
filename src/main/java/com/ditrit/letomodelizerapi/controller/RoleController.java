@@ -1,6 +1,5 @@
 package com.ditrit.letomodelizerapi.controller;
 
-import com.ditrit.letomodelizerapi.config.Constants;
 import com.ditrit.letomodelizerapi.controller.model.QueryFilter;
 import com.ditrit.letomodelizerapi.model.BeanMapper;
 import com.ditrit.letomodelizerapi.model.accesscontrol.AccessControlDTO;
@@ -37,7 +36,7 @@ import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.UriInfo;
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -58,33 +57,33 @@ import java.util.UUID;
 @Path("/roles")
 @Produces(MediaType.APPLICATION_JSON)
 @Controller
-@AllArgsConstructor(onConstructor = @__(@Autowired))
+@RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class RoleController implements DefaultController {
 
     /**
      * Service to manage user.
      */
-    private UserService userService;
+    private final UserService userService;
 
     /**
      * Service to manage user permissions.
      */
-    private UserPermissionService userPermissionService;
+    private final UserPermissionService userPermissionService;
 
     /**
      * Service to manage access controls.
      */
-    private AccessControlService accessControlService;
+    private final AccessControlService accessControlService;
 
     /**
      * Service to manage permissions.
      */
-    private PermissionService permissionService;
+    private final PermissionService permissionService;
 
     /**
      * Service to manage permissions of access controls.
      */
-    private AccessControlPermissionService accessControlPermissionService;
+    private final AccessControlPermissionService accessControlPermissionService;
 
     /**
      * Finds and returns all roles based on the provided query filters.
@@ -599,8 +598,10 @@ public class RoleController implements DefaultController {
      * @throws ApiException if the provided ID matches the super administrator role ID, indicating an operation
      *         that is not allowed or is incorrect based on the application's business rules.
      */
-    public void checkSuperAdmin(final Long id) {
-        if (Constants.SUPER_ADMINISTRATOR_ROLE_ID == id) {
+    public void checkSuperAdmin(final UUID id) {
+        UUID superAdministratorId = accessControlService.getSuperAdministratorId();
+
+        if (superAdministratorId.equals(id)) {
             throw new ApiException(ErrorType.WRONG_VALUE, "id", id.toString());
         }
     }

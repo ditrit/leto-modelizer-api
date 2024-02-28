@@ -34,4 +34,14 @@ public interface AccessControlRepository extends JpaRepository<AccessControl, UU
      * @return an Optional containing the found AccessControl entity, or an empty Optional if no match is found
      */
     Optional<AccessControl> findOne(Specification<AccessControl> specification);
+
+    /**
+     * Finds an AccessControl entity based on the provided name.
+     * This method searches for an AccessControl entity that matches the given name. It is typically used to retrieve
+     * access control records from the database, such as roles or permissions, by their unique names.
+     *
+     * @param name the name of the AccessControl entity to search for.
+     * @return the found AccessControl entity matching the given name, or null if no such entity exists.
+     */
+    AccessControl findByName(String name);
 }

@@ -1,11 +1,11 @@
 package com.ditrit.letomodelizerapi.service;
 
-import com.ditrit.letomodelizerapi.config.Constants;
 import com.ditrit.letomodelizerapi.model.error.ApiException;
 import com.ditrit.letomodelizerapi.model.error.ErrorType;
 import com.ditrit.letomodelizerapi.persistence.model.AccessControl;
 import com.ditrit.letomodelizerapi.persistence.model.Library;
 import com.ditrit.letomodelizerapi.persistence.model.Permission;
+import com.ditrit.letomodelizerapi.persistence.repository.AccessControlRepository;
 import com.ditrit.letomodelizerapi.persistence.repository.PermissionRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Tag;
@@ -92,6 +92,7 @@ class PermissionServiceImplTest {
         Permission permission = new Permission();
         permission.setId(UUID.randomUUID());
 
+        Mockito.when(accessControlRepository.findByName(Mockito.any())).thenReturn(new AccessControl());
         Mockito.when(permissionRepository.save(Mockito.any())).thenReturn(permission);
         Mockito.doNothing()
                 .when(accessControlPermissionService).
@@ -103,7 +104,8 @@ class PermissionServiceImplTest {
 
         Mockito
                 .verify(accessControlPermissionService, Mockito.times(3))
-                .associate(Constants.SUPER_ADMINISTRATOR_ROLE_ID, 1L);
+                .associate(Mockito.any(), Mockito.any());
+        Mockito.reset(accessControlPermissionService);
     }
 
     @Test
@@ -116,6 +118,7 @@ class PermissionServiceImplTest {
         Mockito.doNothing()
                 .when(accessControlPermissionService).
                 associate(Mockito.any(), Mockito.any());
+        Mockito.when(accessControlRepository.findByName(Mockito.any())).thenReturn(new AccessControl());
 
         Library library = new Library();
         library.setId(UUID.randomUUID());
@@ -127,5 +130,6 @@ class PermissionServiceImplTest {
         Mockito
                 .verify(accessControlPermissionService, Mockito.times(6))
                 .associate(Mockito.any(), Mockito.any());
+        Mockito.reset(accessControlPermissionService);
     }
 }

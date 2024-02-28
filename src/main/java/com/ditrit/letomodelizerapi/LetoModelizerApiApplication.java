@@ -1,6 +1,5 @@
 package com.ditrit.letomodelizerapi;
 
-import com.ditrit.letomodelizerapi.config.Constants;
 import com.ditrit.letomodelizerapi.model.accesscontrol.AccessControlType;
 import com.ditrit.letomodelizerapi.service.AccessControlService;
 import com.ditrit.letomodelizerapi.service.UserService;
@@ -10,6 +9,8 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 import org.springframework.core.env.Environment;
+
+import java.util.UUID;
 
 /**
  * Default application runnable.
@@ -54,7 +55,8 @@ public class LetoModelizerApiApplication {
 
         log.info("Init SUPER_ADMINISTRATOR with login {}", login);
         userService.createAdmin(login);
-        accessControlService.associateUser(AccessControlType.ROLE, Constants.SUPER_ADMINISTRATOR_ROLE_ID, login);
+        UUID superAdministratorId = accessControlService.getSuperAdministratorId();
+        accessControlService.associateUser(AccessControlType.ROLE, superAdministratorId, login);
         log.info("User with login {} is associated to the role SUPER_ADMINISTRATOR", login);
 
         return true;

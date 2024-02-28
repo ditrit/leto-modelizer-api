@@ -187,4 +187,16 @@ public interface AccessControlService {
      * @param login  the login identifier of the user entity to dissociate from the AccessControl entity
      */
     void dissociateUser(AccessControlType type, UUID id, String login);
+
+    /**
+     * Retrieves the unique identifier (UUID) of the super administrator.
+     * This method is designed to provide access to the UUID of the super administrator account within the application.
+     * The super administrator is a predefined user or role with the highest level of access and permissions. This ID
+     * can be used in various parts of the application where specific checks against the super administrator's
+     * privileges are required, ensuring that certain actions or access levels are reserved for the highest level of
+     * administrative control.
+     *
+     * @return the UUID of the super administrator.
+     */
+    UUID getSuperAdministratorId();
 }

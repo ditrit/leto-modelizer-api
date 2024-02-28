@@ -114,6 +114,7 @@ class RoleControllerTest extends MockHelper {
         Mockito
                 .when(request.getSession())
                 .thenReturn(session);
+        Mockito.when(accessControlService.getSuperAdministratorId()).thenReturn(UUID.randomUUID());
         Mockito.doNothing().when(userPermissionService).checkIsAdmin(Mockito.any(), Mockito.any());
         Mockito.when(this.accessControlService.update(Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(new AccessControl());
         final Response response = this.controller.updateRole(request, UUID.randomUUID(), new AccessControlRecord("test"));
@@ -131,6 +132,7 @@ class RoleControllerTest extends MockHelper {
         Mockito
                 .when(request.getSession())
                 .thenReturn(session);
+        Mockito.when(accessControlService.getSuperAdministratorId()).thenReturn(UUID.randomUUID());
         Mockito.doNothing().when(userPermissionService).checkIsAdmin(Mockito.any(), Mockito.any());
         Mockito.doNothing().when(this.accessControlService).delete(Mockito.any(), Mockito.any());
         final Response response = this.controller.deleteRole(request, UUID.randomUUID());
@@ -214,6 +216,8 @@ class RoleControllerTest extends MockHelper {
         Mockito
                 .when(request.getSession())
                 .thenReturn(session);
+
+        Mockito.when(accessControlService.getSuperAdministratorId()).thenReturn(UUID.randomUUID());
         Mockito.doNothing().when(userPermissionService).checkIsAdmin(Mockito.any(), Mockito.any());
         Mockito.doNothing().when(this.accessControlService).associate(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any());
         final Response response = this.controller.associate(request, UUID.randomUUID(), UUID.randomUUID().toString());
@@ -231,6 +235,7 @@ class RoleControllerTest extends MockHelper {
         Mockito
                 .when(request.getSession())
                 .thenReturn(session);
+        Mockito.when(accessControlService.getSuperAdministratorId()).thenReturn(UUID.randomUUID());
         Mockito.doNothing().when(userPermissionService).checkIsAdmin(Mockito.any(), Mockito.any());
         Mockito.doNothing().when(this.accessControlService).dissociate(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any());
         final Response response = this.controller.dissociate(request, UUID.randomUUID(), UUID.randomUUID());
@@ -264,6 +269,7 @@ class RoleControllerTest extends MockHelper {
         Mockito
                 .when(request.getSession())
                 .thenReturn(session);
+        Mockito.when(accessControlService.getSuperAdministratorId()).thenReturn(UUID.randomUUID());
         Mockito.doNothing().when(userPermissionService).checkIsAdmin(Mockito.any(), Mockito.any());
         Mockito.doNothing().when(this.accessControlService).associate(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any());
         final Response response = this.controller.associateGroup(request, UUID.randomUUID(), UUID.randomUUID().toString());
@@ -281,6 +287,7 @@ class RoleControllerTest extends MockHelper {
         Mockito
                 .when(request.getSession())
                 .thenReturn(session);
+        Mockito.when(accessControlService.getSuperAdministratorId()).thenReturn(UUID.randomUUID());
         Mockito.doNothing().when(userPermissionService).checkIsAdmin(Mockito.any(), Mockito.any());
         Mockito.doNothing().when(this.accessControlService).dissociate(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any());
         final Response response = this.controller.dissociateGroup(request, UUID.randomUUID(), UUID.randomUUID());
@@ -326,6 +333,7 @@ class RoleControllerTest extends MockHelper {
         Mockito
                 .when(this.permissionService.findById(Mockito.any()))
                 .thenReturn(new Permission());
+        Mockito.when(accessControlService.getSuperAdministratorId()).thenReturn(UUID.randomUUID());
         Mockito.doNothing().when(this.accessControlPermissionService).associate(Mockito.any(), Mockito.any());
         final Response response = this.controller.associatePermission(request, UUID.randomUUID(), UUID.randomUUID().toString());
 
@@ -342,6 +350,7 @@ class RoleControllerTest extends MockHelper {
         Mockito
                 .when(request.getSession())
                 .thenReturn(session);
+        Mockito.when(accessControlService.getSuperAdministratorId()).thenReturn(UUID.randomUUID());
         Mockito.doNothing().when(userPermissionService).checkIsAdmin(Mockito.any(), Mockito.any());
         Mockito
                 .when(this.accessControlService.findById(Mockito.any(), Mockito.any()))
@@ -359,6 +368,7 @@ class RoleControllerTest extends MockHelper {
     @Test
     @DisplayName("Test checkSuperAdmin: should do nothing on valid id")
     void testCheckSuperAdmin() {
+        Mockito.when(accessControlService.getSuperAdministratorId()).thenReturn(UUID.randomUUID());
         ApiException exception = null;
 
         try {
@@ -374,6 +384,7 @@ class RoleControllerTest extends MockHelper {
     @DisplayName("Test checkSuperAdmin: should throw an error on invalid id")
     void testCheckSuperAdminThrowError() {
         UUID uuid = UUID.randomUUID();
+        Mockito.when(accessControlService.getSuperAdministratorId()).thenReturn(uuid);
         ApiException exception = null;
 
         try {

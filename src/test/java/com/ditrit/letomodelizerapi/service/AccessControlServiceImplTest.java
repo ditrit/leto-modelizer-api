@@ -436,4 +436,20 @@ class AccessControlServiceImplTest {
         assertEquals(ErrorType.ENTITY_NOT_FOUND.getStatus(), exception.getStatus());
         assertEquals("association", exception.getError().getField());
     }
+
+    @Test
+    @DisplayName("Test getSuperAdministratorId: should return id")
+    void testGetSuperAdministratorId() {
+        UUID id = UUID.randomUUID();
+        AccessControl accessControl = new AccessControl();
+        accessControl.setId(id);
+
+        Mockito.when(accessControlRepository.findByName(Mockito.any())).thenReturn(accessControl);
+
+        assertEquals(id, service.getSuperAdministratorId());
+        // Check that retrieve saved uuid instead of re call database.
+        assertEquals(id, service.getSuperAdministratorId());
+
+        Mockito.verify(accessControlRepository, Mockito.times(1)).findByName(Mockito.any());
+    }
 }
