@@ -8,6 +8,7 @@ import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -21,8 +22,8 @@ class UserLibraryTemplateViewToLibraryTemplateFunctionTest {
         UserLibraryTemplateViewToLibraryTemplateFunction mapper = new UserLibraryTemplateViewToLibraryTemplateFunction();
 
         LibraryTemplate expectedLibraryTemplate = new LibraryTemplate();
-        expectedLibraryTemplate.setId(1L);
-        expectedLibraryTemplate.setLibraryId(2L);
+        expectedLibraryTemplate.setId(UUID.randomUUID());
+        expectedLibraryTemplate.setLibraryId(UUID.randomUUID());
         expectedLibraryTemplate.setName("name");
         expectedLibraryTemplate.setIcon("icon");
         expectedLibraryTemplate.setDescription("description");
@@ -35,9 +36,9 @@ class UserLibraryTemplateViewToLibraryTemplateFunctionTest {
 
         UserLibraryTemplateView view = new UserLibraryTemplateView();
         view.setId("id");
-        view.setLibraryTemplateId(1L);
-        view.setLibraryId(2L);
-        view.setUserId(3L);
+        view.setLibraryTemplateId(expectedLibraryTemplate.getId());
+        view.setLibraryId(expectedLibraryTemplate.getLibraryId());
+        view.setUserId(UUID.randomUUID());
         view.setName("name");
         view.setIcon("icon");
         view.setDescription("description");

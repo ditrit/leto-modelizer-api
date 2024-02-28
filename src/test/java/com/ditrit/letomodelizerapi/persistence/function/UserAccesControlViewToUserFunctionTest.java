@@ -7,6 +7,8 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
+import java.util.UUID;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
@@ -18,8 +20,8 @@ class UserAccesControlViewToUserFunctionTest {
     @DisplayName("Test apply: should transform UserAccessControlView to User")
     void testApply() {
         UserAccessControlView userAccessControlView = new UserAccessControlView();
-        userAccessControlView.setAccessControlId(1L);
-        userAccessControlView.setUserId(2L);
+        userAccessControlView.setAccessControlId(UUID.randomUUID());
+        userAccessControlView.setUserId(UUID.randomUUID());
         userAccessControlView.setId("3");
         userAccessControlView.setUserName("userName");
         userAccessControlView.setAccessControlName("accessControlName");
@@ -29,7 +31,7 @@ class UserAccesControlViewToUserFunctionTest {
 
         User user = new UserAccesControlViewToUserFunction().apply(userAccessControlView);
 
-        assertEquals(2L, user.getId());
+        assertEquals(userAccessControlView.getUserId(), user.getId());
         assertEquals("userName", user.getName());
         assertEquals("login", user.getLogin());
         assertEquals("email", user.getEmail());

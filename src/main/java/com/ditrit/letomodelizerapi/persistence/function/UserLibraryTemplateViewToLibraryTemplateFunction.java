@@ -18,7 +18,7 @@ public class UserLibraryTemplateViewToLibraryTemplateFunction implements Functio
         LibraryTemplate> {
     @Override
     public LibraryTemplate apply(final UserLibraryTemplateView userLibraryTemplateView) {
-        LibraryTemplate libraryTemplate = new BeanMapper<>(LibraryTemplate.class).apply(userLibraryTemplateView);
+        LibraryTemplate libraryTemplate = new BeanMapper<>(LibraryTemplate.class, "id").apply(userLibraryTemplateView);
 
         libraryTemplate.setId(userLibraryTemplateView.getLibraryTemplateId());
         libraryTemplate.setLibraryId(userLibraryTemplateView.getLibraryId());
