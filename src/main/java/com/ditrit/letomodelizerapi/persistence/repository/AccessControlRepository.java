@@ -7,13 +7,14 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;
+import java.util.UUID;
 
 /**
  * Repository interface for AccessControl entity.
  * This interface extends JpaRepository, inheriting standard CRUD operations for AccessControl entities.
  * It also provides additional methods to find AccessControl entities based on specifications.
  */
-public interface AccessControlRepository extends JpaRepository<AccessControl, Long> {
+public interface AccessControlRepository extends JpaRepository<AccessControl, UUID> {
     /**
      * Retrieves a page of AccessControl entities that match the given specification.
      * This method allows for complex queries and filtering of AccessControl records using the provided specification.

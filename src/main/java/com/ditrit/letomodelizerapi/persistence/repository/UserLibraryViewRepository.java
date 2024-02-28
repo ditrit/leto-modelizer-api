@@ -12,7 +12,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
  * persistence layer. It specifically handles operations related to {@code UserLibraryView} entities,
  * facilitating access control and permission management within the application.
  */
-public interface UserLibraryViewRepository extends JpaRepository<UserLibraryView, Long> {
+public interface UserLibraryViewRepository extends JpaRepository<UserLibraryView, String> {
 
     /**
      * Finds all {@code UserLibraryView} entities associated, applying a specification for

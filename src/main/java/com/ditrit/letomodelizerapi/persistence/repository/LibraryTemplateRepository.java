@@ -6,6 +6,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.JpaRepository;
 
+import java.util.UUID;
+
 /**
  * Interface for the template of library repository that extends JpaRepository to handle data access operations for
  * {@code LibraryTemplate} entities. This repository interface provides CRUD operations and additional methods
@@ -13,7 +15,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
  *
  * @see JpaRepository
  */
-public interface LibraryTemplateRepository extends JpaRepository<LibraryTemplate, Long> {
+public interface LibraryTemplateRepository extends JpaRepository<LibraryTemplate, UUID> {
 
     /**
      * Retrieves a page of {@code LibraryTemplate} entities that match the given specification.
@@ -37,5 +39,5 @@ public interface LibraryTemplateRepository extends JpaRepository<LibraryTemplate
      *
      * @param id the ID of the library for which all associated records need to be deleted
      */
-    void deleteByLibraryId(Long id);
+    void deleteByLibraryId(UUID id);
 }

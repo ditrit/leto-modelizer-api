@@ -6,6 +6,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.JpaRepository;
 
+import java.util.UUID;
+
 /**
  * Interface for the library repository that extends JpaRepository to handle data access operations for
  * {@code Library} entities. This repository interface provides CRUD operations and additional methods
@@ -13,7 +15,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
  *
  * @see JpaRepository
  */
-public interface LibraryRepository extends JpaRepository<Library, Long> {
+public interface LibraryRepository extends JpaRepository<Library, UUID> {
 
     /**
      * Checks if a library with the specified URL already exists in the database.
@@ -33,7 +35,7 @@ public interface LibraryRepository extends JpaRepository<Library, Long> {
      * @param id the ID of the library being updated, to exclude from the uniqueness check
      * @return true if a library with the given URL exists and its ID is not the one provided, false otherwise
      */
-    boolean existsByUrlAndIdIsNot(String url, Long id);
+    boolean existsByUrlAndIdIsNot(String url, UUID id);
 
     /**
      * Retrieves a page of {@code Library} entities that match the given specification.

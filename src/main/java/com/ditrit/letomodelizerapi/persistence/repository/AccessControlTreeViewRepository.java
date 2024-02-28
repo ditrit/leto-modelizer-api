@@ -7,6 +7,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;
+import java.util.UUID;
 
 /**
  * Spring Data JPA repository interface for {@link AccessControlTreeView} entities.
@@ -39,5 +40,5 @@ public interface AccessControlTreeViewRepository extends JpaRepository<AccessCon
      * @return an {@link Optional} containing the found {@link AccessControlTreeView} entity, or an empty Optional
      *         if no entity matches the provided IDs.
      */
-    Optional<AccessControlTreeView> findByAccessControlIdAndParentAccessControlId(Long id, Long parent);
+    Optional<AccessControlTreeView> findByAccessControlIdAndParentAccessControlId(UUID id, UUID parent);
 }

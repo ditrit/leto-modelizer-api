@@ -5,6 +5,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
+import java.util.UUID;
 
 /**
  * UserRepository interface extends JpaRepository for handling data persistence operations for User entities.
@@ -23,7 +24,7 @@ public interface UserPermissionRepository extends JpaRepository<UserPermission, 
      * @param entityFilter The entity type to be excluded from the results.
      * @return A list of {@link UserPermission} entities matching the criteria.
      */
-    List<UserPermission> findAllByUserIdAndEntityIsNot(Long userId, String entityFilter);
+    List<UserPermission> findAllByUserIdAndEntityIsNot(UUID userId, String entityFilter);
 
     /**
      * Checks whether any {@link UserPermission} entities match the given JPA specification.

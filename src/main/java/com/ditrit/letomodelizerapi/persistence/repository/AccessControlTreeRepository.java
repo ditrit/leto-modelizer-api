@@ -4,6 +4,7 @@ import com.ditrit.letomodelizerapi.persistence.model.AccessControlTree;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;
+import java.util.UUID;
 
 /**
  * Spring Data JPA repository for the {@link AccessControlTree} entity.
@@ -13,7 +14,7 @@ import java.util.Optional;
  *
  * @see JpaRepository
  */
-public interface AccessControlTreeRepository extends JpaRepository<AccessControlTree, Long> {
+public interface AccessControlTreeRepository extends JpaRepository<AccessControlTree, UUID> {
 
     /**
      * Finds an {@link AccessControlTree} entity based on parent and current access control identifiers.
@@ -26,5 +27,5 @@ public interface AccessControlTreeRepository extends JpaRepository<AccessControl
      * @return an {@link Optional} containing the found {@link AccessControlTree} entity, or an empty Optional
      *         if no entity matches the provided identifiers.
      */
-    Optional<AccessControlTree> findByParentAndCurrent(Long parent, Long current);
+    Optional<AccessControlTree> findByParentAndCurrent(UUID parent, UUID current);
 }

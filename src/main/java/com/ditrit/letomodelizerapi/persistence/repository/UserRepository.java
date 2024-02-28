@@ -7,6 +7,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;
+import java.util.UUID;
 
 /**
  * UserRepository interface extends JpaRepository for handling data persistence operations for User entities.
@@ -15,7 +16,7 @@ import java.util.Optional;
  *
  * @see JpaRepository
  */
-public interface UserRepository extends JpaRepository<User, Long> {
+public interface UserRepository extends JpaRepository<User, UUID> {
 
     /**
      * Retrieves a user by their login.

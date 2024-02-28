@@ -4,6 +4,7 @@ import com.ditrit.letomodelizerapi.persistence.model.Permission;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;
+import java.util.UUID;
 
 /**
  * Interface for the permission repository that extends JpaRepository to handle data access operations for
@@ -12,7 +13,7 @@ import java.util.Optional;
  *
  * @see org.springframework.data.jpa.repository.JpaRepository
  */
-public interface PermissionRepository extends JpaRepository<Permission, String> {
+public interface PermissionRepository extends JpaRepository<Permission, UUID> {
 
     /**
      * Retrieves a permission by its unique identifier.
@@ -21,5 +22,5 @@ public interface PermissionRepository extends JpaRepository<Permission, String> 
      * @return an {@code Optional<Permission>} containing the permission if found, or an empty {@code Optional} if no
      *         permission exists with the provided identifier.
      */
-    Optional<Permission> findById(Long id);
+    Optional<Permission> findById(UUID id);
 }
