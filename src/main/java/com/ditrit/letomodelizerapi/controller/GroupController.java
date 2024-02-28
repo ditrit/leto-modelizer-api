@@ -40,6 +40,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 
 import java.util.Map;
+import java.util.UUID;
 
 /**
  * REST Controller for managing groups.
@@ -109,7 +110,7 @@ public class GroupController implements DefaultController {
     @GET
     @Path("/{id}")
     public Response getGroupById(final @Context HttpServletRequest request,
-                                final @PathParam("id") @Valid @NotNull Long id) {
+                                final @PathParam("id") @Valid @NotNull UUID id) {
         HttpSession session = request.getSession();
         User user = userService.getFromSession(session);
         userPermissionService.checkIsAdmin(user, null);
@@ -153,7 +154,7 @@ public class GroupController implements DefaultController {
     @PUT
     @Path("/{id}")
     public Response updateGroup(final @Context HttpServletRequest request,
-                                final @PathParam("id") @Valid @NotNull Long id,
+                                final @PathParam("id") @Valid @NotNull UUID id,
                                 final @Valid AccessControlRecord accessControlRecord) {
         HttpSession session = request.getSession();
         User user = userService.getFromSession(session);
@@ -176,7 +177,7 @@ public class GroupController implements DefaultController {
     @DELETE
     @Path("/{id}")
     public Response deleteGroup(final @Context HttpServletRequest request,
-                                final @PathParam("id") @Valid @NotNull Long id) {
+                                final @PathParam("id") @Valid @NotNull UUID id) {
         HttpSession session = request.getSession();
         User user = userService.getFromSession(session);
         userPermissionService.checkIsAdmin(user, null);
@@ -201,7 +202,7 @@ public class GroupController implements DefaultController {
     @GET
     @Path("/{id}/users")
     public Response getUsersByGroup(final @Context HttpServletRequest request,
-                                   final @PathParam("id") @Valid @NotNull Long id,
+                                   final @PathParam("id") @Valid @NotNull UUID id,
                                    final @Context UriInfo uriInfo,
                                    final @BeanParam @Valid QueryFilter queryFilter) {
         HttpSession session = request.getSession();
@@ -231,7 +232,7 @@ public class GroupController implements DefaultController {
     @Consumes(MediaType.TEXT_PLAIN)
     @Path("/{id}/users")
     public Response associateUser(final @Context HttpServletRequest request,
-                                  final @PathParam("id") @Valid @NotNull Long id,
+                                  final @PathParam("id") @Valid @NotNull UUID id,
                                   final @Valid @NotBlank String login) {
         HttpSession session = request.getSession();
         User user = userService.getFromSession(session);
@@ -256,7 +257,7 @@ public class GroupController implements DefaultController {
     @DELETE
     @Path("/{id}/users/{login}")
     public Response dissociateUser(final @Context HttpServletRequest request,
-                                  final @PathParam("id") @Valid @NotNull Long id,
+                                  final @PathParam("id") @Valid @NotNull UUID id,
                                   final @PathParam("login") @Valid @NotBlank String login) {
         HttpSession session = request.getSession();
         User user = userService.getFromSession(session);
@@ -284,7 +285,7 @@ public class GroupController implements DefaultController {
     @GET
     @Path("/{id}/groups")
     public Response getSubGroupsOfGroup(final @Context HttpServletRequest request,
-                                        final @PathParam("id") @Valid @NotNull Long id,
+                                        final @PathParam("id") @Valid @NotNull UUID id,
                                         final @Context UriInfo uriInfo,
                                         final @BeanParam @Valid QueryFilter queryFilter) {
         HttpSession session = request.getSession();
@@ -318,14 +319,19 @@ public class GroupController implements DefaultController {
     @Consumes(MediaType.TEXT_PLAIN)
     @Path("/{id}/groups")
     public Response associate(final @Context HttpServletRequest request,
-                              final @PathParam("id") @Valid @NotNull Long id,
-                              final @Valid @NotNull Long subGroupId) {
+                              final @PathParam("id") @Valid @NotNull UUID id,
+                              final @Valid @NotNull String subGroupId) {
         HttpSession session = request.getSession();
         User user = userService.getFromSession(session);
         userPermissionService.checkIsAdmin(user, null);
 
         log.info("Received POST request to associate group {} with group {}", id, subGroupId);
-        accessControlService.associate(AccessControlType.GROUP, id, AccessControlType.GROUP, subGroupId);
+        accessControlService.associate(
+                AccessControlType.GROUP,
+                id,
+                AccessControlType.GROUP,
+                UUID.fromString(subGroupId)
+        );
 
         return Response.status(HttpStatus.CREATED.value()).build();
     }
@@ -348,8 +354,8 @@ public class GroupController implements DefaultController {
     @DELETE
     @Path("/{id}/groups/{subGroupId}")
     public Response dissociate(final @Context HttpServletRequest request,
-                               final @PathParam("id") @Valid @NotNull Long id,
-                               final @PathParam("subGroupId") @Valid @NotNull Long subGroupId) {
+                               final @PathParam("id") @Valid @NotNull UUID id,
+                               final @PathParam("subGroupId") @Valid @NotNull UUID subGroupId) {
         HttpSession session = request.getSession();
         User user = userService.getFromSession(session);
         userPermissionService.checkIsAdmin(user, null);
@@ -381,7 +387,7 @@ public class GroupController implements DefaultController {
     @GET
     @Path("/{id}/roles")
     public Response getRolesOfGroup(final @Context HttpServletRequest request,
-                                    final @PathParam("id") @Valid @NotNull Long id,
+                                    final @PathParam("id") @Valid @NotNull UUID id,
                                     final @Context UriInfo uriInfo,
                                     final @BeanParam @Valid QueryFilter queryFilter) {
         HttpSession session = request.getSession();
@@ -412,7 +418,7 @@ public class GroupController implements DefaultController {
     @GET
     @Path("/{id}/permissions")
     public Response getPermissionsOfGroup(final @Context HttpServletRequest request,
-                                          final @PathParam("id") @Valid @NotNull Long id,
+                                          final @PathParam("id") @Valid @NotNull UUID id,
                                           final @Context UriInfo uriInfo,
                                           final @BeanParam @Valid QueryFilter queryFilter) {
         HttpSession session = request.getSession();

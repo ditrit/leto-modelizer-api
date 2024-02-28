@@ -27,6 +27,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -125,7 +126,7 @@ class UserControllerTest extends MockHelper {
     void testGetPicture() {
         UserController controller = new UserController(userService, userPermissionService, accessControlService, "1");
         User user = new User();
-        user.setId(1L);
+        user.setId(UUID.randomUUID());
         user.setEmail("email");
         user.setLogin("login");
         user.setName("name");

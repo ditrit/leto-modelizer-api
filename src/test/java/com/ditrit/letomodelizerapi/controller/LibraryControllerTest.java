@@ -30,6 +30,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -95,7 +96,7 @@ class LibraryControllerTest extends MockHelper {
                 .thenReturn(session);
         Mockito.doNothing().when(userPermissionService).checkLibraryPermission(Mockito.any(), Mockito.any(), Mockito.any());
         Mockito.when(this.libraryService.findById(Mockito.any())).thenReturn(new Library());
-        final Response response = this.controller.getLibraryById(request, 1l);
+        final Response response = this.controller.getLibraryById(request, UUID.randomUUID());
 
         assertNotNull(response);
         assertEquals(HttpStatus.OK.value(), response.getStatus());
@@ -132,7 +133,7 @@ class LibraryControllerTest extends MockHelper {
                 .thenReturn(session);
         Mockito.doNothing().when(userPermissionService).checkLibraryPermission(Mockito.any(), Mockito.any(), Mockito.any());
         Mockito.doNothing().when(this.libraryService).update(Mockito.any(), Mockito.any());
-        final Response response = this.controller.updateLibrary(request, 1L, "url");
+        final Response response = this.controller.updateLibrary(request, UUID.randomUUID(), "url");
 
         assertNotNull(response);
         assertEquals(HttpStatus.NO_CONTENT.value(), response.getStatus());
@@ -148,7 +149,7 @@ class LibraryControllerTest extends MockHelper {
                 .thenReturn(session);
         Mockito.doNothing().when(userPermissionService).checkLibraryPermission(Mockito.any(), Mockito.any(), Mockito.any());
         Mockito.doNothing().when(this.libraryService).delete(Mockito.any());
-        final Response response = this.controller.deleteLibrary(request, 1L);
+        final Response response = this.controller.deleteLibrary(request, UUID.randomUUID());
 
         assertNotNull(response);
         assertEquals(HttpStatus.NO_CONTENT.value(), response.getStatus());
@@ -206,7 +207,7 @@ class LibraryControllerTest extends MockHelper {
                 .when(libraryService.getIcon(Mockito.any()))
                 .thenReturn(icon);
 
-        Response response = controller.getLibraryIcon(request, 1L);
+        Response response = controller.getLibraryIcon(request, UUID.randomUUID());
 
         assertNotNull(response);
         assertEquals(HttpStatus.OK.value(), response.getStatus());
@@ -222,7 +223,7 @@ class LibraryControllerTest extends MockHelper {
                 .thenReturn(session);
         Mockito.doNothing().when(userPermissionService).checkLibraryPermission(Mockito.any(), Mockito.any(), Mockito.any());
         Mockito.when(this.libraryService.findAllTemplates(Mockito.any(), Mockito.any())).thenReturn(new PageImpl<>(new ArrayList<>()));
-        final Response response = this.controller.getLibraryTemplates(request, mockUriInfo(), new QueryFilter(), 1L);
+        final Response response = this.controller.getLibraryTemplates(request, mockUriInfo(), new QueryFilter(), UUID.randomUUID());
 
         assertNotNull(response);
         assertEquals(HttpStatus.OK.value(), response.getStatus());
@@ -239,7 +240,7 @@ class LibraryControllerTest extends MockHelper {
                 .thenReturn(session);
         Mockito.doNothing().when(userPermissionService).checkLibraryPermission(Mockito.any(), Mockito.any(), Mockito.any());
         Mockito.when(this.libraryService.getTemplateById(Mockito.any())).thenReturn(new LibraryTemplate());
-        final Response response = this.controller.getTemplatesById(request, 1L);
+        final Response response = this.controller.getTemplatesById(request, UUID.randomUUID());
 
         assertNotNull(response);
         assertEquals(HttpStatus.OK.value(), response.getStatus());
@@ -267,7 +268,7 @@ class LibraryControllerTest extends MockHelper {
                 .when(libraryService.getTemplateById(Mockito.any()))
                 .thenReturn(new LibraryTemplate());
 
-        Response response = controller.getTemplateIcon(request, 1L);
+        Response response = controller.getTemplateIcon(request, UUID.randomUUID());
 
         assertNotNull(response);
         assertEquals(HttpStatus.OK.value(), response.getStatus());
@@ -297,7 +298,7 @@ class LibraryControllerTest extends MockHelper {
                 .when(libraryService.getFileName(Mockito.anyBoolean(), Mockito.any(), Mockito.any()))
                 .thenReturn("test");
 
-        Response response = controller.getTemplateSchema(request, 1L, 1L);
+        Response response = controller.getTemplateSchema(request, UUID.randomUUID(), 1L);
 
         assertNotNull(response);
         assertEquals(HttpStatus.OK.value(), response.getStatus());
@@ -327,7 +328,7 @@ class LibraryControllerTest extends MockHelper {
                 .when(libraryService.getFileName(Mockito.anyBoolean(), Mockito.any(), Mockito.any()))
                 .thenReturn("test");
 
-        Response response = controller.getTemplateFile(request, 1L, 1L);
+        Response response = controller.getTemplateFile(request, UUID.randomUUID(), 1L);
 
         assertNotNull(response);
         assertEquals(HttpStatus.OK.value(), response.getStatus());

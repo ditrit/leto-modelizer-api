@@ -41,6 +41,7 @@ import org.springframework.stereotype.Controller;
 import java.net.http.HttpResponse;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 /**
  * REST Controller for managing libraries.
@@ -151,7 +152,7 @@ public class LibraryController implements DefaultController {
     @GET
     @Path("/{id}")
     public Response getLibraryById(final @Context HttpServletRequest request,
-                                   final @PathParam("id") @Valid @NotNull Long id) {
+                                   final @PathParam("id") @Valid @NotNull UUID id) {
         HttpSession session = request.getSession();
         User user = userService.getFromSession(session);
         userPermissionService.checkLibraryPermission(user, ActionPermission.ACCESS, id);
@@ -175,7 +176,7 @@ public class LibraryController implements DefaultController {
     @GET
     @Path("/{id}/icon")
     public Response getLibraryIcon(final @Context HttpServletRequest request,
-                                   final @PathParam("id") @Valid @NotNull Long id) {
+                                   final @PathParam("id") @Valid @NotNull UUID id) {
         HttpSession session = request.getSession();
         User user = userService.getFromSession(session);
         userPermissionService.checkLibraryPermission(user, ActionPermission.ACCESS, id);
@@ -208,7 +209,7 @@ public class LibraryController implements DefaultController {
     public Response getLibraryTemplates(final @Context HttpServletRequest request,
                                         final @Context UriInfo uriInfo,
                                         final @BeanParam @Valid QueryFilter queryFilter,
-                                        final @PathParam("id") @Valid @NotNull Long id) {
+                                        final @PathParam("id") @Valid @NotNull UUID id) {
         HttpSession session = request.getSession();
         User user = userService.getFromSession(session);
         userPermissionService.checkLibraryPermission(user, ActionPermission.ACCESS, id);
@@ -263,7 +264,7 @@ public class LibraryController implements DefaultController {
     @PUT
     @Path("/{id}")
     public Response updateLibrary(final @Context HttpServletRequest request,
-                                  final @PathParam("id") @Valid @NotNull Long id,
+                                  final @PathParam("id") @Valid @NotNull UUID id,
                                   final @Valid @Pattern(regexp = ".+/index\\.json$") String url)
             throws JsonProcessingException {
         HttpSession session = request.getSession();
@@ -289,7 +290,7 @@ public class LibraryController implements DefaultController {
     @DELETE
     @Path("/{id}")
     public Response deleteLibrary(final @Context HttpServletRequest request,
-                                  final @PathParam("id") @Valid @NotNull Long id) {
+                                  final @PathParam("id") @Valid @NotNull UUID id) {
         HttpSession session = request.getSession();
         User user = userService.getFromSession(session);
         userPermissionService.checkLibraryPermission(user, ActionPermission.DELETE, id);
@@ -345,7 +346,7 @@ public class LibraryController implements DefaultController {
     @GET
     @Path("/templates/{id}")
     public Response getTemplatesById(final @Context HttpServletRequest request,
-                                     final @PathParam("id") @Valid @NotNull Long id) {
+                                     final @PathParam("id") @Valid @NotNull UUID id) {
         HttpSession session = request.getSession();
         User user = userService.getFromSession(session);
         LibraryTemplate libraryTemplate = libraryService.getTemplateById(id);
@@ -372,7 +373,7 @@ public class LibraryController implements DefaultController {
     @GET
     @Path("/templates/{id}/icon")
     public Response getTemplateIcon(final @Context HttpServletRequest request,
-                                    final @PathParam("id") @Valid @NotNull Long id) {
+                                    final @PathParam("id") @Valid @NotNull UUID id) {
         HttpSession session = request.getSession();
         User user = userService.getFromSession(session);
         LibraryTemplate libraryTemplate = libraryService.getTemplateById(id);
@@ -405,7 +406,7 @@ public class LibraryController implements DefaultController {
     @GET
     @Path("/templates/{id}/schemas/{index}")
     public Response getTemplateSchema(final @Context HttpServletRequest request,
-                                      final @PathParam("id") @Valid @NotNull Long id,
+                                      final @PathParam("id") @Valid @NotNull UUID id,
                                       final @PathParam("index") @Valid @NotNull @Min(0) Long index) {
         HttpSession session = request.getSession();
         User user = userService.getFromSession(session);
@@ -443,7 +444,7 @@ public class LibraryController implements DefaultController {
     @GET
     @Path("/templates/{id}/files/{index}")
     public Response getTemplateFile(final @Context HttpServletRequest request,
-                                      final @PathParam("id") @Valid @NotNull Long id,
+                                      final @PathParam("id") @Valid @NotNull UUID id,
                                       final @PathParam("index") @Valid @NotNull @Min(0) Long index) {
         HttpSession session = request.getSession();
         User user = userService.getFromSession(session);

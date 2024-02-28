@@ -30,6 +30,7 @@ import java.net.http.HttpResponse;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -55,7 +56,7 @@ class CurrentUserControllerTest extends MockHelper {
     @DisplayName("Test getMyInformation: should return valid response.")
     void testGetMyInformation() {
         User user = new User();
-        user.setId(1L);
+        user.setId(UUID.randomUUID());
         user.setEmail("email");
         user.setLogin("login");
         user.setName("name");
@@ -88,7 +89,7 @@ class CurrentUserControllerTest extends MockHelper {
     void testGetPicture() {
         CurrentUserController controller = new CurrentUserController(userService, userPermissionService, accessControlService, "1");
         User user = new User();
-        user.setId(1L);
+        user.setId(UUID.randomUUID());
         user.setEmail("email");
         user.setLogin("login");
         user.setName("name");
@@ -117,7 +118,7 @@ class CurrentUserControllerTest extends MockHelper {
     @DisplayName("Test getMyPermissions: should return valid response.")
     void testGetMyPermissions() {
         User user = new User();
-        user.setId(1L);
+        user.setId(UUID.randomUUID());
 
         UserPermission permission = new UserPermission();
         permission.setId("id");
@@ -140,9 +141,10 @@ class CurrentUserControllerTest extends MockHelper {
                 .thenReturn(permissions);
 
         PermissionDTO expectedPermission = new PermissionDTO();
-        expectedPermission.setId(0L);
+        expectedPermission.setId(permission.getId());
         expectedPermission.setEntity("ADMIN");
         expectedPermission.setAction("ACCESS");
+        expectedPermission.setLibraryId(permission.getLibraryId());
         List<PermissionDTO> expectedPermissions = List.of(expectedPermission);
 
         Response response = controller.getMyPermissions(request);
@@ -156,7 +158,7 @@ class CurrentUserControllerTest extends MockHelper {
     @DisplayName("Test getMyRoles: should return valid response.")
     void testGetMyRoles() {
         User user = new User();
-        user.setId(1L);
+        user.setId(UUID.randomUUID());
 
         HttpSession session = Mockito.mock(HttpSession.class);
         HttpServletRequest request = Mockito.mock(HttpServletRequest.class);
@@ -182,7 +184,7 @@ class CurrentUserControllerTest extends MockHelper {
     @DisplayName("Test getMyGroups: should return valid response.")
     void testGetMyGroups() {
         User user = new User();
-        user.setId(1L);
+        user.setId(UUID.randomUUID());
 
         HttpSession session = Mockito.mock(HttpSession.class);
         HttpServletRequest request = Mockito.mock(HttpServletRequest.class);

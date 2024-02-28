@@ -46,6 +46,7 @@ import org.springframework.stereotype.Controller;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 /**
  * REST Controller for managing roles.
@@ -122,7 +123,7 @@ public class RoleController implements DefaultController {
     @GET
     @Path("/{id}")
     public Response getRoleById(final @Context HttpServletRequest request,
-                                final @PathParam("id") @Valid @NotNull Long id) {
+                                final @PathParam("id") @Valid @NotNull UUID id) {
         HttpSession session = request.getSession();
         User user = userService.getFromSession(session);
         userPermissionService.checkIsAdmin(user, null);
@@ -168,7 +169,7 @@ public class RoleController implements DefaultController {
     @PUT
     @Path("/{id}")
     public Response updateRole(final @Context HttpServletRequest request,
-                               final @PathParam("id") @Valid @NotNull Long id,
+                               final @PathParam("id") @Valid @NotNull UUID id,
                                final @Valid AccessControlRecord accessControlRecord) {
         HttpSession session = request.getSession();
         User user = userService.getFromSession(session);
@@ -193,7 +194,7 @@ public class RoleController implements DefaultController {
     @DELETE
     @Path("/{id}")
     public Response deleteRole(final @Context HttpServletRequest request,
-                               final @PathParam("id") @Valid @NotNull Long id) {
+                               final @PathParam("id") @Valid @NotNull UUID id) {
         HttpSession session = request.getSession();
         User user = userService.getFromSession(session);
         userPermissionService.checkIsAdmin(user, null);
@@ -219,7 +220,7 @@ public class RoleController implements DefaultController {
     @GET
     @Path("/{id}/users")
     public Response getUsersByRole(final @Context HttpServletRequest request,
-                                   final @PathParam("id") @Valid @NotNull Long id,
+                                   final @PathParam("id") @Valid @NotNull UUID id,
                                    final @Context UriInfo uriInfo,
                                    final @BeanParam @Valid QueryFilter queryFilter) {
         HttpSession session = request.getSession();
@@ -249,7 +250,7 @@ public class RoleController implements DefaultController {
     @Consumes(MediaType.TEXT_PLAIN)
     @Path("/{id}/users")
     public Response associateUser(final @Context HttpServletRequest request,
-                                  final @PathParam("id") @Valid @NotNull Long id,
+                                  final @PathParam("id") @Valid @NotNull UUID id,
                                   final @Valid @NotBlank String login) {
         HttpSession session = request.getSession();
         User user = userService.getFromSession(session);
@@ -274,7 +275,7 @@ public class RoleController implements DefaultController {
     @DELETE
     @Path("/{id}/users/{login}")
     public Response dissociateUser(final @Context HttpServletRequest request,
-                                  final @PathParam("id") @Valid @NotNull Long id,
+                                  final @PathParam("id") @Valid @NotNull UUID id,
                                   final @PathParam("login") @Valid @NotBlank String login) {
         HttpSession session = request.getSession();
         User user = userService.getFromSession(session);
@@ -302,7 +303,7 @@ public class RoleController implements DefaultController {
     @GET
     @Path("/{id}/roles")
     public Response getSubRolesOfRole(final @Context HttpServletRequest request,
-                                      final @PathParam("id") @Valid @NotNull Long id,
+                                      final @PathParam("id") @Valid @NotNull UUID id,
                                       final @Context UriInfo uriInfo,
                                       final @BeanParam @Valid QueryFilter queryFilter) {
         HttpSession session = request.getSession();
@@ -336,15 +337,15 @@ public class RoleController implements DefaultController {
     @Consumes(MediaType.TEXT_PLAIN)
     @Path("/{id}/roles")
     public Response associate(final @Context HttpServletRequest request,
-                              final @PathParam("id") @Valid @NotNull Long id,
-                              final @Valid @NotNull Long roleId) {
+                              final @PathParam("id") @Valid @NotNull UUID id,
+                              final @Valid @NotNull String roleId) {
         HttpSession session = request.getSession();
         User user = userService.getFromSession(session);
         userPermissionService.checkIsAdmin(user, null);
         checkSuperAdmin(id);
 
         log.info("Received POST request to associate role {} with role {}", id, roleId);
-        accessControlService.associate(AccessControlType.ROLE, id, AccessControlType.ROLE, roleId);
+        accessControlService.associate(AccessControlType.ROLE, id, AccessControlType.ROLE, UUID.fromString(roleId));
 
         return Response.status(HttpStatus.CREATED.value()).build();
     }
@@ -367,8 +368,8 @@ public class RoleController implements DefaultController {
     @DELETE
     @Path("/{id}/roles/{roleId}")
     public Response dissociate(final @Context HttpServletRequest request,
-                               final @PathParam("id") @Valid @NotNull Long id,
-                               final @PathParam("roleId") @Valid @NotNull Long roleId) {
+                               final @PathParam("id") @Valid @NotNull UUID id,
+                               final @PathParam("roleId") @Valid @NotNull UUID roleId) {
         HttpSession session = request.getSession();
         User user = userService.getFromSession(session);
         userPermissionService.checkIsAdmin(user, null);
@@ -396,7 +397,7 @@ public class RoleController implements DefaultController {
     @GET
     @Path("/{id}/groups")
     public Response getGroupsOfRole(final @Context HttpServletRequest request,
-                                    final @PathParam("id") @Valid @NotNull Long id,
+                                    final @PathParam("id") @Valid @NotNull UUID id,
                                     final @Context UriInfo uriInfo,
                                     final @BeanParam @Valid QueryFilter queryFilter) {
         HttpSession session = request.getSession();
@@ -436,15 +437,15 @@ public class RoleController implements DefaultController {
     @Consumes(MediaType.TEXT_PLAIN)
     @Path("/{id}/groups")
     public Response associateGroup(final @Context HttpServletRequest request,
-                                   final @PathParam("id") @Valid @NotNull Long id,
-                                   final @Valid @NotNull Long groupId) {
+                                   final @PathParam("id") @Valid @NotNull UUID id,
+                                   final @Valid @NotNull String groupId) {
         HttpSession session = request.getSession();
         User user = userService.getFromSession(session);
         userPermissionService.checkIsAdmin(user, null);
         checkSuperAdmin(id);
 
         log.info("Received POST request to associate role {} with group {}", id, groupId);
-        accessControlService.associate(AccessControlType.ROLE, id, AccessControlType.GROUP, groupId);
+        accessControlService.associate(AccessControlType.ROLE, id, AccessControlType.GROUP, UUID.fromString(groupId));
 
         return Response.status(HttpStatus.CREATED.value()).build();
     }
@@ -465,8 +466,8 @@ public class RoleController implements DefaultController {
     @DELETE
     @Path("/{id}/groups/{groupId}")
     public Response dissociateGroup(final @Context HttpServletRequest request,
-                                    final @PathParam("id") @Valid @NotNull Long id,
-                                    final @PathParam("groupId") @Valid @NotNull Long groupId) {
+                                    final @PathParam("id") @Valid @NotNull UUID id,
+                                    final @PathParam("groupId") @Valid @NotNull UUID groupId) {
         HttpSession session = request.getSession();
         User user = userService.getFromSession(session);
         userPermissionService.checkIsAdmin(user, null);
@@ -494,7 +495,7 @@ public class RoleController implements DefaultController {
     @GET
     @Path("/{id}/permissions")
     public Response getPermissionsOfRole(final @Context HttpServletRequest request,
-                                         final @PathParam("id") @Valid @NotNull Long id,
+                                         final @PathParam("id") @Valid @NotNull UUID id,
                                          final @Context UriInfo uriInfo,
                                          final @BeanParam @Valid QueryFilter queryFilter) {
         HttpSession session = request.getSession();
@@ -540,8 +541,8 @@ public class RoleController implements DefaultController {
     @Consumes(MediaType.TEXT_PLAIN)
     @Path("/{id}/permissions")
     public Response associatePermission(final @Context HttpServletRequest request,
-                                   final @PathParam("id") @Valid @NotNull Long id,
-                                   final @Valid @NotNull Long permissionId) {
+                                   final @PathParam("id") @Valid @NotNull UUID id,
+                                   final @Valid @NotNull String permissionId) {
         HttpSession session = request.getSession();
         User user = userService.getFromSession(session);
         userPermissionService.checkIsAdmin(user, null);
@@ -549,7 +550,7 @@ public class RoleController implements DefaultController {
 
         log.info("Received POST request to associate role {} with permission {}", id, permissionId);
         AccessControl accessControl = accessControlService.findById(AccessControlType.ROLE, id);
-        Permission permission = permissionService.findById(permissionId);
+        Permission permission = permissionService.findById(UUID.fromString(permissionId));
         accessControlPermissionService.associate(accessControl.getId(), permission.getId());
 
         return Response.status(HttpStatus.CREATED.value()).build();
@@ -573,8 +574,8 @@ public class RoleController implements DefaultController {
     @DELETE
     @Path("/{id}/permissions/{permissionId}")
     public Response dissociatePermission(final @Context HttpServletRequest request,
-                                    final @PathParam("id") @Valid @NotNull Long id,
-                                    final @PathParam("permissionId") @Valid @NotNull Long permissionId) {
+                                    final @PathParam("id") @Valid @NotNull UUID id,
+                                    final @PathParam("permissionId") @Valid @NotNull UUID permissionId) {
         HttpSession session = request.getSession();
         User user = userService.getFromSession(session);
         userPermissionService.checkIsAdmin(user, null);
