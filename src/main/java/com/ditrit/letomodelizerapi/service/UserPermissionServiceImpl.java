@@ -17,6 +17,7 @@ import org.springframework.stereotype.Service;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 /**
  * Implementation of the UserPermissionService interface.
@@ -78,7 +79,7 @@ public class UserPermissionServiceImpl implements UserPermissionService {
     }
 
     @Override
-    public void checkLibraryPermission(final User user, final  ActionPermission action, final Long id) {
+    public void checkLibraryPermission(final User user, final  ActionPermission action, final UUID id) {
         String libraryId = null;
         Map<String, String> filters = new HashMap<>();
         filters.put("userId", user.getId().toString());

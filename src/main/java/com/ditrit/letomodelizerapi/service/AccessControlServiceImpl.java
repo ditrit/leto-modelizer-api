@@ -34,6 +34,7 @@ import org.springframework.stereotype.Service;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.UUID;
 
 /**
  * Implementation of the AccessControlService interface.
@@ -126,7 +127,7 @@ public class AccessControlServiceImpl implements AccessControlService {
 
     @Override
     public Page<AccessControlDirectDTO> findAllChildren(final AccessControlType type,
-                                                        final Long id,
+                                                        final UUID id,
                                                         final AccessControlType childrenType,
                                                         final Map<String, String> immutableFilters,
                                                         final Pageable pageable) {
@@ -147,7 +148,7 @@ public class AccessControlServiceImpl implements AccessControlService {
 
     @Override
     public Page<User> findAllUsers(final AccessControlType type,
-                                   final Long id,
+                                   final UUID id,
                                    final Map<String, String> immutableFilters,
                                    final Pageable pageable) {
         AccessControl accessControl = findById(type, id);
@@ -163,7 +164,7 @@ public class AccessControlServiceImpl implements AccessControlService {
     }
 
     @Override
-    public Page<AccessControlDirectDTO> findAllAccessControls(final Long id,
+    public Page<AccessControlDirectDTO> findAllAccessControls(final UUID id,
                                                               final AccessControlType type,
                                                               final Map<String, String> immutableFilters,
                                                               final Pageable pageable) {
@@ -180,7 +181,7 @@ public class AccessControlServiceImpl implements AccessControlService {
     }
 
     @Override
-    public AccessControl findById(final AccessControlType type, final Long id) {
+    public AccessControl findById(final AccessControlType type, final UUID id) {
         Map<String, String> filters = Map.of("id", id.toString(), "type", type.name());
         return accessControlRepository.findOne(new SpecificationHelper<>(AccessControl.class, filters))
                 .orElseThrow(() -> new ApiException(ErrorType.ENTITY_NOT_FOUND, "id", id.toString()));
@@ -196,7 +197,7 @@ public class AccessControlServiceImpl implements AccessControlService {
 
     @Override
     public AccessControl update(final AccessControlType type,
-                                final Long id,
+                                final UUID id,
                                 final AccessControlRecord accessControlRecord) {
         AccessControl accessControl = findById(type, id);
         accessControl.setName(accessControlRecord.name());
@@ -205,16 +206,16 @@ public class AccessControlServiceImpl implements AccessControlService {
     }
 
     @Override
-    public void delete(final AccessControlType type, final Long id) {
+    public void delete(final AccessControlType type, final UUID id) {
         AccessControl accessControl = findById(type, id);
         accessControlRepository.deleteById(accessControl.getId());
     }
 
     @Override
     public void associate(final AccessControlType parentType,
-                          final Long id,
+                          final UUID id,
                           final AccessControlType type,
-                          final Long roleId) {
+                          final UUID roleId) {
         AccessControl parentAccessControl = findById(parentType, id);
         AccessControl accessControl = findById(type, roleId);
         Optional<AccessControlTreeView> userAccessControlOptional = accessControlTreeViewRepository
@@ -233,9 +234,9 @@ public class AccessControlServiceImpl implements AccessControlService {
 
     @Override
     public void dissociate(final AccessControlType parentType,
-                           final Long id,
+                           final UUID id,
                            final AccessControlType type,
-                           final Long roleId) {
+                           final UUID roleId) {
         AccessControl parentAccessControl = findById(parentType, id);
         AccessControl accessControl = findById(type, roleId);
         AccessControlTree accessControlTree = accessControlTreeRepository
@@ -246,7 +247,7 @@ public class AccessControlServiceImpl implements AccessControlService {
     }
 
     @Override
-    public void associateUser(final AccessControlType type, final Long id, final String login) {
+    public void associateUser(final AccessControlType type, final UUID id, final String login) {
         AccessControl accessControl = findById(type, id);
         User user = userService.findByLogin(login);
         Optional<UserAccessControl> userAccessControlOptional = userAccessControlRepository
@@ -264,7 +265,7 @@ public class AccessControlServiceImpl implements AccessControlService {
     }
 
     @Override
-    public void dissociateUser(final AccessControlType type, final Long id, final String login) {
+    public void dissociateUser(final AccessControlType type, final UUID id, final String login) {
         AccessControl accessControl = findById(type, id);
         User user = userService.findByLogin(login);
         UserAccessControl userAccessControl = userAccessControlRepository

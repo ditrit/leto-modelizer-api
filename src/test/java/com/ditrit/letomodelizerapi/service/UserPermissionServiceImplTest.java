@@ -19,6 +19,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 
 import java.util.List;
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -54,7 +55,7 @@ class UserPermissionServiceImplTest {
     @DisplayName("Test checkPermission: should throw an exception")
     void testCheckPermission() {
         User user = new User();
-        user.setId(1L);
+        user.setId(UUID.randomUUID());
         Mockito.when(userPermissionRepository.exists(Mockito.any(Specification.class))).thenReturn(false);
         ApiException exception = null;
 
@@ -74,7 +75,7 @@ class UserPermissionServiceImplTest {
     @DisplayName("Test checkIsAdmin: should not throw an exception")
     void testCheckIsAdmin() {
         User user = new User();
-        user.setId(1L);
+        user.setId(UUID.randomUUID());
         Mockito.when(userPermissionRepository.exists(Mockito.any(Specification.class))).thenReturn(true);
         ApiException exception = null;
 
@@ -91,7 +92,7 @@ class UserPermissionServiceImplTest {
     @DisplayName("Test checkLibraryPermission: should exists and not throw exception")
     void testCheckLibraryPermission() {
         User user = new User();
-        user.setId(1L);
+        user.setId(UUID.randomUUID());
         Mockito
                 .when(userPermissionRepository.exists(Mockito.any(Specification.class)))
                 .thenReturn(true);
@@ -110,14 +111,14 @@ class UserPermissionServiceImplTest {
     @DisplayName("Test checkLibraryPermission: should throw exception on permission to create")
     void testCheckLibraryPermissionWithoutCreatePermission() {
         User user = new User();
-        user.setId(1L);
+        user.setId(UUID.randomUUID());
         Mockito
                 .when(userPermissionRepository.exists(Mockito.any(Specification.class)))
                 .thenReturn(false);
 
         ApiException exception = null;
         try {
-            service.checkLibraryPermission(user, ActionPermission.CREATE, 1L);
+            service.checkLibraryPermission(user, ActionPermission.CREATE, UUID.randomUUID());
         } catch (ApiException e) {
             exception = e;
         }
@@ -130,14 +131,14 @@ class UserPermissionServiceImplTest {
     @DisplayName("Test checkLibraryPermission: should throw exception on other permission")
     void testCheckLibraryPermissionWithoutOtherPermission() {
         User user = new User();
-        user.setId(1L);
+        user.setId(UUID.randomUUID());
         Mockito
                 .when(userPermissionRepository.exists(Mockito.any(Specification.class)))
                 .thenReturn(false);
 
         ApiException exception = null;
         try {
-            service.checkLibraryPermission(user, ActionPermission.ACCESS, 1L);
+            service.checkLibraryPermission(user, ActionPermission.ACCESS, UUID.randomUUID());
         } catch (ApiException e) {
             exception = e;
         }

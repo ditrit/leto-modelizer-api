@@ -19,6 +19,7 @@ import org.springframework.data.jpa.domain.Specification;
 
 import java.util.Map;
 import java.util.Optional;
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -43,7 +44,7 @@ class AccessControlPermissionServiceImplTest {
                 .when(accessControlPermissionViewRepository.findAll(Mockito.any(Specification.class), Mockito.any()))
                 .thenReturn(Page.empty());
 
-        assertEquals(Page.empty(), service.findAll(1l, Map.of(), Pageable.ofSize(10)));
+        assertEquals(Page.empty(), service.findAll(UUID.randomUUID(), Map.of(), Pageable.ofSize(10)));
     }
 
     @Test
@@ -56,7 +57,7 @@ class AccessControlPermissionServiceImplTest {
                 .when(accessControlPermissionRepository.save(Mockito.any()))
                 .thenReturn(new AccessControlPermission());
 
-        service.associate(1l, 2l);
+        service.associate(UUID.randomUUID(), UUID.randomUUID());
 
         Mockito.verify(accessControlPermissionRepository, Mockito.times(1)).save(Mockito.any());
     }
@@ -65,9 +66,9 @@ class AccessControlPermissionServiceImplTest {
     @DisplayName("Test associate: should do nothing on already existing association")
     void testAssociateDoNothing() {
         AccessControlPermission accessControlPermission = new AccessControlPermission();
-        accessControlPermission.setId(1L);
-        accessControlPermission.setPermissionId(1L);
-        accessControlPermission.setAccessControlId(1l);
+        accessControlPermission.setId(UUID.randomUUID());
+        accessControlPermission.setPermissionId(UUID.randomUUID());
+        accessControlPermission.setAccessControlId(UUID.randomUUID());
 
         Mockito
                 .when(accessControlPermissionRepository.findByAccessControlIdAndPermissionId(Mockito.any(), Mockito.any()))
@@ -75,7 +76,7 @@ class AccessControlPermissionServiceImplTest {
         ApiException exception = null;
 
         try {
-            service.associate(1l, 2l);
+            service.associate(UUID.randomUUID(), UUID.randomUUID());
         } catch (ApiException e) {
             exception = e;
         }
@@ -88,9 +89,9 @@ class AccessControlPermissionServiceImplTest {
     @DisplayName("Test dissociate: should dissociate access control to permission")
     void testDissociate() {
         AccessControlPermission accessControlPermission = new AccessControlPermission();
-        accessControlPermission.setId(1L);
-        accessControlPermission.setPermissionId(1L);
-        accessControlPermission.setAccessControlId(1l);
+        accessControlPermission.setId(UUID.randomUUID());
+        accessControlPermission.setPermissionId(UUID.randomUUID());
+        accessControlPermission.setAccessControlId(UUID.randomUUID());
 
         Mockito
                 .when(accessControlPermissionRepository.findByAccessControlIdAndPermissionId(Mockito.any(), Mockito.any()))
@@ -100,7 +101,7 @@ class AccessControlPermissionServiceImplTest {
                 .when(accessControlPermissionRepository)
                 .delete(Mockito.any());
 
-        service.dissociate(1l, 2l);
+        service.dissociate(UUID.randomUUID(), UUID.randomUUID());
 
         Mockito.verify(accessControlPermissionRepository, Mockito.times(1)).delete(Mockito.any());
     }
@@ -114,7 +115,7 @@ class AccessControlPermissionServiceImplTest {
         ApiException exception = null;
 
         try {
-            service.dissociate(1l, 2l);
+            service.dissociate(UUID.randomUUID(), UUID.randomUUID());
         } catch (ApiException e) {
             exception = e;
         }

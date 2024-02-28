@@ -9,6 +9,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 import java.util.Map;
+import java.util.UUID;
 
 /**
  * Service interface for managing AccessControl entities.
@@ -45,7 +46,7 @@ public interface AccessControlService {
      * control
      */
     Page<AccessControlDirectDTO> findAllChildren(AccessControlType type,
-                                                 Long id,
+                                                 UUID id,
                                                  AccessControlType childrenType,
                                                  Map<String, String> filters,
                                                  Pageable pageable);
@@ -78,7 +79,7 @@ public interface AccessControlService {
      * @param pageable a Pageable object for pagination information
      * @return a Page of Users associated with the specified AccessControl entity
      */
-    Page<User> findAllUsers(AccessControlType type, Long id, Map<String, String> filters, Pageable pageable);
+    Page<User> findAllUsers(AccessControlType type, UUID id, Map<String, String> filters, Pageable pageable);
 
     /**
      * Retrieves all sub-access controls associated with a specific parent access control ID.
@@ -102,7 +103,7 @@ public interface AccessControlService {
      * specified parent ID. This paginated object includes the subset of access controls that match the search criteria,
      * along with pagination details such as total results, current page number, and total pages available.
      */
-    Page<AccessControlDirectDTO> findAllAccessControls(Long id,
+    Page<AccessControlDirectDTO> findAllAccessControls(UUID id,
                                                        AccessControlType type,
                                                        Map<String, String> filters,
                                                        Pageable pageable);
@@ -114,7 +115,7 @@ public interface AccessControlService {
      * @param id   the ID of the AccessControl entity
      * @return the found AccessControl entity, or null if no entity is found with the given ID
      */
-    AccessControl findById(AccessControlType type, Long id);
+    AccessControl findById(AccessControlType type, UUID id);
 
     /**
      * Creates a new AccessControl entity of a specified type.
@@ -133,7 +134,7 @@ public interface AccessControlService {
      * @param accessControlRecord an AccessControlRecord object containing the updated data
      * @return the updated AccessControl entity
      */
-    AccessControl update(AccessControlType type, Long id, AccessControlRecord accessControlRecord);
+    AccessControl update(AccessControlType type, UUID id, AccessControlRecord accessControlRecord);
 
     /**
      * Deletes an AccessControl entity of a specified type by its ID.
@@ -141,7 +142,7 @@ public interface AccessControlService {
      * @param type the AccessControlType of the AccessControl entity to delete
      * @param id   the ID of the AccessControl entity to delete
      */
-    void delete(AccessControlType type, Long id);
+    void delete(AccessControlType type, UUID id);
 
     /**
      * Associates a role of a specific type with a parent access control entity, creating a hierarchical relationship.
@@ -152,7 +153,7 @@ public interface AccessControlService {
      * @param type       the AccessControlType of the child AccessControl entity to associate
      * @param roleId     the ID of the child AccessControl entity to associate
      */
-    void associate(AccessControlType parentType, Long id, AccessControlType type, Long roleId);
+    void associate(AccessControlType parentType, UUID id, AccessControlType type, UUID roleId);
 
     /**
      * Dissociates a role of a specific type from a parent access control entity, removing the hierarchical
@@ -165,7 +166,7 @@ public interface AccessControlService {
      * @param type       the AccessControlType of the child AccessControl entity to dissociate
      * @param roleId     the ID of the child AccessControl entity to dissociate
      */
-    void dissociate(AccessControlType parentType, Long id, AccessControlType type, Long roleId);
+    void dissociate(AccessControlType parentType, UUID id, AccessControlType type, UUID roleId);
 
     /**
      * Associates a specific AccessControl entity with a user entity identified by a login string.
@@ -175,7 +176,7 @@ public interface AccessControlService {
      * @param id     the ID of the AccessControl entity to be associated
      * @param login  the login identifier of the user entity to associate with the AccessControl entity
      */
-    void associateUser(AccessControlType type, Long id, String login);
+    void associateUser(AccessControlType type, UUID id, String login);
 
     /**
      * Dissociates a specific AccessControl entity from a user entity identified by a login string.
@@ -185,5 +186,5 @@ public interface AccessControlService {
      * @param id     the ID of the AccessControl entity to be dissociated
      * @param login  the login identifier of the user entity to dissociate from the AccessControl entity
      */
-    void dissociateUser(AccessControlType type, Long id, String login);
+    void dissociateUser(AccessControlType type, UUID id, String login);
 }

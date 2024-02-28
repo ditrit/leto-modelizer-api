@@ -6,6 +6,7 @@ import com.ditrit.letomodelizerapi.persistence.model.User;
 import com.ditrit.letomodelizerapi.persistence.model.UserPermission;
 
 import java.util.List;
+import java.util.UUID;
 
 /**
  * The UserPermissionService interface defines the operations for managing permissions of the current user within
@@ -67,5 +68,5 @@ public interface UserPermissionService {
      * @param id the ID of the library on which the action is attempted
      * @throws SecurityException or a custom application-specific exception if the user lacks the required permission
      */
-    void checkLibraryPermission(User user, ActionPermission action, Long id);
+    void checkLibraryPermission(User user, ActionPermission action, UUID id);
 }

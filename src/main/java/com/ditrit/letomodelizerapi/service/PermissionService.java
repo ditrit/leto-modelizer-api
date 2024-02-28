@@ -21,7 +21,7 @@ public interface PermissionService {
      *         It is recommended to document the specific behavior regarding not found entities in the implementation
      *         details.
      */
-    Permission findById(Long id);
+    Permission findById(UUID id);
 
     /**
      * Creates permissions for a given library and assigns them to a specified role.

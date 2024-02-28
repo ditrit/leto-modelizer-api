@@ -15,6 +15,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.UUID;
+
 /**
  * Implementation of the PermissionService interface.
  *
@@ -41,7 +43,7 @@ public class PermissionServiceImpl implements PermissionService {
     private AccessControlPermissionService accessControlPermissionService;
 
     @Override
-    public Permission findById(final Long id) {
+    public Permission findById(final UUID id) {
         return permissionRepository.findById(id)
                 .orElseThrow(() -> new ApiException(ErrorType.ENTITY_NOT_FOUND, "permissionId", id.toString()));
     }
@@ -70,7 +72,7 @@ public class PermissionServiceImpl implements PermissionService {
      * @param libraryId the ID of the library to which the permission is specifically applied, if applicable
      * @return the saved Permission object, now associated with the super administrator role and persisted in the system
      */
-    public Permission create(final EntityPermission entity, final ActionPermission action, final Long libraryId) {
+    public Permission create(final EntityPermission entity, final ActionPermission action, final UUID libraryId) {
         Permission permission = new Permission();
 
         permission.setAction(action.name());
