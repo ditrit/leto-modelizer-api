@@ -10,6 +10,7 @@ import com.ditrit.letomodelizerapi.controller.UserController;
 import com.ditrit.letomodelizerapi.controller.handler.ApiExceptionHandler;
 import com.ditrit.letomodelizerapi.controller.handler.ConstraintViolationExceptionHandler;
 import com.ditrit.letomodelizerapi.controller.handler.DataIntegrityViolationExceptionHandler;
+import com.ditrit.letomodelizerapi.controller.handler.IllegalArgumentExceptionHandler;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.springframework.context.annotation.Configuration;
 
@@ -37,5 +38,6 @@ public class JerseyConfig extends ResourceConfig {
         register(ApiExceptionHandler.class);
         register(ConstraintViolationExceptionHandler.class);
         register(DataIntegrityViolationExceptionHandler.class);
+        register(IllegalArgumentExceptionHandler.class);
     }
 }
