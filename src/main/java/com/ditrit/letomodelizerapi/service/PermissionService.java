@@ -3,11 +3,26 @@ package com.ditrit.letomodelizerapi.service;
 import com.ditrit.letomodelizerapi.persistence.model.AccessControl;
 import com.ditrit.letomodelizerapi.persistence.model.Library;
 import com.ditrit.letomodelizerapi.persistence.model.Permission;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+
+import java.util.Map;
+import java.util.UUID;
 
 /**
  * The PermissionService interface defines the operations for managing permissions within the application.
  */
 public interface PermissionService {
+
+    /**
+     * Finds and returns a page of Permission entities of a specific type, filtered by provided criteria.
+     *
+     * @param filters  a Map of strings representing the filtering criteria
+     * @param pageable a Pageable object for pagination information
+     * @return a Page of Permission entities matching the specified type and filters
+     */
+    Page<Permission> findAll(Map<String, String> filters, Pageable pageable);
+
     /**
      * Retrieves a {@link Permission} entity by its unique identifier.
      *

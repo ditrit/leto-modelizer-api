@@ -4,6 +4,7 @@ import com.ditrit.letomodelizerapi.model.error.ApiException;
 import com.ditrit.letomodelizerapi.model.error.ErrorType;
 import com.ditrit.letomodelizerapi.model.permission.ActionPermission;
 import com.ditrit.letomodelizerapi.model.permission.EntityPermission;
+import com.ditrit.letomodelizerapi.persistence.model.Permission;
 import com.ditrit.letomodelizerapi.persistence.model.User;
 import com.ditrit.letomodelizerapi.persistence.model.UserPermission;
 import com.ditrit.letomodelizerapi.persistence.repository.UserPermissionRepository;
@@ -21,9 +22,7 @@ import org.springframework.http.HttpStatus;
 import java.util.List;
 import java.util.UUID;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.*;
 
 @Tag("unit")
 @ExtendWith(MockitoExtension.class)
@@ -39,14 +38,21 @@ class UserPermissionServiceImplTest {
     @Test
     @DisplayName("Test save: should return wanted permissions")
     void testGetAllPermissions() {
-        UserPermission expectedPermission = new UserPermission();
-        expectedPermission.setId("id");
+        UUID uuid = UUID.randomUUID();
+        UserPermission userPermission = new UserPermission();
+        userPermission.setId("id");
+        userPermission.setPermissionId(uuid);
+        userPermission.setEntity(EntityPermission.ADMIN.name());
+        userPermission.setAction(ActionPermission.ACCESS.name());
+
+        Permission expectedPermission = new Permission();
+        expectedPermission.setId(uuid);
         expectedPermission.setEntity(EntityPermission.ADMIN.name());
         expectedPermission.setAction(ActionPermission.ACCESS.name());
 
         Mockito
                 .when(userPermissionRepository.findAllByUserIdAndEntityIsNot(Mockito.any(), Mockito.any()))
-                .thenReturn(List.of(expectedPermission));
+                .thenReturn(List.of(userPermission));
 
         assertEquals(List.of(expectedPermission), service.getAllPermissions(new User()));
     }

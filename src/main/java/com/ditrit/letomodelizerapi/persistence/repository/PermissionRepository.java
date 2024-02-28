@@ -1,6 +1,9 @@
 package com.ditrit.letomodelizerapi.persistence.repository;
 
 import com.ditrit.letomodelizerapi.persistence.model.Permission;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;
@@ -14,6 +17,15 @@ import java.util.UUID;
  * @see org.springframework.data.jpa.repository.JpaRepository
  */
 public interface PermissionRepository extends JpaRepository<Permission, UUID> {
+    /**
+     * Retrieves a page of AccessControl entities that match the given specification.
+     * This method allows for complex queries and filtering of AccessControl records using the provided specification.
+     *
+     * @param specification a Specification object that defines the conditions for filtering AccessControl records
+     * @param pageable a Pageable object that defines the pagination parameters
+     * @return a Page containing AccessControl entities that match the given specification
+     */
+    Page<Permission> findAll(Specification<Permission> specification, Pageable pageable);
 
     /**
      * Retrieves a permission by its unique identifier.

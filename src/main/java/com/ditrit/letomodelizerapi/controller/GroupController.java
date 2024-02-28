@@ -8,6 +8,7 @@ import com.ditrit.letomodelizerapi.model.accesscontrol.AccessControlRecord;
 import com.ditrit.letomodelizerapi.model.accesscontrol.AccessControlType;
 import com.ditrit.letomodelizerapi.model.permission.PermissionDirectDTO;
 import com.ditrit.letomodelizerapi.model.user.UserDTO;
+import com.ditrit.letomodelizerapi.persistence.function.AccessControlPermissionViewToPermissionDirectDTOFunction;
 import com.ditrit.letomodelizerapi.persistence.model.AccessControl;
 import com.ditrit.letomodelizerapi.persistence.model.User;
 import com.ditrit.letomodelizerapi.service.AccessControlPermissionService;
@@ -430,7 +431,8 @@ public class GroupController implements DefaultController {
         AccessControl accessControl = accessControlService.findById(AccessControlType.GROUP, id);
         Page<PermissionDirectDTO> resources = accessControlPermissionService
                 .findAll(accessControl.getId(), filters, queryFilter.getPagination())
-                .map(new BeanMapper<>(PermissionDirectDTO.class));
+                .map(new AccessControlPermissionViewToPermissionDirectDTOFunction());
+
 
         return Response.status(this.getStatus(resources)).entity(resources).build();
     }

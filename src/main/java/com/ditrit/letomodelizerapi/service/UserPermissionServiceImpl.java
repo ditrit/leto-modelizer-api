@@ -4,6 +4,8 @@ import com.ditrit.letomodelizerapi.model.error.ApiException;
 import com.ditrit.letomodelizerapi.model.error.ErrorType;
 import com.ditrit.letomodelizerapi.model.permission.ActionPermission;
 import com.ditrit.letomodelizerapi.model.permission.EntityPermission;
+import com.ditrit.letomodelizerapi.persistence.function.UserPermissionToPermissionFunction;
+import com.ditrit.letomodelizerapi.persistence.model.Permission;
 import com.ditrit.letomodelizerapi.persistence.model.User;
 import com.ditrit.letomodelizerapi.persistence.model.UserPermission;
 import com.ditrit.letomodelizerapi.persistence.repository.UserPermissionRepository;
@@ -44,8 +46,9 @@ public class UserPermissionServiceImpl implements UserPermissionService {
     private UserPermissionRepository userPermissionRepository;
 
     @Override
-    public List<UserPermission> getAllPermissions(final User user) {
-        return userPermissionRepository.findAllByUserIdAndEntityIsNot(user.getId(), "LIBRARY");
+    public List<Permission> getAllPermissions(final User user) {
+        return userPermissionRepository.findAllByUserIdAndEntityIsNot(user.getId(), "LIBRARY")
+                .stream().map(new UserPermissionToPermissionFunction()).toList();
     }
 
     @Override

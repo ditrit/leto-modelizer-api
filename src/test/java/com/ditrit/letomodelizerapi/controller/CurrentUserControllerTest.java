@@ -4,10 +4,10 @@ import com.ditrit.letomodelizerapi.controller.model.QueryFilter;
 import com.ditrit.letomodelizerapi.helper.MockHelper;
 import com.ditrit.letomodelizerapi.model.permission.ActionPermission;
 import com.ditrit.letomodelizerapi.model.permission.EntityPermission;
-import com.ditrit.letomodelizerapi.model.user.UserDTO;
 import com.ditrit.letomodelizerapi.model.permission.PermissionDTO;
+import com.ditrit.letomodelizerapi.model.user.UserDTO;
+import com.ditrit.letomodelizerapi.persistence.model.Permission;
 import com.ditrit.letomodelizerapi.persistence.model.User;
-import com.ditrit.letomodelizerapi.persistence.model.UserPermission;
 import com.ditrit.letomodelizerapi.service.AccessControlService;
 import com.ditrit.letomodelizerapi.service.UserPermissionService;
 import com.ditrit.letomodelizerapi.service.UserService;
@@ -120,12 +120,13 @@ class CurrentUserControllerTest extends MockHelper {
         User user = new User();
         user.setId(UUID.randomUUID());
 
-        UserPermission permission = new UserPermission();
-        permission.setId("id");
+        Permission permission = new Permission();
+        permission.setId(UUID.randomUUID());
+        permission.setLibraryId(UUID.randomUUID());
         permission.setEntity(EntityPermission.ADMIN.name());
         permission.setAction(ActionPermission.ACCESS.name());
 
-        List<UserPermission> permissions = List.of(permission);
+        List<Permission> permissions = List.of(permission);
 
         HttpSession session = Mockito.mock(HttpSession.class);
         HttpServletRequest request = Mockito.mock(HttpServletRequest.class);
