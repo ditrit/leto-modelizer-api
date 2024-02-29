@@ -1,16 +1,22 @@
 package com.ditrit.letomodelizerapi.controller;
 
+import com.ditrit.letomodelizerapi.persistence.model.User;
+import com.ditrit.letomodelizerapi.service.UserService;
 import jakarta.annotation.security.PermitAll;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.QueryParam;
+import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -21,19 +27,44 @@ import java.net.URISyntaxException;
 @Path("/")
 @Produces(MediaType.APPLICATION_JSON)
 @Controller
+@Slf4j
 public class HomeController {
+
+    /**
+     * Service to manage user.
+     */
+    private UserService userService;
 
     /**
      * Configuration setting specifying the URL used to access the LetoModelizer application.
      */
-    @Value("${leto.modelizer.url}")
     private String letoModelizerUrl;
 
     /**
      * Configuration setting specifying the URL used to access the LetoModelizer-admin application.
      */
-    @Value("${leto.admin.url}")
     private String letoAdminUrl;
+
+    /**
+     * Constructor for HomeController.
+     * Initializes the controller with the necessary services and configuration values. It sets up the UserService
+     * for user management and operations, and it also configures URLs for the Leto Modelizer and Leto Admin pages,
+     * which are injected from the application's properties. This setup enables the HomeController to provide
+     * functionalities related to the home page, possibly including links to other parts of the application or
+     * services such as the Leto Modelizer and Leto Admin interfaces.
+     *
+     * @param userService the UserService responsible for user-related functionalities.
+     * @param letoModelizerUrl the URL to the Leto Modelizer service, injected from application properties.
+     * @param letoAdminUrl the URL to the Leto Admin interface, also injected from application properties.
+     */
+    @Autowired
+    public HomeController(final UserService userService,
+                          final @Value("${leto.modelizer.url}") String letoModelizerUrl,
+                          final @Value("${leto.admin.url}")String letoAdminUrl) {
+        this.userService = userService;
+        this.letoModelizerUrl = letoModelizerUrl;
+        this.letoAdminUrl = letoAdminUrl;
+    }
 
     /**
      * Returns the page displayed upon successful authentication.
@@ -61,19 +92,24 @@ public class HomeController {
      * instance, if the 'app' parameter is set to 'admin', the user will be redirected to
      * the LetoAdmin URL, subject to access control checks.
      *
-     * @param app A query parameter that specifies the application to redirect to.
-     *            This parameter dictates the target URL for redirection.
+     * @param request HttpServletRequest to access the HTTP session and thereby identify the current user.
+     * @param app     A query parameter that specifies the application to redirect to.
+     *                This parameter dictates the target URL for redirection.
      * @return A Response object that redirects the user to the wanted application.
-     * @throws IOException If an input or output exception occurs during the redirection process.
      */
     @GET
     @Path("/redirect")
-    public Response redirect(final @QueryParam("app") String app) throws IOException, URISyntaxException {
+    public Response redirect(final @Context HttpServletRequest request,
+                             final @QueryParam("app") String app) throws URISyntaxException {
+        HttpSession session = request.getSession();
+        User user = userService.getFromSession(session);
         String url = letoModelizerUrl;
 
         if ("admin".equalsIgnoreCase(app)) {
             url = letoAdminUrl;
         }
+
+        log.info("[{}] Received GET request to redirect to {}", user.getLogin(), url);
 
         return Response.seeOther(new URI(url)).build();
     }

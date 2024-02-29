@@ -71,7 +71,12 @@ public class PermissionController implements DefaultController {
         userPermissionService.checkIsAdmin(user, null);
         Map<String, String> filters = this.getFilters(uriInfo);
 
-        log.info("Received GET request to get permissions with the following filters: {}", filters);
+        log.info(
+                "[{}] Received GET request to get permissions with the following filters: {}",
+                user.getLogin(),
+                filters
+        );
+
         Page<Permission> resources = permissionService.findAll(filters, queryFilter.getPagination());
 
         return Response.status(this.getStatus(resources)).entity(resources).build();

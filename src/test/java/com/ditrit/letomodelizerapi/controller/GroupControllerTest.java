@@ -4,6 +4,7 @@ import com.ditrit.letomodelizerapi.controller.model.QueryFilter;
 import com.ditrit.letomodelizerapi.helper.MockHelper;
 import com.ditrit.letomodelizerapi.model.accesscontrol.AccessControlRecord;
 import com.ditrit.letomodelizerapi.persistence.model.AccessControl;
+import com.ditrit.letomodelizerapi.persistence.model.User;
 import com.ditrit.letomodelizerapi.service.AccessControlPermissionService;
 import com.ditrit.letomodelizerapi.service.AccessControlService;
 import com.ditrit.letomodelizerapi.service.UserPermissionService;
@@ -51,6 +52,11 @@ class GroupControllerTest extends MockHelper {
     @Test
     @DisplayName("Test findAll: should return valid response.")
     void testFindAll() {
+        User user = new User();
+        user.setLogin("login");
+        Mockito
+                .when(userService.getFromSession(Mockito.any()))
+                .thenReturn(user);
         HttpSession session = Mockito.mock(HttpSession.class);
         HttpServletRequest request = Mockito.mock(HttpServletRequest.class);
         Mockito
@@ -68,6 +74,11 @@ class GroupControllerTest extends MockHelper {
     @Test
     @DisplayName("Test getGroupById: should return valid response.")
     void testGetGroupById() {
+        User user = new User();
+        user.setLogin("login");
+        Mockito
+                .when(userService.getFromSession(Mockito.any()))
+                .thenReturn(user);
         HttpSession session = Mockito.mock(HttpSession.class);
         HttpServletRequest request = Mockito.mock(HttpServletRequest.class);
         Mockito
@@ -85,6 +96,11 @@ class GroupControllerTest extends MockHelper {
     @Test
     @DisplayName("Test createGroup: should return valid response.")
     void testCreateGroup() {
+        User user = new User();
+        user.setLogin("login");
+        Mockito
+                .when(userService.getFromSession(Mockito.any()))
+                .thenReturn(user);
         HttpSession session = Mockito.mock(HttpSession.class);
         HttpServletRequest request = Mockito.mock(HttpServletRequest.class);
         Mockito
@@ -102,6 +118,11 @@ class GroupControllerTest extends MockHelper {
     @Test
     @DisplayName("Test updateGroup: should return valid response.")
     void testUpdateGroup() {
+        User user = new User();
+        user.setLogin("login");
+        Mockito
+                .when(userService.getFromSession(Mockito.any()))
+                .thenReturn(user);
         HttpSession session = Mockito.mock(HttpSession.class);
         HttpServletRequest request = Mockito.mock(HttpServletRequest.class);
         Mockito
@@ -119,6 +140,11 @@ class GroupControllerTest extends MockHelper {
     @Test
     @DisplayName("Test deleteGroup: should return valid response.")
     void testDeleteGroup() {
+        User user = new User();
+        user.setLogin("login");
+        Mockito
+                .when(userService.getFromSession(Mockito.any()))
+                .thenReturn(user);
         HttpSession session = Mockito.mock(HttpSession.class);
         HttpServletRequest request = Mockito.mock(HttpServletRequest.class);
         Mockito
@@ -135,6 +161,11 @@ class GroupControllerTest extends MockHelper {
     @Test
     @DisplayName("Test getUsersByGroup: should return valid response.")
     void testGetUsersByGroup() {
+        User user = new User();
+        user.setLogin("login");
+        Mockito
+                .when(userService.getFromSession(Mockito.any()))
+                .thenReturn(user);
         HttpSession session = Mockito.mock(HttpSession.class);
         HttpServletRequest request = Mockito.mock(HttpServletRequest.class);
         Mockito
@@ -152,6 +183,11 @@ class GroupControllerTest extends MockHelper {
     @Test
     @DisplayName("Test associateUser: should return valid response.")
     void testAssociateUser() {
+        User user = new User();
+        user.setLogin("login");
+        Mockito
+                .when(userService.getFromSession(Mockito.any()))
+                .thenReturn(user);
         HttpSession session = Mockito.mock(HttpSession.class);
         HttpServletRequest request = Mockito.mock(HttpServletRequest.class);
         Mockito
@@ -169,6 +205,11 @@ class GroupControllerTest extends MockHelper {
     @Test
     @DisplayName("Test dissociateUser: should return valid response.")
     void testDissociateUser() {
+        User user = new User();
+        user.setLogin("login");
+        Mockito
+                .when(userService.getFromSession(Mockito.any()))
+                .thenReturn(user);
         HttpSession session = Mockito.mock(HttpSession.class);
         HttpServletRequest request = Mockito.mock(HttpServletRequest.class);
         Mockito
@@ -185,6 +226,11 @@ class GroupControllerTest extends MockHelper {
     @Test
     @DisplayName("Test getSubGroupsOfGroup: should return valid response.")
     void testGetSubGroupsOfGroup() {
+        User user = new User();
+        user.setLogin("login");
+        Mockito
+                .when(userService.getFromSession(Mockito.any()))
+                .thenReturn(user);
         HttpSession session = Mockito.mock(HttpSession.class);
         HttpServletRequest request = Mockito.mock(HttpServletRequest.class);
         Mockito
@@ -202,6 +248,11 @@ class GroupControllerTest extends MockHelper {
     @Test
     @DisplayName("Test associate: should return valid response.")
     void testAssociate() {
+        User user = new User();
+        user.setLogin("login");
+        Mockito
+                .when(userService.getFromSession(Mockito.any()))
+                .thenReturn(user);
         HttpSession session = Mockito.mock(HttpSession.class);
         HttpServletRequest request = Mockito.mock(HttpServletRequest.class);
         Mockito
@@ -219,6 +270,11 @@ class GroupControllerTest extends MockHelper {
     @Test
     @DisplayName("Test dissociate: should return valid response.")
     void testDissociate() {
+        User user = new User();
+        user.setLogin("login");
+        Mockito
+                .when(userService.getFromSession(Mockito.any()))
+                .thenReturn(user);
         HttpSession session = Mockito.mock(HttpSession.class);
         HttpServletRequest request = Mockito.mock(HttpServletRequest.class);
         Mockito
@@ -235,6 +291,11 @@ class GroupControllerTest extends MockHelper {
     @Test
     @DisplayName("Test getRolesOfGroup: should return valid response.")
     void testGetRolesOfGroup() {
+        User user = new User();
+        user.setLogin("login");
+        Mockito
+                .when(userService.getFromSession(Mockito.any()))
+                .thenReturn(user);
         HttpSession session = Mockito.mock(HttpSession.class);
         HttpServletRequest request = Mockito.mock(HttpServletRequest.class);
         Mockito
@@ -252,6 +313,11 @@ class GroupControllerTest extends MockHelper {
     @Test
     @DisplayName("Test getPermissionsOfGroup: should return valid response.")
     void testGetPermissionsOfGroup() {
+        User user = new User();
+        user.setLogin("login");
+        Mockito
+                .when(userService.getFromSession(Mockito.any()))
+                .thenReturn(user);
         HttpSession session = Mockito.mock(HttpSession.class);
         HttpServletRequest request = Mockito.mock(HttpServletRequest.class);
         Mockito

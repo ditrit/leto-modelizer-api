@@ -52,6 +52,11 @@ class UserControllerTest extends MockHelper {
     @Test
     @DisplayName("Test getUsers: should return valid response.")
     void testGetUsers() {
+        User user = new User();
+        user.setLogin("login");
+        Mockito
+                .when(userService.getFromSession(Mockito.any()))
+                .thenReturn(user);
         HttpSession session = Mockito.mock(HttpSession.class);
         HttpServletRequest request = Mockito.mock(HttpServletRequest.class);
         Mockito
@@ -69,6 +74,11 @@ class UserControllerTest extends MockHelper {
     @Test
     @DisplayName("Test getUserByLogin: should return valid response.")
     void testGetUserByLogin() {
+        User user = new User();
+        user.setLogin("login");
+        Mockito
+                .when(userService.getFromSession(Mockito.any()))
+                .thenReturn(user);
         HttpSession session = Mockito.mock(HttpSession.class);
         HttpServletRequest request = Mockito.mock(HttpServletRequest.class);
         Mockito
@@ -84,8 +94,34 @@ class UserControllerTest extends MockHelper {
     }
 
     @Test
+    @DisplayName("Test deleteUserByLogin: should return valid response.")
+    void testDeleteUserByLogin() {
+        User user = new User();
+        user.setLogin("login");
+        Mockito
+                .when(userService.getFromSession(Mockito.any()))
+                .thenReturn(user);
+        HttpSession session = Mockito.mock(HttpSession.class);
+        HttpServletRequest request = Mockito.mock(HttpServletRequest.class);
+        Mockito
+                .when(request.getSession())
+                .thenReturn(session);
+        Mockito.doNothing().when(userPermissionService).checkIsAdmin(Mockito.any(), Mockito.any());
+        Mockito.doNothing().when(userService).deleteByLogin("test");
+        final Response response = this.controller.deleteUserByLogin(request, "test");
+
+        assertNotNull(response);
+        assertEquals(HttpStatus.NO_CONTENT.value(), response.getStatus());
+    }
+
+    @Test
     @DisplayName("Test getRolesOfUser: should return valid response.")
     void testGetRolesOfUser() {
+        User user = new User();
+        user.setLogin("login");
+        Mockito
+                .when(userService.getFromSession(Mockito.any()))
+                .thenReturn(user);
         HttpSession session = Mockito.mock(HttpSession.class);
         HttpServletRequest request = Mockito.mock(HttpServletRequest.class);
         Mockito
@@ -105,6 +141,11 @@ class UserControllerTest extends MockHelper {
     @Test
     @DisplayName("Test getGroupsOfUser: should return valid response.")
     void testGetGroupsOfUser() {
+        User user = new User();
+        user.setLogin("login");
+        Mockito
+                .when(userService.getFromSession(Mockito.any()))
+                .thenReturn(user);
         HttpSession session = Mockito.mock(HttpSession.class);
         HttpServletRequest request = Mockito.mock(HttpServletRequest.class);
         Mockito
@@ -138,6 +179,9 @@ class UserControllerTest extends MockHelper {
         Map<String, List<String>> headers = new HashMap<>();
         Mockito.when(picture.headers()).thenReturn(HttpHeaders.of(headers, (s, s2) -> true));
 
+        Mockito
+                .when(userService.getFromSession(Mockito.any()))
+                .thenReturn(user);
         Mockito
                 .when(request.getSession())
                 .thenReturn(session);
