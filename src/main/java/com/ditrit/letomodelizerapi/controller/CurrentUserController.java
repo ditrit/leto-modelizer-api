@@ -21,6 +21,7 @@ import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.UriInfo;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
@@ -37,6 +38,7 @@ import java.util.Map;
 @Path("/users/me")
 @Produces(MediaType.APPLICATION_JSON)
 @Controller
+@Slf4j
 public class CurrentUserController implements DefaultController {
 
     /**
@@ -97,6 +99,8 @@ public class CurrentUserController implements DefaultController {
         HttpSession session = request.getSession();
         User user = userService.getFromSession(session);
 
+        log.info("[{}] Received GET request to get current user information", user.getLogin());
+
         return Response
             .status(HttpStatus.OK.value())
             .entity(new BeanMapper<>(UserDTO.class).apply(user))
@@ -118,6 +122,8 @@ public class CurrentUserController implements DefaultController {
                 .firstValue("Content-Type")
                 .orElse("application/octet-stream");
 
+        log.info("[{}] Received GET request to get current user picture", user.getLogin());
+
         return Response.ok(response.body(), contentType).cacheControl(getCacheControl(userPictureCacheMaxAge)).build();
     }
 
@@ -131,6 +137,9 @@ public class CurrentUserController implements DefaultController {
     public Response getMyPermissions(final @Context HttpServletRequest request) {
         HttpSession session = request.getSession();
         User user = userService.getFromSession(session);
+
+        log.info("[{}] Received GET request to get current user permissions", user.getLogin());
+
         List<PermissionDTO> permissions = userPermissionService.getAllPermissions(user)
                 .stream()
                 .map(new BeanMapper<>(PermissionDTO.class))
@@ -160,6 +169,12 @@ public class CurrentUserController implements DefaultController {
         User user = userService.getFromSession(session);
         Map<String, String> filters = this.getFilters(uriInfo);
 
+        log.info(
+                "[{}] Received GET request to get current user roles with the following filters: {}",
+                user.getLogin(),
+                filters
+        );
+
         Page<AccessControlDTO> resources = accessControlService.findAll(
                 AccessControlType.ROLE,
                 user,
@@ -185,11 +200,17 @@ public class CurrentUserController implements DefaultController {
     @GET
     @Path("/groups")
     public Response getMyGroups(final @Context HttpServletRequest request,
-                               final @Context UriInfo uriInfo,
-                               final @BeanParam @Valid QueryFilter queryFilter) {
+                                final @Context UriInfo uriInfo,
+                                final @BeanParam @Valid QueryFilter queryFilter) {
         HttpSession session = request.getSession();
         User user = userService.getFromSession(session);
         Map<String, String> filters = this.getFilters(uriInfo);
+
+        log.info(
+                "[{}] Received GET request to get current user groups with the following filters: {}",
+                user.getLogin(),
+                filters
+        );
 
         Page<AccessControlDTO> resources = accessControlService.findAll(
                 AccessControlType.GROUP,

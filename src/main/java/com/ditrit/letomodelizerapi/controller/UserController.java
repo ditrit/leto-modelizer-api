@@ -103,7 +103,7 @@ public class UserController implements DefaultController {
         userPermissionService.checkIsAdmin(user, null);
         Map<String, String> filters = this.getFilters(uriInfo);
 
-        log.info("Received GET request to get users with the following filters: {}", filters);
+        log.info("[{}] Received GET request to get users with the following filters: {}", user.getLogin(), filters);
         Page<UserDTO> resources = userService.findAll(filters, queryFilter.getPagination())
                 .map(new BeanMapper<>(UserDTO.class));
 
@@ -126,7 +126,7 @@ public class UserController implements DefaultController {
         User user = userService.getFromSession(session);
         userPermissionService.checkIsAdmin(user, null);
 
-        log.info("Received GET request to get user with login {}", login);
+        log.info("[{}] Received GET request to get user with login {}", user.getLogin(), login);
         UserDTO userDTO = new BeanMapper<>(UserDTO.class).apply(userService.findByLogin(login));
 
         return Response.ok(userDTO).build();
@@ -144,12 +144,12 @@ public class UserController implements DefaultController {
     @DELETE
     @Path("/{login}")
     public Response deleteUserByLogin(final @Context HttpServletRequest request,
-                                   final @PathParam("login") @Valid @NotBlank String login) {
+                                      final @PathParam("login") @Valid @NotBlank String login) {
         HttpSession session = request.getSession();
         User user = userService.getFromSession(session);
         userPermissionService.checkIsAdmin(user, null);
 
-        log.info("Received DELETE request to delete user with login {}", login);
+        log.info("[{}] Received DELETE request to delete user with login {}", user.getLogin(), login);
         userService.deleteByLogin(login);
 
         return Response.noContent().build();
@@ -180,7 +180,12 @@ public class UserController implements DefaultController {
         userPermissionService.checkIsAdmin(me, null);
 
         Map<String, String> filters = this.getFilters(uriInfo);
-        log.info("Received GET request to get roles of user {} with the following filters: {}", login, filters);
+        log.info(
+                "[{}] Received GET request to get roles of user {} with the following filters: {}",
+                me.getLogin(),
+                login,
+                filters
+        );
 
         User user = userService.findByLogin(login);
         Page<AccessControlDirectDTO> resources = accessControlService
@@ -215,7 +220,12 @@ public class UserController implements DefaultController {
         userPermissionService.checkIsAdmin(me, null);
 
         Map<String, String> filters = this.getFilters(uriInfo);
-        log.info("Received GET request to get groups of user {} with the following filters: {}", login, filters);
+        log.info(
+                "[{}] Received GET request to get groups of user {} with the following filters: {}",
+                me.getLogin(),
+                login,
+                filters
+        );
 
         User user = userService.findByLogin(login);
         Page<AccessControlDTO> resources = accessControlService
@@ -243,6 +253,8 @@ public class UserController implements DefaultController {
         HttpSession session = request.getSession();
         User me = userService.getFromSession(session);
         userPermissionService.checkIsAdmin(me, null);
+
+        log.info("[{}] Received GET request to get picture of user {}", me.getLogin(), login);
 
         User user = userService.findByLogin(login);
 

@@ -93,7 +93,7 @@ public class GroupController implements DefaultController {
         userPermissionService.checkIsAdmin(user, null);
         Map<String, String> filters = this.getFilters(uriInfo);
 
-        log.info("Received GET request to get groups with the following filters: {}", filters);
+        log.info("[{}] Received GET request to get groups with the following filters: {}", user.getLogin(), filters);
         Page<AccessControlDTO> resources = accessControlService
                 .findAll(AccessControlType.GROUP, filters, queryFilter.getPagination())
                 .map(new BeanMapper<>(AccessControlDTO.class));
@@ -116,7 +116,7 @@ public class GroupController implements DefaultController {
         User user = userService.getFromSession(session);
         userPermissionService.checkIsAdmin(user, null);
 
-        log.info("Received GET request to get group with id {}", id);
+        log.info("[{}] Received GET request to get group with id {}", user.getLogin(), id);
         AccessControlDTO accessControlDTO = new BeanMapper<>(AccessControlDTO.class)
                 .apply(accessControlService.findById(AccessControlType.GROUP, id));
 
@@ -137,7 +137,7 @@ public class GroupController implements DefaultController {
         User user = userService.getFromSession(session);
         userPermissionService.checkIsAdmin(user, null);
 
-        log.info("Received POST request to create a group with {}", accessControlRecord);
+        log.info("[{}] Received POST request to create a group with {}", user.getLogin(), accessControlRecord);
         AccessControlDTO accessControlDTO = new BeanMapper<>(AccessControlDTO.class)
                 .apply(accessControlService.create(AccessControlType.GROUP, accessControlRecord));
 
@@ -161,7 +161,13 @@ public class GroupController implements DefaultController {
         User user = userService.getFromSession(session);
         userPermissionService.checkIsAdmin(user, null);
 
-        log.info("Received PUT request to update a group with id {} with {}", id, accessControlRecord);
+        log.info(
+                "[{}] Received PUT request to update a group with id {} with {}",
+                user.getLogin(),
+                id,
+                accessControlRecord
+        );
+
         AccessControlDTO accessControlDTO = new BeanMapper<>(AccessControlDTO.class)
                 .apply(accessControlService.update(AccessControlType.GROUP, id, accessControlRecord));
 
@@ -183,7 +189,7 @@ public class GroupController implements DefaultController {
         User user = userService.getFromSession(session);
         userPermissionService.checkIsAdmin(user, null);
 
-        log.info("Received DELETE request to delete group with id {}", id);
+        log.info("[{}] Received DELETE request to delete group with id {}", user.getLogin(), id);
         accessControlService.delete(AccessControlType.GROUP, id);
 
         return Response.noContent().build();
@@ -211,7 +217,14 @@ public class GroupController implements DefaultController {
         userPermissionService.checkIsAdmin(user, null);
 
         Map<String, String> filters = this.getFilters(uriInfo);
-        log.info("Received GET request to get users of group {} with the following filters: {}", id, filters);
+
+        log.info(
+                "[{}] Received GET request to get users of group {} with the following filters: {}",
+                user.getLogin(),
+                id,
+                filters
+        );
+
         Page<UserDTO> resources = accessControlService
                 .findAllUsers(AccessControlType.GROUP, id, filters, queryFilter.getPagination())
                 .map(new BeanMapper<>(UserDTO.class));
@@ -239,7 +252,7 @@ public class GroupController implements DefaultController {
         User user = userService.getFromSession(session);
         userPermissionService.checkIsAdmin(user, null);
 
-        log.info("Received POST request to associate group {} with user {}", id, login);
+        log.info("[{}] Received POST request to associate group {} with user {}", user.getLogin(), id, login);
         accessControlService.associateUser(AccessControlType.GROUP, id, login);
 
         return Response.status(HttpStatus.CREATED.value()).build();
@@ -264,7 +277,7 @@ public class GroupController implements DefaultController {
         User user = userService.getFromSession(session);
         userPermissionService.checkIsAdmin(user, null);
 
-        log.info("Received DELETE request to dissociate group {} with user {}", id, login);
+        log.info("[{}] Received DELETE request to dissociate group {} with user {}", user.getLogin(), id, login);
         accessControlService.dissociateUser(AccessControlType.GROUP, id, login);
 
         return Response.noContent().build();
@@ -294,7 +307,14 @@ public class GroupController implements DefaultController {
         userPermissionService.checkIsAdmin(user, null);
 
         Map<String, String> filters = this.getFilters(uriInfo);
-        log.info("Received GET request to get sub-groups of group {} with the following filters: {}", id, filters);
+
+        log.info(
+                "[{}] Received GET request to get sub-groups of group {} with the following filters: {}",
+                user.getLogin(),
+                id,
+                filters
+        );
+
         Page<AccessControlDirectDTO> resources = accessControlService
                 .findAllAccessControls(id, AccessControlType.GROUP, filters, queryFilter.getPagination());
 
@@ -326,7 +346,7 @@ public class GroupController implements DefaultController {
         User user = userService.getFromSession(session);
         userPermissionService.checkIsAdmin(user, null);
 
-        log.info("Received POST request to associate group {} with group {}", id, subGroupId);
+        log.info("[{}] Received POST request to associate group {} with group {}", user.getLogin(), id, subGroupId);
         accessControlService.associate(
                 AccessControlType.GROUP,
                 id,
@@ -361,7 +381,13 @@ public class GroupController implements DefaultController {
         User user = userService.getFromSession(session);
         userPermissionService.checkIsAdmin(user, null);
 
-        log.info("Received DELETE request to dissociate sub-group {} with group {}", id, subGroupId);
+        log.info(
+                "[{}] Received DELETE request to dissociate sub-group {} with group {}",
+                user.getLogin(),
+                id,
+                subGroupId
+        );
+
         accessControlService.dissociate(AccessControlType.GROUP, id, AccessControlType.GROUP, subGroupId);
 
         return Response.noContent().build();
@@ -372,7 +398,7 @@ public class GroupController implements DefaultController {
      * request and returns a paginated list of AccessControlDirectDTO objects representing the roles. It supports
      * filtering based on query parameters to allow for refined searches within the group's associated roles.
      *
-     * This endpoint is secured to ensure that only users with administrative permissions can access role information
+     * <p>This endpoint is secured to ensure that only users with administrative permissions can access role information
      * for a group. It is particularly useful for managing and reviewing the roles and permissions assigned to a group
      * within an access control system.
      *
@@ -396,7 +422,14 @@ public class GroupController implements DefaultController {
         userPermissionService.checkIsAdmin(user, null);
 
         Map<String, String> filters = this.getFilters(uriInfo);
-        log.info("Received GET request to get roles of group {} with the following filters: {}", id, filters);
+
+        log.info(
+                "[{}] Received GET request to get roles of group {} with the following filters: {}",
+                user.getLogin(),
+                id,
+                filters
+        );
+
         Page<AccessControlDirectDTO> resources = accessControlService
                 .findAllAccessControls(id, AccessControlType.ROLE, filters, queryFilter.getPagination());
 
@@ -427,7 +460,14 @@ public class GroupController implements DefaultController {
         userPermissionService.checkIsAdmin(user, null);
 
         Map<String, String> filters = this.getFilters(uriInfo);
-        log.info("Received GET request to get permissions of group {} with the following filters: {}", id, filters);
+
+        log.info(
+                "[{}] Received GET request to get permissions of group {} with the following filters: {}",
+                user.getLogin(),
+                id,
+                filters
+        );
+
         AccessControl accessControl = accessControlService.findById(AccessControlType.GROUP, id);
         Page<PermissionDirectDTO> resources = accessControlPermissionService
                 .findAll(accessControl.getId(), filters, queryFilter.getPagination())

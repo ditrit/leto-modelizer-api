@@ -64,6 +64,8 @@ public class CsrfController {
         User user = userService.getFromSession(session);
         userPermissionService.checkIsAdmin(user, null);
 
+        log.info("[{}] Received GET request to get csrf token", user.getLogin());
+
         CsrfToken csrfToken = (CsrfToken) request.getAttribute("_csrf");
 
         UserCsrfTokenDTO token = new UserCsrfTokenDTO();

@@ -98,6 +98,10 @@ class CurrentUserControllerTest extends MockHelper {
         HttpSession session = Mockito.mock(HttpSession.class);
         HttpServletRequest request = Mockito.mock(HttpServletRequest.class);
         HttpResponse<byte[]> picture = Mockito.mock(HttpResponse.class);
+
+        Mockito
+                .when(userService.getFromSession(Mockito.any()))
+                .thenReturn(user);
         Map<String, List<String>> headers = new HashMap<>();
         Mockito.when(picture.headers()).thenReturn(HttpHeaders.of(headers, (s, s2) -> true));
 

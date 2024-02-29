@@ -55,6 +55,11 @@ class LibraryControllerTest extends MockHelper {
     @Test
     @DisplayName("Test findAll: should return valid response with permission to get all libraries.")
     void testFindAllWithPermissionAllLibraries() {
+        User user = new User();
+        user.setLogin("login");
+        Mockito
+                .when(userService.getFromSession(Mockito.any()))
+                .thenReturn(user);
         HttpSession session = Mockito.mock(HttpSession.class);
         HttpServletRequest request = Mockito.mock(HttpServletRequest.class);
         Mockito
@@ -72,6 +77,11 @@ class LibraryControllerTest extends MockHelper {
     @Test
     @DisplayName("Test findAll: should return valid response with permission to get specific libraries.")
     void testFindAllWithPermissionSpecificLibraries() {
+        User user = new User();
+        user.setLogin("login");
+        Mockito
+                .when(userService.getFromSession(Mockito.any()))
+                .thenReturn(user);
         HttpSession session = Mockito.mock(HttpSession.class);
         HttpServletRequest request = Mockito.mock(HttpServletRequest.class);
         Mockito
@@ -89,6 +99,11 @@ class LibraryControllerTest extends MockHelper {
     @Test
     @DisplayName("Test getLibraryById: should return valid response.")
     void testGetLibraryById() {
+        User user = new User();
+        user.setLogin("login");
+        Mockito
+                .when(userService.getFromSession(Mockito.any()))
+                .thenReturn(user);
         HttpSession session = Mockito.mock(HttpSession.class);
         HttpServletRequest request = Mockito.mock(HttpServletRequest.class);
         Mockito
@@ -145,6 +160,11 @@ class LibraryControllerTest extends MockHelper {
     @Test
     @DisplayName("Test updateLibrary: should return valid response.")
     void testUpdateLibrary() throws JsonProcessingException {
+        User user = new User();
+        user.setLogin("login");
+        Mockito
+                .when(userService.getFromSession(Mockito.any()))
+                .thenReturn(user);
         HttpSession session = Mockito.mock(HttpSession.class);
         HttpServletRequest request = Mockito.mock(HttpServletRequest.class);
         Mockito
@@ -161,6 +181,11 @@ class LibraryControllerTest extends MockHelper {
     @Test
     @DisplayName("Test deleteLibrary: should return valid response.")
     void testDeleteLibrary() {
+        User user = new User();
+        user.setLogin("login");
+        Mockito
+                .when(userService.getFromSession(Mockito.any()))
+                .thenReturn(user);
         HttpSession session = Mockito.mock(HttpSession.class);
         HttpServletRequest request = Mockito.mock(HttpServletRequest.class);
         Mockito
@@ -177,6 +202,11 @@ class LibraryControllerTest extends MockHelper {
     @Test
     @DisplayName("Test findAllTemplates: should return valid response with permission to get all templates.")
     void testFindAllTemplatesWithPermissionAllLibraries() {
+        User user = new User();
+        user.setLogin("login");
+        Mockito
+                .when(userService.getFromSession(Mockito.any()))
+                .thenReturn(user);
         HttpSession session = Mockito.mock(HttpSession.class);
         HttpServletRequest request = Mockito.mock(HttpServletRequest.class);
         Mockito
@@ -194,6 +224,11 @@ class LibraryControllerTest extends MockHelper {
     @Test
     @DisplayName("Test findAllTemplates: should return valid response with permission to get specific templates.")
     void testFindAllTemplatesWithPermissionSpecificLibraries() {
+        User user = new User();
+        user.setLogin("login");
+        Mockito
+                .when(userService.getFromSession(Mockito.any()))
+                .thenReturn(user);
         HttpSession session = Mockito.mock(HttpSession.class);
         HttpServletRequest request = Mockito.mock(HttpServletRequest.class);
         Mockito
@@ -211,6 +246,11 @@ class LibraryControllerTest extends MockHelper {
     @Test
     @DisplayName("Test getIcon: should return valid response.")
     void testGetIcon() {
+        User user = new User();
+        user.setLogin("login");
+        Mockito
+                .when(userService.getFromSession(Mockito.any()))
+                .thenReturn(user);
         LibraryController controller = new LibraryController(userService, userPermissionService, libraryService, "1");
         HttpSession session = Mockito.mock(HttpSession.class);
         HttpServletRequest request = Mockito.mock(HttpServletRequest.class);
@@ -235,6 +275,11 @@ class LibraryControllerTest extends MockHelper {
     @Test
     @DisplayName("Test getLibraryTemplates: should return valid response.")
     void testGetLibraryTemplates() {
+        User user = new User();
+        user.setLogin("login");
+        Mockito
+                .when(userService.getFromSession(Mockito.any()))
+                .thenReturn(user);
         HttpSession session = Mockito.mock(HttpSession.class);
         HttpServletRequest request = Mockito.mock(HttpServletRequest.class);
         Mockito
@@ -252,6 +297,11 @@ class LibraryControllerTest extends MockHelper {
     @Test
     @DisplayName("Test getTemplatesById: should return valid response.")
     void testGetTemplatesById() {
+        User user = new User();
+        user.setLogin("login");
+        Mockito
+                .when(userService.getFromSession(Mockito.any()))
+                .thenReturn(user);
         HttpSession session = Mockito.mock(HttpSession.class);
         HttpServletRequest request = Mockito.mock(HttpServletRequest.class);
         Mockito
@@ -269,6 +319,11 @@ class LibraryControllerTest extends MockHelper {
     @Test
     @DisplayName("Test getTemplateIcon: should return valid response.")
     void testGetTemplateIcon() {
+        User user = new User();
+        user.setLogin("login");
+        Mockito
+                .when(userService.getFromSession(Mockito.any()))
+                .thenReturn(user);
         LibraryController controller = new LibraryController(userService, userPermissionService, libraryService, "1");
         HttpSession session = Mockito.mock(HttpSession.class);
         HttpServletRequest request = Mockito.mock(HttpServletRequest.class);
@@ -296,6 +351,11 @@ class LibraryControllerTest extends MockHelper {
     @Test
     @DisplayName("Test getTemplateSchema: should return valid response.")
     void testGetTemplateSchema() {
+        User user = new User();
+        user.setLogin("login");
+        Mockito
+                .when(userService.getFromSession(Mockito.any()))
+                .thenReturn(user);
         LibraryController controller = new LibraryController(userService, userPermissionService, libraryService, "1");
         HttpSession session = Mockito.mock(HttpSession.class);
         HttpServletRequest request = Mockito.mock(HttpServletRequest.class);
@@ -326,6 +386,11 @@ class LibraryControllerTest extends MockHelper {
     @Test
     @DisplayName("Test getTemplateFile: should return valid response.")
     void testGetTemplateFile() {
+        User user = new User();
+        user.setLogin("login");
+        Mockito
+                .when(userService.getFromSession(Mockito.any()))
+                .thenReturn(user);
         LibraryController controller = new LibraryController(userService, userPermissionService, libraryService, "1");
         HttpSession session = Mockito.mock(HttpSession.class);
         HttpServletRequest request = Mockito.mock(HttpServletRequest.class);

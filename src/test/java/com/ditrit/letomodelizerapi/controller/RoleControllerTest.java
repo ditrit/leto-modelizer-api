@@ -7,6 +7,7 @@ import com.ditrit.letomodelizerapi.model.error.ApiException;
 import com.ditrit.letomodelizerapi.model.error.ErrorType;
 import com.ditrit.letomodelizerapi.persistence.model.AccessControl;
 import com.ditrit.letomodelizerapi.persistence.model.Permission;
+import com.ditrit.letomodelizerapi.persistence.model.User;
 import com.ditrit.letomodelizerapi.service.AccessControlPermissionService;
 import com.ditrit.letomodelizerapi.service.AccessControlService;
 import com.ditrit.letomodelizerapi.service.PermissionService;
@@ -58,6 +59,11 @@ class RoleControllerTest extends MockHelper {
     @Test
     @DisplayName("Test findAll: should return valid response.")
     void testFindAll() {
+        User user = new User();
+        user.setLogin("login");
+        Mockito
+                .when(userService.getFromSession(Mockito.any()))
+                .thenReturn(user);
         HttpSession session = Mockito.mock(HttpSession.class);
         HttpServletRequest request = Mockito.mock(HttpServletRequest.class);
         Mockito
@@ -75,6 +81,11 @@ class RoleControllerTest extends MockHelper {
     @Test
     @DisplayName("Test getRoleById: should return valid response.")
     void testGetRoleById() {
+        User user = new User();
+        user.setLogin("login");
+        Mockito
+                .when(userService.getFromSession(Mockito.any()))
+                .thenReturn(user);
         HttpSession session = Mockito.mock(HttpSession.class);
         HttpServletRequest request = Mockito.mock(HttpServletRequest.class);
         Mockito
@@ -92,6 +103,11 @@ class RoleControllerTest extends MockHelper {
     @Test
     @DisplayName("Test createRole: should return valid response.")
     void testCreateRole() {
+        User user = new User();
+        user.setLogin("login");
+        Mockito
+                .when(userService.getFromSession(Mockito.any()))
+                .thenReturn(user);
         HttpSession session = Mockito.mock(HttpSession.class);
         HttpServletRequest request = Mockito.mock(HttpServletRequest.class);
         Mockito
@@ -109,6 +125,11 @@ class RoleControllerTest extends MockHelper {
     @Test
     @DisplayName("Test updateRole: should return valid response.")
     void testUpdateRole() {
+        User user = new User();
+        user.setLogin("login");
+        Mockito
+                .when(userService.getFromSession(Mockito.any()))
+                .thenReturn(user);
         HttpSession session = Mockito.mock(HttpSession.class);
         HttpServletRequest request = Mockito.mock(HttpServletRequest.class);
         Mockito
@@ -127,6 +148,11 @@ class RoleControllerTest extends MockHelper {
     @Test
     @DisplayName("Test deleteRole: should return valid response.")
     void testDeleteRole() {
+        User user = new User();
+        user.setLogin("login");
+        Mockito
+                .when(userService.getFromSession(Mockito.any()))
+                .thenReturn(user);
         HttpSession session = Mockito.mock(HttpSession.class);
         HttpServletRequest request = Mockito.mock(HttpServletRequest.class);
         Mockito
@@ -144,6 +170,11 @@ class RoleControllerTest extends MockHelper {
     @Test
     @DisplayName("Test getUsersByRole: should return valid response.")
     void testGetUsersByRole() {
+        User user = new User();
+        user.setLogin("login");
+        Mockito
+                .when(userService.getFromSession(Mockito.any()))
+                .thenReturn(user);
         HttpSession session = Mockito.mock(HttpSession.class);
         HttpServletRequest request = Mockito.mock(HttpServletRequest.class);
         Mockito
@@ -161,6 +192,11 @@ class RoleControllerTest extends MockHelper {
     @Test
     @DisplayName("Test associateUser: should return valid response.")
     void testAssociateUser() {
+        User user = new User();
+        user.setLogin("login");
+        Mockito
+                .when(userService.getFromSession(Mockito.any()))
+                .thenReturn(user);
         HttpSession session = Mockito.mock(HttpSession.class);
         HttpServletRequest request = Mockito.mock(HttpServletRequest.class);
         Mockito
@@ -178,6 +214,11 @@ class RoleControllerTest extends MockHelper {
     @Test
     @DisplayName("Test dissociateUser: should return valid response.")
     void testDissociateUser() {
+        User user = new User();
+        user.setLogin("login");
+        Mockito
+                .when(userService.getFromSession(Mockito.any()))
+                .thenReturn(user);
         HttpSession session = Mockito.mock(HttpSession.class);
         HttpServletRequest request = Mockito.mock(HttpServletRequest.class);
         Mockito
@@ -194,6 +235,11 @@ class RoleControllerTest extends MockHelper {
     @Test
     @DisplayName("Test getSubRolesOfRole: should return valid response.")
     void testGetSubRolesOfRole() {
+        User user = new User();
+        user.setLogin("login");
+        Mockito
+                .when(userService.getFromSession(Mockito.any()))
+                .thenReturn(user);
         HttpSession session = Mockito.mock(HttpSession.class);
         HttpServletRequest request = Mockito.mock(HttpServletRequest.class);
         Mockito
@@ -211,6 +257,11 @@ class RoleControllerTest extends MockHelper {
     @Test
     @DisplayName("Test associate: should return valid response.")
     void testAssociate() {
+        User user = new User();
+        user.setLogin("login");
+        Mockito
+                .when(userService.getFromSession(Mockito.any()))
+                .thenReturn(user);
         HttpSession session = Mockito.mock(HttpSession.class);
         HttpServletRequest request = Mockito.mock(HttpServletRequest.class);
         Mockito
@@ -230,6 +281,11 @@ class RoleControllerTest extends MockHelper {
     @Test
     @DisplayName("Test dissociate: should return valid response.")
     void testDissociate() {
+        User user = new User();
+        user.setLogin("login");
+        Mockito
+                .when(userService.getFromSession(Mockito.any()))
+                .thenReturn(user);
         HttpSession session = Mockito.mock(HttpSession.class);
         HttpServletRequest request = Mockito.mock(HttpServletRequest.class);
         Mockito
@@ -247,6 +303,11 @@ class RoleControllerTest extends MockHelper {
     @Test
     @DisplayName("Test getGroupsOfRole: should return valid response.")
     void testGetGroupsOfRole() {
+        User user = new User();
+        user.setLogin("login");
+        Mockito
+                .when(userService.getFromSession(Mockito.any()))
+                .thenReturn(user);
         HttpSession session = Mockito.mock(HttpSession.class);
         HttpServletRequest request = Mockito.mock(HttpServletRequest.class);
         Mockito
@@ -264,6 +325,11 @@ class RoleControllerTest extends MockHelper {
     @Test
     @DisplayName("Test associateGroup: should return valid response.")
     void testAssociateGroup() {
+        User user = new User();
+        user.setLogin("login");
+        Mockito
+                .when(userService.getFromSession(Mockito.any()))
+                .thenReturn(user);
         HttpSession session = Mockito.mock(HttpSession.class);
         HttpServletRequest request = Mockito.mock(HttpServletRequest.class);
         Mockito
@@ -282,6 +348,11 @@ class RoleControllerTest extends MockHelper {
     @Test
     @DisplayName("Test dissociateGroup: should return valid response.")
     void testDissociateGroup() {
+        User user = new User();
+        user.setLogin("login");
+        Mockito
+                .when(userService.getFromSession(Mockito.any()))
+                .thenReturn(user);
         HttpSession session = Mockito.mock(HttpSession.class);
         HttpServletRequest request = Mockito.mock(HttpServletRequest.class);
         Mockito
@@ -299,6 +370,11 @@ class RoleControllerTest extends MockHelper {
     @Test
     @DisplayName("Test getPermissionsOfRole: should return valid response.")
     void testGetPermissionsOfRole() {
+        User user = new User();
+        user.setLogin("login");
+        Mockito
+                .when(userService.getFromSession(Mockito.any()))
+                .thenReturn(user);
         HttpSession session = Mockito.mock(HttpSession.class);
         HttpServletRequest request = Mockito.mock(HttpServletRequest.class);
         Mockito
@@ -321,6 +397,11 @@ class RoleControllerTest extends MockHelper {
     @Test
     @DisplayName("Test associatePermission: should return valid response.")
     void testAssociatePermission() {
+        User user = new User();
+        user.setLogin("login");
+        Mockito
+                .when(userService.getFromSession(Mockito.any()))
+                .thenReturn(user);
         HttpSession session = Mockito.mock(HttpSession.class);
         HttpServletRequest request = Mockito.mock(HttpServletRequest.class);
         Mockito
@@ -345,6 +426,11 @@ class RoleControllerTest extends MockHelper {
     @Test
     @DisplayName("Test dissociatePermission: should return valid response.")
     void testDissociatePermission() {
+        User user = new User();
+        user.setLogin("login");
+        Mockito
+                .when(userService.getFromSession(Mockito.any()))
+                .thenReturn(user);
         HttpSession session = Mockito.mock(HttpSession.class);
         HttpServletRequest request = Mockito.mock(HttpServletRequest.class);
         Mockito

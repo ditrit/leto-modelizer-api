@@ -126,7 +126,7 @@ public class LibraryController implements DefaultController {
         User user = userService.getFromSession(session);
         Map<String, String> filters = this.getFilters(uriInfo);
 
-        log.info("Received GET request to get libraries with the following filters: {}", filters);
+        log.info("[{}] Received GET request to get libraries with the following filters: {}", user.getLogin(), filters);
         Page<LibraryDTO> resources;
 
         if (userPermissionService.hasPermission(user, EntityPermission.LIBRARY, ActionPermission.ACCESS)) {
@@ -157,7 +157,7 @@ public class LibraryController implements DefaultController {
         User user = userService.getFromSession(session);
         userPermissionService.checkLibraryPermission(user, ActionPermission.ACCESS, id);
 
-        log.info("Received GET request to get library with id {}", id);
+        log.info("[{}] Received GET request to get library with id {}", user.getLogin(), id);
         LibraryDTO library = new BeanMapper<>(LibraryDTO.class).apply(libraryService.findById(id));
 
         return Response.ok(library).build();
@@ -181,7 +181,7 @@ public class LibraryController implements DefaultController {
         User user = userService.getFromSession(session);
         userPermissionService.checkLibraryPermission(user, ActionPermission.ACCESS, id);
 
-        log.info("Received GET request to get library icon with id {}", id);
+        log.info("[{}] Received GET request to get library icon with id {}", user.getLogin(), id);
 
         HttpResponse<byte[]> response = libraryService.getIcon(id);
         String contentType = response.headers()
@@ -216,8 +216,13 @@ public class LibraryController implements DefaultController {
         Map<String, String> filters = new HashMap<>(this.getFilters(uriInfo));
         filters.put("libraryId", id.toString());
 
-        log.info("Received GET request to get templates of library with id {} with the following filters: {}", id,
-                filters);
+        log.info(
+                "[{}] Received GET request to get templates of library with id {} with the following filters: {}",
+                user.getLogin(),
+                id,
+                filters
+        );
+
         Page<LibraryTemplate> resources = libraryService.findAllTemplates(filters, queryFilter.getPagination());
 
         return Response.status(this.getStatus(resources)).entity(resources).build();
@@ -242,7 +247,7 @@ public class LibraryController implements DefaultController {
         User user = userService.getFromSession(session);
         userPermissionService.checkLibraryPermission(user, ActionPermission.CREATE, null);
 
-        log.info("Received POST request to create a library with {}", libraryRecord);
+        log.info("[{}] Received POST request to create a library with {}", user.getLogin(), libraryRecord);
         LibraryDTO library = new BeanMapper<>(LibraryDTO.class)
                 .apply(libraryService.create(libraryRecord, user.getLogin()));
 
@@ -271,7 +276,7 @@ public class LibraryController implements DefaultController {
         User user = userService.getFromSession(session);
         userPermissionService.checkLibraryPermission(user, ActionPermission.CREATE, null);
 
-        log.info("Received POST request to validate a library with {}", url);
+        log.info("[{}] Received POST request to validate a library with {}", user.getLogin(), url);
         libraryService.validateLibrary(url);
 
         return Response.noContent().build();
@@ -299,7 +304,7 @@ public class LibraryController implements DefaultController {
         User user = userService.getFromSession(session);
         userPermissionService.checkLibraryPermission(user, ActionPermission.UPDATE, id);
 
-        log.info("Received PUT request to update a library {} with {}", id, url);
+        log.info("[{}] Received PUT request to update a library {} with {}", user.getLogin(), id, url);
         libraryService.update(id, url);
 
         return Response.noContent().build();
@@ -323,7 +328,7 @@ public class LibraryController implements DefaultController {
         User user = userService.getFromSession(session);
         userPermissionService.checkLibraryPermission(user, ActionPermission.DELETE, id);
 
-        log.info("Received DELETE request to delete library with id {}", id);
+        log.info("[{}] Received DELETE request to delete library with id {}", user.getLogin(), id);
         libraryService.delete(id);
 
         return Response.noContent().build();
@@ -349,7 +354,12 @@ public class LibraryController implements DefaultController {
         User user = userService.getFromSession(session);
         Map<String, String> filters = this.getFilters(uriInfo);
 
-        log.info("Received GET request to get library templates with the following filters: {}", filters);
+        log.info(
+                "[{}] Received GET request to get library templates with the following filters: {}",
+                user.getLogin(),
+                filters
+        );
+
         Page<LibraryTemplate> resources;
 
         if (userPermissionService.hasPermission(user, EntityPermission.LIBRARY, ActionPermission.ACCESS)) {
@@ -380,7 +390,7 @@ public class LibraryController implements DefaultController {
         LibraryTemplate libraryTemplate = libraryService.getTemplateById(id);
         userPermissionService.checkLibraryPermission(user, ActionPermission.ACCESS, libraryTemplate.getLibraryId());
 
-        log.info("Received GET request to get templates with id {}", id);
+        log.info("[{}] Received GET request to get templates with id {}", user.getLogin(), id);
 
         return Response.ok(libraryTemplate).build();
     }
@@ -407,7 +417,7 @@ public class LibraryController implements DefaultController {
         LibraryTemplate libraryTemplate = libraryService.getTemplateById(id);
         userPermissionService.checkLibraryPermission(user, ActionPermission.ACCESS, libraryTemplate.getLibraryId());
 
-        log.info("Received GET request to get template icon with id {}", id);
+        log.info("[{}] Received GET request to get template icon with id {}", user.getLogin(), id);
 
         HttpResponse<byte[]> response = libraryService.getTemplateIcon(libraryTemplate);
         String contentType = response.headers()
@@ -441,7 +451,12 @@ public class LibraryController implements DefaultController {
         LibraryTemplate libraryTemplate = libraryService.getTemplateById(id);
         userPermissionService.checkLibraryPermission(user, ActionPermission.ACCESS, libraryTemplate.getLibraryId());
 
-        log.info("Received GET request to get template schema with id {} and index", id, index);
+        log.info(
+                "[{}] Received GET request to get template schema with id {} and index {}",
+                user.getLogin(),
+                id,
+                index
+        );
 
         HttpResponse<byte[]> response = libraryService.getTemplateSchema(libraryTemplate, index);
         String contentType = response.headers()
@@ -479,7 +494,7 @@ public class LibraryController implements DefaultController {
         LibraryTemplate libraryTemplate = libraryService.getTemplateById(id);
         userPermissionService.checkLibraryPermission(user, ActionPermission.ACCESS, libraryTemplate.getLibraryId());
 
-        log.info("Received GET request to get template file with id {} and index", id, index);
+        log.info("[{}] Received GET request to get template file with id {} and index {}", user.getLogin(), id, index);
 
         HttpResponse<byte[]> response = libraryService.getTemplateFile(libraryTemplate, index);
         String contentType = response.headers()
