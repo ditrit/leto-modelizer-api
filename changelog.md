@@ -58,6 +58,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   * For all libraries:
     * `GET    /api/libraries`, to get all libraries.
     * `POST   /api/libraries`, to create a libraries.
+    * `POST   /api/libraries/validate`, to validate index of a library.
     * `GET    /api/libraries/[LIBRARY_ID]`, to get a library by id.
     * `PUT    /api/libraries/[LIBRARY_ID]`, to update a library.
     * `DELETE /api/libraries/[LIBRARY_ID]`, to delete a library.

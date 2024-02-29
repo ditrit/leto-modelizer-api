@@ -210,6 +210,17 @@ public class LibraryServiceImpl implements LibraryService {
     }
 
     @Override
+    public void validateLibrary(final String url) {
+        if (libraryWhitelistHosts.stream().noneMatch(url::startsWith)) {
+            throw new ApiException(ErrorType.UNAUTHORIZED_LIBRARY_URL, "url", url);
+        }
+
+        String library = downloadLibrary(url);
+
+        validate(library);
+    }
+
+    @Override
     public void update(final UUID id, final String url) throws JsonProcessingException {
         findById(id);
         if (libraryWhitelistHosts.stream().noneMatch(url::startsWith)) {
