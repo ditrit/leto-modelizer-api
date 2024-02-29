@@ -28,6 +28,7 @@ import org.springframework.data.jpa.domain.Specification;
 
 import java.util.Map;
 import java.util.Optional;
+import java.util.UUID;
 
 import static org.junit.Assert.assertNull;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -73,7 +74,7 @@ class AccessControlServiceImplTest {
     @DisplayName("Test findAll: should return all access controls of user")
     void testFindAllOfUsers() {
         User user = new User();
-        user.setId(1L);
+        user.setId(UUID.randomUUID());
 
         Mockito
                 .when(userAccessControlViewRepository.findAll(Mockito.any(Specification.class), Mockito.any()))
@@ -89,14 +90,15 @@ class AccessControlServiceImplTest {
                 .when(accessControlTreeViewRepository.findAll(Mockito.any(Specification.class), Mockito.any()))
                 .thenReturn(Page.empty());
 
-        assertEquals(Page.empty(), service.findAllAccessControls(1l, AccessControlType.ROLE, Map.of(), Pageable.ofSize(10)));
+        assertEquals(Page.empty(), service.findAllAccessControls(UUID.randomUUID(), AccessControlType.ROLE, Map.of(), Pageable.ofSize(10)));
     }
 
     @Test
     @DisplayName("Test findAllChildren: should return all users of access control")
     void testFindAllChildren() {
+        UUID id = UUID.randomUUID();
         AccessControl expectedAccessControl = new AccessControl();
-        expectedAccessControl.setId(1L);
+        expectedAccessControl.setId(id);
         expectedAccessControl.setType(AccessControlType.ROLE);
         expectedAccessControl.setName("name");
         Mockito
@@ -106,14 +108,14 @@ class AccessControlServiceImplTest {
                 .when(accessControlTreeViewRepository.findAll(Mockito.any(Specification.class), Mockito.any()))
                 .thenReturn(Page.empty());
 
-        assertEquals(Page.empty(), service.findAllChildren(AccessControlType.ROLE, 1l, AccessControlType.GROUP, Map.of(), Pageable.ofSize(10)));
+        assertEquals(Page.empty(), service.findAllChildren(AccessControlType.ROLE, id, AccessControlType.GROUP, Map.of(), Pageable.ofSize(10)));
     }
 
     @Test
     @DisplayName("Test findAllUsers: should return all users of access control")
     void testFindAllUsers() {
         AccessControl expectedAccessControl = new AccessControl();
-        expectedAccessControl.setId(1L);
+        expectedAccessControl.setId(UUID.randomUUID());
         expectedAccessControl.setType(AccessControlType.ROLE);
         expectedAccessControl.setName("name");
         Mockito
@@ -123,14 +125,14 @@ class AccessControlServiceImplTest {
                 .when(userAccessControlViewRepository.findAll(Mockito.any(Specification.class), Mockito.any()))
                 .thenReturn(Page.empty());
 
-        assertEquals(Page.empty(), service.findAllUsers(AccessControlType.ROLE, 1l, Map.of(), Pageable.ofSize(10)));
+        assertEquals(Page.empty(), service.findAllUsers(AccessControlType.ROLE, UUID.randomUUID(), Map.of(), Pageable.ofSize(10)));
     }
 
     @Test
     @DisplayName("Test findById: should return wanted access controls")
     void testFindById() {
         AccessControl expectedAccessControl = new AccessControl();
-        expectedAccessControl.setId(1L);
+        expectedAccessControl.setId(UUID.randomUUID());
         expectedAccessControl.setType(AccessControlType.ROLE);
         expectedAccessControl.setName("name");
 
@@ -138,7 +140,7 @@ class AccessControlServiceImplTest {
                 .when(accessControlRepository.findOne(Mockito.any(Specification.class)))
                 .thenReturn(Optional.of(expectedAccessControl));
 
-        assertEquals(expectedAccessControl, service.findById(AccessControlType.ROLE, 1l));
+        assertEquals(expectedAccessControl, service.findById(AccessControlType.ROLE, UUID.randomUUID()));
     }
 
     @Test
@@ -148,9 +150,10 @@ class AccessControlServiceImplTest {
                 .when(accessControlRepository.findOne(Mockito.any(Specification.class)))
                 .thenReturn(Optional.empty());
         ApiException exception = null;
+        UUID uuid = UUID.randomUUID();
 
         try {
-            service.findById(AccessControlType.ROLE, 1l);
+            service.findById(AccessControlType.ROLE, uuid);
         } catch (ApiException e) {
             exception = e;
         }
@@ -158,14 +161,14 @@ class AccessControlServiceImplTest {
         assertNotNull(exception);
         assertEquals(ErrorType.ENTITY_NOT_FOUND.getStatus(), exception.getStatus());
         assertEquals("id", exception.getError().getField());
-        assertEquals("1", exception.getError().getValue());
+        assertEquals(uuid.toString(), exception.getError().getValue());
     }
 
     @Test
     @DisplayName("Test create: should create access control")
     void testCreate() {
         AccessControl expectedAccessControl = new AccessControl();
-        expectedAccessControl.setId(1L);
+        expectedAccessControl.setId(UUID.randomUUID());
         expectedAccessControl.setType(AccessControlType.ROLE);
         expectedAccessControl.setName("name");
 
@@ -180,7 +183,7 @@ class AccessControlServiceImplTest {
     @DisplayName("Test update: should update access control")
     void testUpdate() {
         AccessControl expectedAccessControl = new AccessControl();
-        expectedAccessControl.setId(1L);
+        expectedAccessControl.setId(UUID.randomUUID());
         expectedAccessControl.setType(AccessControlType.ROLE);
         expectedAccessControl.setName("name");
 
@@ -191,14 +194,14 @@ class AccessControlServiceImplTest {
                 .when(accessControlRepository.save(Mockito.any()))
                 .thenReturn(expectedAccessControl);
 
-        assertEquals(expectedAccessControl, service.update(AccessControlType.ROLE,  1l, new AccessControlRecord("name")));
+        assertEquals(expectedAccessControl, service.update(AccessControlType.ROLE,  UUID.randomUUID(), new AccessControlRecord("name")));
     }
 
     @Test
     @DisplayName("Test delete: should delete access control")
     void testDelete() {
         AccessControl expectedAccessControl = new AccessControl();
-        expectedAccessControl.setId(1L);
+        expectedAccessControl.setId(UUID.randomUUID());
         expectedAccessControl.setType(AccessControlType.ROLE);
         expectedAccessControl.setName("name");
 
@@ -207,7 +210,7 @@ class AccessControlServiceImplTest {
                 .thenReturn(Optional.of(expectedAccessControl));
         Mockito.doNothing().when(accessControlRepository).deleteById(Mockito.any());
 
-        service.delete(AccessControlType.ROLE,  1l);
+        service.delete(AccessControlType.ROLE,  UUID.randomUUID());
         Mockito.verify(accessControlRepository, Mockito.times(1)).deleteById(Mockito.any());
     }
 
@@ -215,12 +218,12 @@ class AccessControlServiceImplTest {
     @DisplayName("Test associateUser: should associate access control to user")
     void testAssociateUser() {
         AccessControl accessControl = new AccessControl();
-        accessControl.setId(1L);
+        accessControl.setId(UUID.randomUUID());
         accessControl.setType(AccessControlType.ROLE);
         accessControl.setName("name");
 
         User user = new User();
-        user.setId(1L);
+        user.setId(UUID.randomUUID());
 
         Mockito
                 .when(userService.findByLogin(Mockito.any()))
@@ -235,7 +238,7 @@ class AccessControlServiceImplTest {
                 .when(userAccessControlRepository.save(Mockito.any()))
                 .thenReturn(new UserAccessControl());
 
-        service.associateUser(AccessControlType.ROLE, 1l, "login");
+        service.associateUser(AccessControlType.ROLE, UUID.randomUUID(), "login");
 
         Mockito.verify(userAccessControlRepository, Mockito.times(1)).save(Mockito.any());
     }
@@ -244,12 +247,12 @@ class AccessControlServiceImplTest {
     @DisplayName("Test associateUser: should do nothing on already existing association")
     void testAssociateUserDoNothing() {
         AccessControl accessControl = new AccessControl();
-        accessControl.setId(1L);
+        accessControl.setId(UUID.randomUUID());
         accessControl.setType(AccessControlType.ROLE);
         accessControl.setName("name");
 
         User user = new User();
-        user.setId(1L);
+        user.setId(UUID.randomUUID());
 
         Mockito
                 .when(userService.findByLogin(Mockito.any()))
@@ -263,7 +266,7 @@ class AccessControlServiceImplTest {
         ApiException exception = null;
 
         try {
-            service.associateUser(AccessControlType.ROLE, 1l, "login");
+            service.associateUser(AccessControlType.ROLE, UUID.randomUUID(), "login");
         } catch (ApiException e) {
             exception = e;
         }
@@ -276,12 +279,12 @@ class AccessControlServiceImplTest {
     @DisplayName("Test dissociateUser: should dissociate access control to user")
     void testDissociateUser() {
         AccessControl accessControl = new AccessControl();
-        accessControl.setId(1L);
+        accessControl.setId(UUID.randomUUID());
         accessControl.setType(AccessControlType.ROLE);
         accessControl.setName("name");
 
         User user = new User();
-        user.setId(1L);
+        user.setId(UUID.randomUUID());
 
         Mockito
                 .when(userService.findByLogin(Mockito.any()))
@@ -297,7 +300,7 @@ class AccessControlServiceImplTest {
                 .when(userAccessControlRepository)
                 .delete(Mockito.any());
 
-        service.dissociateUser(AccessControlType.ROLE, 1l, "login");
+        service.dissociateUser(AccessControlType.ROLE, UUID.randomUUID(), "login");
 
         Mockito.verify(userAccessControlRepository, Mockito.times(1)).delete(Mockito.any());
     }
@@ -306,12 +309,12 @@ class AccessControlServiceImplTest {
     @DisplayName("Test dissociateUser: should throw exception on unknown association")
     void testDissociateUserThrow() {
         AccessControl accessControl = new AccessControl();
-        accessControl.setId(1L);
+        accessControl.setId(UUID.randomUUID());
         accessControl.setType(AccessControlType.ROLE);
         accessControl.setName("name");
 
         User user = new User();
-        user.setId(1L);
+        user.setId(UUID.randomUUID());
 
         Mockito
                 .when(userService.findByLogin(Mockito.any()))
@@ -325,7 +328,7 @@ class AccessControlServiceImplTest {
         ApiException exception = null;
 
         try {
-            service.dissociateUser(AccessControlType.ROLE, 1l, "login");
+            service.dissociateUser(AccessControlType.ROLE, UUID.randomUUID(), "login");
         } catch (ApiException e) {
             exception = e;
         }
@@ -341,7 +344,7 @@ class AccessControlServiceImplTest {
     @DisplayName("Test associate: should associate access control to another")
     void testAssociate() {
         AccessControl accessControl = new AccessControl();
-        accessControl.setId(1L);
+        accessControl.setId(UUID.randomUUID());
         accessControl.setType(AccessControlType.ROLE);
         accessControl.setName("name");
 
@@ -352,7 +355,7 @@ class AccessControlServiceImplTest {
                 .when(accessControlTreeViewRepository.findByAccessControlIdAndParentAccessControlId(Mockito.any(), Mockito.any()))
                 .thenReturn(Optional.empty());
 
-        service.associate(AccessControlType.ROLE, 1l, AccessControlType.ROLE, 2l);
+        service.associate(AccessControlType.ROLE, UUID.randomUUID(), AccessControlType.ROLE, UUID.randomUUID());
 
         Mockito.verify(accessControlTreeRepository, Mockito.times(1)).save(Mockito.any());
     }
@@ -361,7 +364,7 @@ class AccessControlServiceImplTest {
     @DisplayName("Test associate: should do nothing on already existing association")
     void testAssociateDoNothing() {
         AccessControl accessControl = new AccessControl();
-        accessControl.setId(1L);
+        accessControl.setId(UUID.randomUUID());
         accessControl.setType(AccessControlType.ROLE);
         accessControl.setName("name");
 
@@ -374,7 +377,7 @@ class AccessControlServiceImplTest {
         ApiException exception = null;
 
         try {
-            service.associate(AccessControlType.ROLE, 1l, AccessControlType.ROLE, 2l);
+            service.associate(AccessControlType.ROLE, UUID.randomUUID(), AccessControlType.ROLE, UUID.randomUUID());
         } catch (ApiException e) {
             exception = e;
         }
@@ -387,7 +390,7 @@ class AccessControlServiceImplTest {
     @DisplayName("Test dissociate: should dissociate access control to another")
     void testDissociate() {
         AccessControl accessControl = new AccessControl();
-        accessControl.setId(1L);
+        accessControl.setId(UUID.randomUUID());
         accessControl.setType(AccessControlType.ROLE);
         accessControl.setName("name");
 
@@ -402,7 +405,7 @@ class AccessControlServiceImplTest {
                 .when(accessControlTreeRepository)
                 .delete(Mockito.any());
 
-        service.dissociate(AccessControlType.ROLE, 1l, AccessControlType.ROLE, 2l);
+        service.dissociate(AccessControlType.ROLE, UUID.randomUUID(), AccessControlType.ROLE, UUID.randomUUID());
 
         Mockito.verify(accessControlTreeRepository, Mockito.times(1)).delete(Mockito.any());
     }
@@ -411,7 +414,7 @@ class AccessControlServiceImplTest {
     @DisplayName("Test dissociate: should throw exception on unknown association")
     void testDissociateThrow() {
         AccessControl accessControl = new AccessControl();
-        accessControl.setId(1L);
+        accessControl.setId(UUID.randomUUID());
         accessControl.setType(AccessControlType.ROLE);
         accessControl.setName("name");
 
@@ -424,7 +427,7 @@ class AccessControlServiceImplTest {
         ApiException exception = null;
 
         try {
-            service.dissociate(AccessControlType.ROLE, 1l, AccessControlType.ROLE, 2l);
+            service.dissociate(AccessControlType.ROLE, UUID.randomUUID(), AccessControlType.ROLE, UUID.randomUUID());
         } catch (ApiException e) {
             exception = e;
         }
@@ -432,5 +435,21 @@ class AccessControlServiceImplTest {
         assertNotNull(exception);
         assertEquals(ErrorType.ENTITY_NOT_FOUND.getStatus(), exception.getStatus());
         assertEquals("association", exception.getError().getField());
+    }
+
+    @Test
+    @DisplayName("Test getSuperAdministratorId: should return id")
+    void testGetSuperAdministratorId() {
+        UUID id = UUID.randomUUID();
+        AccessControl accessControl = new AccessControl();
+        accessControl.setId(id);
+
+        Mockito.when(accessControlRepository.findByName(Mockito.any())).thenReturn(accessControl);
+
+        assertEquals(id, service.getSuperAdministratorId());
+        // Check that retrieve saved uuid instead of re call database.
+        assertEquals(id, service.getSuperAdministratorId());
+
+        Mockito.verify(accessControlRepository, Mockito.times(1)).findByName(Mockito.any());
     }
 }

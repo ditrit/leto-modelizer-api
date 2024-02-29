@@ -34,6 +34,7 @@ import java.net.http.HttpResponse;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -344,7 +345,7 @@ class LibraryServiceImplTest {
         MockedStatic<HttpRequest> requestStatic = Mockito.mockStatic(HttpRequest.class);
         MockedStatic<HttpClient> clientStatic = Mockito.mockStatic(HttpClient.class);
         Library expectedLibrary = new Library();
-        expectedLibrary.setId(1L);
+        expectedLibrary.setId(UUID.randomUUID());
 
         Mockito.when(libraryRepository.save(Mockito.any())).thenReturn(expectedLibrary);
         Mockito.when(libraryTemplateRepository.saveAll(Mockito.any())).thenReturn(List.of());
@@ -363,7 +364,7 @@ class LibraryServiceImplTest {
         MockedStatic<HttpRequest> requestStatic = Mockito.mockStatic(HttpRequest.class);
         MockedStatic<HttpClient> clientStatic = Mockito.mockStatic(HttpClient.class);
         Library expectedLibrary = new Library();
-        expectedLibrary.setId(1L);
+        expectedLibrary.setId(UUID.randomUUID());
 
         Mockito.when(libraryRepository.save(Mockito.any())).thenReturn(expectedLibrary);
         Mockito.when(libraryTemplateRepository.saveAll(Mockito.any())).thenReturn(List.of());
@@ -426,13 +427,13 @@ class LibraryServiceImplTest {
         MockedStatic<HttpClient> clientStatic = Mockito.mockStatic(HttpClient.class);
         LibraryServiceImpl service = newInstance("http://localhost:8080/test/");
         AccessControl role = new AccessControl();
-        role.setId(1L);
+        role.setId(UUID.randomUUID());
 
         String validJson = loadJson("libraries/valid/simple/index.json");
         mockHttp(validJson, requestStatic, clientStatic);
 
         Library expectedLibrary = new Library();
-        expectedLibrary.setId(1L);
+        expectedLibrary.setId(UUID.randomUUID());
 
         Mockito.when(libraryRepository.save(Mockito.any())).thenReturn(expectedLibrary);
         Mockito.when(libraryRepository.existsByUrl(Mockito.any())).thenReturn(false);
@@ -450,14 +451,14 @@ class LibraryServiceImplTest {
     @DisplayName("Test update: should throw an error on unauthorized library url")
     void testUpdateWithUnauthorizedUrl() throws JsonProcessingException {
         Library library = new Library();
-        library.setId(1L);
+        library.setId(UUID.randomUUID());
         Mockito.when(libraryRepository.findById(Mockito.any())).thenReturn(Optional.of(library));
         LibraryServiceImpl service = newInstance("http://localhost:8080/test/");
 
         ApiException exception = null;
 
         try {
-            service.update(1L, "bad");
+            service.update(UUID.randomUUID(), "bad");
         } catch (ApiException e) {
             exception = e;
         }
@@ -474,7 +475,7 @@ class LibraryServiceImplTest {
     @DisplayName("Test create: should throw an error on already exists library url")
     void testUpdateWithAlreadyExistsUrl() throws JsonProcessingException {
         Library library = new Library();
-        library.setId(1L);
+        library.setId(UUID.randomUUID());
         Mockito.when(libraryRepository.findById(Mockito.any())).thenReturn(Optional.of(library));
         LibraryServiceImpl service = newInstance("http://localhost:8080/test/");
         Mockito.when(libraryRepository.existsByUrlAndIdIsNot(Mockito.any(), Mockito.any())).thenReturn(true);
@@ -482,7 +483,7 @@ class LibraryServiceImplTest {
         ApiException exception = null;
 
         try {
-            service.update(1L, "http://localhost:8080/test/index.json");
+            service.update(UUID.randomUUID(), "http://localhost:8080/test/index.json");
         } catch (ApiException e) {
             exception = e;
         }
@@ -501,17 +502,17 @@ class LibraryServiceImplTest {
         MockedStatic<HttpRequest> requestStatic = Mockito.mockStatic(HttpRequest.class);
         MockedStatic<HttpClient> clientStatic = Mockito.mockStatic(HttpClient.class);
         Library library = new Library();
-        library.setId(1L);
+        library.setId(UUID.randomUUID());
         Mockito.when(libraryRepository.findById(Mockito.any())).thenReturn(Optional.of(library));
         LibraryServiceImpl service = newInstance("http://localhost:8080/test/");
         AccessControl role = new AccessControl();
-        role.setId(1L);
+        role.setId(UUID.randomUUID());
 
         String validJson = loadJson("libraries/valid/simple/index.json");
         mockHttp(validJson, requestStatic, clientStatic);
 
         Library expectedLibrary = new Library();
-        expectedLibrary.setId(1L);
+        expectedLibrary.setId(UUID.randomUUID());
 
         Mockito.when(libraryRepository.save(Mockito.any())).thenReturn(expectedLibrary);
         Mockito.when(libraryRepository.existsByUrlAndIdIsNot(Mockito.any(), Mockito.any())).thenReturn(false);
@@ -520,7 +521,7 @@ class LibraryServiceImplTest {
         ApiException exception = null;
 
         try {
-            service.update(1L, "http://localhost:8080/test/index.json");
+            service.update(UUID.randomUUID(), "http://localhost:8080/test/index.json");
         } catch (ApiException e) {
             exception = e;
         }
@@ -570,23 +571,25 @@ class LibraryServiceImplTest {
     @Test
     @DisplayName("Test findById: should return library")
     void testFindById() throws IOException {
+        UUID uuid = UUID.randomUUID();
         LibraryServiceImpl service = newInstance("http://localhost:8080/test/");
         Library expectedLibrary = new Library();
-        expectedLibrary.setId(1L);
-        Mockito.when(libraryRepository.findById(1l)).thenReturn(Optional.of(expectedLibrary));
+        expectedLibrary.setId(uuid);
+        Mockito.when(libraryRepository.findById(uuid)).thenReturn(Optional.of(expectedLibrary));
 
-        assertEquals(expectedLibrary, service.findById(1L));
+        assertEquals(expectedLibrary, service.findById(uuid));
     }
 
     @Test
     @DisplayName("Test findById: should throw exception")
     void testFindByIdError() {
         LibraryServiceImpl service = newInstance("http://localhost:8080/test/");
-        Mockito.when(libraryRepository.findById(1l)).thenReturn(Optional.empty());
+        Mockito.when(libraryRepository.findById(Mockito.any())).thenReturn(Optional.empty());
         ApiException exception = null;
+        UUID uuid = UUID.randomUUID();
 
         try {
-            service.findById(1l);
+            service.findById(uuid);
         } catch (ApiException e) {
             exception = e;
         }
@@ -595,7 +598,7 @@ class LibraryServiceImplTest {
         assertEquals(ErrorType.ENTITY_NOT_FOUND.getStatus(), exception.getStatus());
         assertEquals(ErrorType.ENTITY_NOT_FOUND.getMessage(), exception.getMessage());
         assertEquals("id", exception.getError().getField());
-        assertEquals("1", exception.getError().getValue());
+        assertEquals(uuid.toString(), exception.getError().getValue());
     }
 
     @Test
@@ -603,11 +606,11 @@ class LibraryServiceImplTest {
     void testDelete() {
         LibraryServiceImpl service = newInstance("http://localhost:8080/test/");
         Library expectedLibrary = new Library();
-        expectedLibrary.setId(1L);
-        Mockito.when(libraryRepository.findById(1l)).thenReturn(Optional.of(expectedLibrary));
+        expectedLibrary.setId(UUID.randomUUID());
+        Mockito.when(libraryRepository.findById(Mockito.any())).thenReturn(Optional.of(expectedLibrary));
         Mockito.doNothing().when(libraryRepository).delete(Mockito.any());
 
-        service.delete(1L);
+        service.delete(UUID.randomUUID());
 
         Mockito.verify(libraryRepository, Mockito.times(1)).delete(Mockito.any());
     }
@@ -629,7 +632,7 @@ class LibraryServiceImplTest {
 
         Mockito.when(userLibraryViewRepository.findAll(Mockito.any(Specification.class), Mockito.any())).thenReturn(Page.empty());
         User user = new User();
-        user.setId(1L);
+        user.setId(UUID.randomUUID());
         assertEquals(Page.empty(), service.findAll(user, Map.of(), PageRequest.of(1, 1)));
     }
 
@@ -650,7 +653,7 @@ class LibraryServiceImplTest {
 
         Mockito.when(userLibraryTemplateViewRepository.findAllByUserId(Mockito.any(), Mockito.any(Specification.class), Mockito.any())).thenReturn(Page.empty());
         User user = new User();
-        user.setId(1L);
+        user.setId(UUID.randomUUID());
         assertEquals(Page.empty(), service.findAllTemplates(user, Map.of(), PageRequest.of(1, 1)));
     }
 
@@ -659,21 +662,22 @@ class LibraryServiceImplTest {
     void testGetTemplateById() throws IOException {
         LibraryServiceImpl service = newInstance("http://localhost:8080/test/");
         LibraryTemplate expectedLibraryTemplate = new LibraryTemplate();
-        expectedLibraryTemplate.setId(1L);
-        Mockito.when(libraryTemplateRepository.findById(1l)).thenReturn(Optional.of(expectedLibraryTemplate));
+        expectedLibraryTemplate.setId(UUID.randomUUID());
+        Mockito.when(libraryTemplateRepository.findById(Mockito.any())).thenReturn(Optional.of(expectedLibraryTemplate));
 
-        assertEquals(expectedLibraryTemplate, service.getTemplateById(1L));
+        assertEquals(expectedLibraryTemplate, service.getTemplateById(UUID.randomUUID()));
     }
 
     @Test
     @DisplayName("Test getTemplateById: should throw exception")
     void testGetTemplateByIdError() {
         LibraryServiceImpl service = newInstance("http://localhost:8080/test/");
-        Mockito.when(libraryTemplateRepository.findById(1l)).thenReturn(Optional.empty());
+        Mockito.when(libraryTemplateRepository.findById(Mockito.any())).thenReturn(Optional.empty());
         ApiException exception = null;
+        UUID uuid = UUID.randomUUID();
 
         try {
-            service.getTemplateById(1l);
+            service.getTemplateById(uuid);
         } catch (ApiException e) {
             exception = e;
         }
@@ -682,7 +686,7 @@ class LibraryServiceImplTest {
         assertEquals(ErrorType.ENTITY_NOT_FOUND.getStatus(), exception.getStatus());
         assertEquals(ErrorType.ENTITY_NOT_FOUND.getMessage(), exception.getMessage());
         assertEquals("id", exception.getError().getField());
-        assertEquals("1", exception.getError().getValue());
+        assertEquals(uuid.toString(), exception.getError().getValue());
     }
 
     @Test
@@ -692,12 +696,13 @@ class LibraryServiceImplTest {
         MockedStatic<HttpClient> clientStatic = Mockito.mockStatic(HttpClient.class);
         LibraryServiceImpl service = newInstance("http://localhost:8080/test/");
         Library library = new Library();
-        library.setId(1L);
+        library.setId(UUID.randomUUID());
         library.setIcon("icon.svg");
-        Mockito.when(libraryRepository.findById(1l)).thenReturn(Optional.of(library));
+        UUID uuid = UUID.randomUUID();
+        Mockito.when(libraryRepository.findById(uuid)).thenReturn(Optional.of(library));
         HttpResponse<byte[]> expectedResponse = mockHttpFile(requestStatic, clientStatic);
 
-        assertEquals(expectedResponse, service.getIcon(1L));
+        assertEquals(expectedResponse, service.getIcon(uuid));
         Mockito.reset();
         requestStatic.close();
         clientStatic.close();
@@ -708,11 +713,12 @@ class LibraryServiceImplTest {
     void testGetIconError() {
         LibraryServiceImpl service = newInstance("http://localhost:8080/test/");
         Library library = new Library();
-        Mockito.when(libraryRepository.findById(1l)).thenReturn(Optional.of(library));
+        UUID uuid = UUID.randomUUID();
+        Mockito.when(libraryRepository.findById(uuid)).thenReturn(Optional.of(library));
         ApiException exception = null;
 
         try {
-            service.getIcon(1l);
+            service.getIcon(uuid);
         } catch (ApiException e) {
             exception = e;
         }
@@ -730,10 +736,10 @@ class LibraryServiceImplTest {
         MockedStatic<HttpClient> clientStatic = Mockito.mockStatic(HttpClient.class);
         LibraryServiceImpl service = newInstance("http://localhost:8080/test/");
         LibraryTemplate libraryTemplate = new LibraryTemplate();
-        libraryTemplate.setId(1L);
+        libraryTemplate.setId(UUID.randomUUID());
         libraryTemplate.setIcon("icon.svg");
         Library library = new Library();
-        library.setId(2L);
+        library.setId(UUID.randomUUID());
         Mockito.when(libraryRepository.findById(Mockito.any())).thenReturn(Optional.of(library));
         HttpResponse<byte[]> expectedResponse = mockHttpFile(requestStatic, clientStatic);
 
@@ -768,12 +774,15 @@ class LibraryServiceImplTest {
         MockedStatic<HttpRequest> requestStatic = Mockito.mockStatic(HttpRequest.class);
         MockedStatic<HttpClient> clientStatic = Mockito.mockStatic(HttpClient.class);
         LibraryServiceImpl service = newInstance("http://localhost:8080/test/");
+
         LibraryTemplate libraryTemplate = new LibraryTemplate();
-        libraryTemplate.setId(1L);
+        libraryTemplate.setId(UUID.randomUUID());
         libraryTemplate.setIcon("icon.svg");
         libraryTemplate.setSchemas(List.of("test.svg"));
+
         Library library = new Library();
-        library.setId(2L);
+        library.setId(UUID.randomUUID());
+
         Mockito.when(libraryRepository.findById(Mockito.any())).thenReturn(Optional.of(library));
         HttpResponse<byte[]> expectedResponse = mockHttpFile(requestStatic, clientStatic);
 
@@ -811,11 +820,11 @@ class LibraryServiceImplTest {
         MockedStatic<HttpClient> clientStatic = Mockito.mockStatic(HttpClient.class);
         LibraryServiceImpl service = newInstance("http://localhost:8080/test/");
         LibraryTemplate libraryTemplate = new LibraryTemplate();
-        libraryTemplate.setId(1L);
+        libraryTemplate.setId(UUID.randomUUID());
         libraryTemplate.setIcon("icon.svg");
         libraryTemplate.setFiles(List.of("test.svg"));
         Library library = new Library();
-        library.setId(2L);
+        library.setId(UUID.randomUUID());
         Mockito.when(libraryRepository.findById(Mockito.any())).thenReturn(Optional.of(library));
         HttpResponse<byte[]> expectedResponse = mockHttpFile(requestStatic, clientStatic);
 

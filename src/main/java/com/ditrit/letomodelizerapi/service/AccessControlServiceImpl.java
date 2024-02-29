@@ -1,5 +1,6 @@
 package com.ditrit.letomodelizerapi.service;
 
+import com.ditrit.letomodelizerapi.config.Constants;
 import com.ditrit.letomodelizerapi.model.BeanMapper;
 import com.ditrit.letomodelizerapi.model.accesscontrol.AccessControlDirectDTO;
 import com.ditrit.letomodelizerapi.model.accesscontrol.AccessControlRecord;
@@ -22,7 +23,7 @@ import com.ditrit.letomodelizerapi.persistence.repository.UserAccessControlRepos
 import com.ditrit.letomodelizerapi.persistence.repository.UserAccessControlViewRepository;
 import com.ditrit.letomodelizerapi.persistence.specification.SpecificationHelper;
 import jakarta.transaction.Transactional;
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -34,6 +35,7 @@ import org.springframework.stereotype.Service;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.UUID;
 
 /**
  * Implementation of the AccessControlService interface.
@@ -46,7 +48,7 @@ import java.util.Optional;
 @Slf4j
 @Service
 @Transactional
-@AllArgsConstructor(onConstructor = @__(@Autowired))
+@RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class AccessControlServiceImpl implements AccessControlService {
 
     /**
@@ -54,35 +56,35 @@ public class AccessControlServiceImpl implements AccessControlService {
      * This repository is used for performing database operations related to AccessControl entities, such as querying,
      * saving, and updating access control data.
      */
-    private AccessControlRepository accessControlRepository;
+    private final AccessControlRepository accessControlRepository;
 
     /**
      * The AccessControlTreeRepository instance is injected by Spring's dependency injection mechanism.
      * This repository is used for performing database operations related to AccessControlTree entities, such as
      * querying, saving, and updating access control data.
      */
-    private AccessControlTreeRepository accessControlTreeRepository;
+    private final AccessControlTreeRepository accessControlTreeRepository;
 
     /**
      * The AccessControlTreeViewRepository instance is injected by Spring's dependency injection mechanism.
      * This repository is used for performing database operations related to AccessControlTreeView entities, such as
      * querying, saving, and updating access control data.
      */
-    private AccessControlTreeViewRepository accessControlTreeViewRepository;
+    private final AccessControlTreeViewRepository accessControlTreeViewRepository;
 
     /**
      * The UserAccessControlRepository instance is injected by Spring's dependency injection mechanism.
      * This repository is used for performing database operations related to UserAccessControl entities, such as
      * querying, saving, and updating user access control data.
      */
-    private UserAccessControlViewRepository userAccessControlViewRepository;
+    private final UserAccessControlViewRepository userAccessControlViewRepository;
 
     /**
      * The UserAccessControlRepository instance is injected by Spring's dependency injection mechanism.
      * This repository is used for performing database operations related to UserAccessControl entities, such as
      * querying, saving, and updating user access control data.
      */
-    private UserAccessControlRepository userAccessControlRepository;
+    private final UserAccessControlRepository userAccessControlRepository;
 
     /**
      * The UserService instance is injected by Spring's dependency injection mechanism.
@@ -90,7 +92,15 @@ public class AccessControlServiceImpl implements AccessControlService {
      * It typically includes functionalities such as user authentication, user data retrieval,
      * user profile updates, and other user-centric business processes.
      */
-    private UserService userService;
+    private final UserService userService;
+
+    /**
+     * The unique identifier (UUID) for the super administrator.
+     * This field stores the UUID of the super administrator, a predefined user or role with the highest
+     * level of access and permissions within the application. It is utilized to identify the super administrator
+     * in various security, authorization, and administrative checks throughout the application's operations.
+     */
+    private UUID superAdministratorId;
 
     @Override
     public Page<AccessControl> findAll(final AccessControlType type,
@@ -126,7 +136,7 @@ public class AccessControlServiceImpl implements AccessControlService {
 
     @Override
     public Page<AccessControlDirectDTO> findAllChildren(final AccessControlType type,
-                                                        final Long id,
+                                                        final UUID id,
                                                         final AccessControlType childrenType,
                                                         final Map<String, String> immutableFilters,
                                                         final Pageable pageable) {
@@ -147,7 +157,7 @@ public class AccessControlServiceImpl implements AccessControlService {
 
     @Override
     public Page<User> findAllUsers(final AccessControlType type,
-                                   final Long id,
+                                   final UUID id,
                                    final Map<String, String> immutableFilters,
                                    final Pageable pageable) {
         AccessControl accessControl = findById(type, id);
@@ -163,7 +173,7 @@ public class AccessControlServiceImpl implements AccessControlService {
     }
 
     @Override
-    public Page<AccessControlDirectDTO> findAllAccessControls(final Long id,
+    public Page<AccessControlDirectDTO> findAllAccessControls(final UUID id,
                                                               final AccessControlType type,
                                                               final Map<String, String> immutableFilters,
                                                               final Pageable pageable) {
@@ -180,7 +190,7 @@ public class AccessControlServiceImpl implements AccessControlService {
     }
 
     @Override
-    public AccessControl findById(final AccessControlType type, final Long id) {
+    public AccessControl findById(final AccessControlType type, final UUID id) {
         Map<String, String> filters = Map.of("id", id.toString(), "type", type.name());
         return accessControlRepository.findOne(new SpecificationHelper<>(AccessControl.class, filters))
                 .orElseThrow(() -> new ApiException(ErrorType.ENTITY_NOT_FOUND, "id", id.toString()));
@@ -196,7 +206,7 @@ public class AccessControlServiceImpl implements AccessControlService {
 
     @Override
     public AccessControl update(final AccessControlType type,
-                                final Long id,
+                                final UUID id,
                                 final AccessControlRecord accessControlRecord) {
         AccessControl accessControl = findById(type, id);
         accessControl.setName(accessControlRecord.name());
@@ -205,16 +215,16 @@ public class AccessControlServiceImpl implements AccessControlService {
     }
 
     @Override
-    public void delete(final AccessControlType type, final Long id) {
+    public void delete(final AccessControlType type, final UUID id) {
         AccessControl accessControl = findById(type, id);
         accessControlRepository.deleteById(accessControl.getId());
     }
 
     @Override
     public void associate(final AccessControlType parentType,
-                          final Long id,
+                          final UUID id,
                           final AccessControlType type,
-                          final Long roleId) {
+                          final UUID roleId) {
         AccessControl parentAccessControl = findById(parentType, id);
         AccessControl accessControl = findById(type, roleId);
         Optional<AccessControlTreeView> userAccessControlOptional = accessControlTreeViewRepository
@@ -233,9 +243,9 @@ public class AccessControlServiceImpl implements AccessControlService {
 
     @Override
     public void dissociate(final AccessControlType parentType,
-                           final Long id,
+                           final UUID id,
                            final AccessControlType type,
-                           final Long roleId) {
+                           final UUID roleId) {
         AccessControl parentAccessControl = findById(parentType, id);
         AccessControl accessControl = findById(type, roleId);
         AccessControlTree accessControlTree = accessControlTreeRepository
@@ -246,7 +256,7 @@ public class AccessControlServiceImpl implements AccessControlService {
     }
 
     @Override
-    public void associateUser(final AccessControlType type, final Long id, final String login) {
+    public void associateUser(final AccessControlType type, final UUID id, final String login) {
         AccessControl accessControl = findById(type, id);
         User user = userService.findByLogin(login);
         Optional<UserAccessControl> userAccessControlOptional = userAccessControlRepository
@@ -264,7 +274,7 @@ public class AccessControlServiceImpl implements AccessControlService {
     }
 
     @Override
-    public void dissociateUser(final AccessControlType type, final Long id, final String login) {
+    public void dissociateUser(final AccessControlType type, final UUID id, final String login) {
         AccessControl accessControl = findById(type, id);
         User user = userService.findByLogin(login);
         UserAccessControl userAccessControl = userAccessControlRepository
@@ -272,5 +282,14 @@ public class AccessControlServiceImpl implements AccessControlService {
                 .orElseThrow(() -> new ApiException(ErrorType.ENTITY_NOT_FOUND, "association"));
 
         userAccessControlRepository.delete(userAccessControl);
+    }
+
+    @Override
+    public UUID getSuperAdministratorId() {
+        if (superAdministratorId == null) {
+            superAdministratorId = accessControlRepository.findByName(Constants.SUPER_ADMINISTRATOR_ROLE_NAME).getId();
+        }
+
+        return superAdministratorId;
     }
 }

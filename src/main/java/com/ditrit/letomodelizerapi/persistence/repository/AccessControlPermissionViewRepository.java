@@ -11,7 +11,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
  * This interface extends JpaRepository, inheriting standard CRUD operations for AccessControlPermissionView entities.
  * It also provides additional methods to find AccessControl entities based on specifications.
  */
-public interface AccessControlPermissionViewRepository extends JpaRepository<AccessControlPermissionView, Long> {
+public interface AccessControlPermissionViewRepository extends JpaRepository<AccessControlPermissionView, String> {
 
     /**
      * Retrieves a page of AccessControlPermissionView entities that match the given specification.

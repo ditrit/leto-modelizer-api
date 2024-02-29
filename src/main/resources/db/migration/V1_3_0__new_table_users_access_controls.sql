@@ -1,7 +1,7 @@
 CREATE TABLE IF NOT EXISTS users_access_controls (
-    uac_id      SERIAL PRIMARY KEY,
-    usr_id      INTEGER REFERENCES users(usr_id) ON DELETE CASCADE NOT NULL,
-    aco_id      INTEGER REFERENCES access_controls(aco_id) ON DELETE CASCADE NOT NULL,
+    uac_id      UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    usr_id      UUID REFERENCES users(usr_id) ON DELETE CASCADE NOT NULL,
+    aco_id      UUID REFERENCES access_controls(aco_id) ON DELETE CASCADE NOT NULL,
     insert_date TIMESTAMP NOT NULL DEFAULT now(),
     update_date TIMESTAMP NOT NULL DEFAULT now(),
     UNIQUE (usr_id, aco_id)

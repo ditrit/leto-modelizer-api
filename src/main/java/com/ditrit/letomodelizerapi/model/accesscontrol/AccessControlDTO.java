@@ -2,6 +2,8 @@ package com.ditrit.letomodelizerapi.model.accesscontrol;
 
 import lombok.Data;
 
+import java.util.UUID;
+
 /**
  * Data Transfer Object (DTO) for AccessControl.
  * This class is used for transferring AccessControl data between different layers of the application,
@@ -14,7 +16,7 @@ public class AccessControlDTO {
      * The unique identifier of the AccessControl entity.
      * This field represents the primary key in the database.
      */
-    private Long id;
+    private UUID id;
     /**
      * The name of the AccessControl entity.
      * This field can be used to display or refer to the AccessControl entity in the user interface.

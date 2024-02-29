@@ -6,6 +6,8 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
+import java.util.UUID;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -17,10 +19,10 @@ class AccessControlTreeViewToAccessControlDirectDTOFunctionTest {
     @DisplayName("Test apply: should transform AccessControlTreeView to AccessControlDirectDTO with parent")
     void testApply() {
         AccessControlTreeView accessControlTreeView = new AccessControlTreeView();
-        accessControlTreeView.setAccessControlId(1L);
+        accessControlTreeView.setAccessControlId(UUID.randomUUID());
         accessControlTreeView.setAccessControlName("current");
         accessControlTreeView.setAccessControlType("current_Type");
-        accessControlTreeView.setParentAccessControlId(2L);
+        accessControlTreeView.setParentAccessControlId(UUID.randomUUID());
         accessControlTreeView.setParentAccessControlName("parent");
         accessControlTreeView.setParentAccessControlType("parent_type");
         accessControlTreeView.setIsDirect(true);
@@ -28,7 +30,7 @@ class AccessControlTreeViewToAccessControlDirectDTOFunctionTest {
         AccessControlDirectDTO accessControl = new AccessControlTreeViewToAccessControlDirectDTOFunction()
                 .apply(accessControlTreeView);
 
-        assertEquals(2L, accessControl.getId());
+        assertEquals(accessControlTreeView.getParentAccessControlId(), accessControl.getId());
         assertEquals("parent", accessControl.getName());
         assertTrue(accessControl.getIsDirect());
     }
@@ -37,10 +39,10 @@ class AccessControlTreeViewToAccessControlDirectDTOFunctionTest {
     @DisplayName("Test apply: should transform AccessControlTreeView to AccessControlDirectDTO with current")
     void testApplyNotFromParent() {
         AccessControlTreeView accessControlTreeView = new AccessControlTreeView();
-        accessControlTreeView.setAccessControlId(1L);
+        accessControlTreeView.setAccessControlId(UUID.randomUUID());
         accessControlTreeView.setAccessControlName("current");
         accessControlTreeView.setAccessControlType("current_Type");
-        accessControlTreeView.setParentAccessControlId(2L);
+        accessControlTreeView.setParentAccessControlId(UUID.randomUUID());
         accessControlTreeView.setParentAccessControlName("parent");
         accessControlTreeView.setParentAccessControlType("parent_type");
         accessControlTreeView.setIsDirect(true);
@@ -48,7 +50,7 @@ class AccessControlTreeViewToAccessControlDirectDTOFunctionTest {
         AccessControlDirectDTO accessControl = new AccessControlTreeViewToAccessControlDirectDTOFunction(false)
                 .apply(accessControlTreeView);
 
-        assertEquals(1L, accessControl.getId());
+        assertEquals(accessControlTreeView.getAccessControlId(), accessControl.getId());
         assertEquals("current", accessControl.getName());
         assertTrue(accessControl.getIsDirect());
     }

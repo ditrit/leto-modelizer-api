@@ -19,6 +19,7 @@ import org.springframework.stereotype.Service;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.UUID;
 
 /**
  * Implementation of the AccessControlService interface.
@@ -49,7 +50,7 @@ public class AccessControlPermissionServiceImpl implements AccessControlPermissi
     private AccessControlPermissionRepository accessControlPermissionRepository;
 
     @Override
-    public Page<AccessControlPermissionView> findAll(final Long id,
+    public Page<AccessControlPermissionView> findAll(final UUID id,
                                                      final Map<String, String> immutableFilters,
                                                      final Pageable pageable) {
         Map<String, String> filters = new HashMap<>(immutableFilters);
@@ -62,7 +63,7 @@ public class AccessControlPermissionServiceImpl implements AccessControlPermissi
     }
 
     @Override
-    public void associate(final Long id, final Long permissionId) {
+    public void associate(final UUID id, final UUID permissionId) {
         Optional<AccessControlPermission> accessControlPermissionOptional = accessControlPermissionRepository
                 .findByAccessControlIdAndPermissionId(id, permissionId);
 
@@ -78,7 +79,7 @@ public class AccessControlPermissionServiceImpl implements AccessControlPermissi
     }
 
     @Override
-    public void dissociate(final Long id, final Long permissionId) {
+    public void dissociate(final UUID id, final UUID permissionId) {
         AccessControlPermission accessControlPermission = accessControlPermissionRepository
                 .findByAccessControlIdAndPermissionId(id, permissionId)
                 .orElseThrow(() -> new ApiException(ErrorType.ENTITY_NOT_FOUND, "association"));

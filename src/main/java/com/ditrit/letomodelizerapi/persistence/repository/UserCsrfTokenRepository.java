@@ -4,6 +4,7 @@ import com.ditrit.letomodelizerapi.persistence.model.UserCsrfToken;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;
+import java.util.UUID;
 
 /**
  * Spring Data JPA repository interface for UserCsrfToken entities.
@@ -13,7 +14,7 @@ import java.util.Optional;
  * It enables the handling of CSRF (Cross-Site Request Forgery) protection tokens associated with user sessions,
  * facilitating the secure management of these tokens in the application's persistence layer.
  */
-public interface UserCsrfTokenRepository extends JpaRepository<UserCsrfToken, Long> {
+public interface UserCsrfTokenRepository extends JpaRepository<UserCsrfToken, UUID> {
 
     /**
      * Finds a UserCsrfToken entity based on the user's login.

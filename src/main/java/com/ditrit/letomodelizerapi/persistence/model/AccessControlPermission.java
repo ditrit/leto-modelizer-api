@@ -13,6 +13,7 @@ import lombok.EqualsAndHashCode;
 
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 /**
  * Entity representing permissions assigned to access controls, stored in the "access_controls_permissions" table.
@@ -36,22 +37,22 @@ public class AccessControlPermission extends AbstractEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "pac_id")
-    @FilterType(type = FilterType.Type.NUMBER)
-    private Long id;
+    @FilterType(type = FilterType.Type.UUID)
+    private UUID id;
 
     /**
      * The identifier of the access control to whom this permission is assigned.
      */
     @Column(name = "aco_id")
-    @FilterType(type = FilterType.Type.NUMBER)
-    private Long accessControlId;
+    @FilterType(type = FilterType.Type.UUID)
+    private UUID accessControlId;
 
     /**
      * The identifier of the access control to whom this permission is assigned.
      */
     @Column(name = "per_id")
-    @FilterType(type = FilterType.Type.NUMBER)
-    private Long permissionId;
+    @FilterType(type = FilterType.Type.UUID)
+    private UUID permissionId;
 
     /**
      * Set insertDate before persisting in repository.

@@ -13,6 +13,7 @@ import org.junit.jupiter.api.Test;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -30,18 +31,20 @@ class SpecificationHelperTest extends MockHelper {
                 "aDate", "null",
                 "aBoolean", "true",
                 "aToken", "a",
-                "aEnum", "b"
+                "aEnum", "b",
+                "aUUID", UUID.randomUUID().toString()
         ));
 
         List<IPredicateFilter> filters = helper.getFilters();
         assertNotNull(filters);
-        assertEquals(6, filters.size());
+        assertEquals(7, filters.size());
         assertEquals(NumberPredicateFilter.class, filters.get(0).getClass());
         assertEquals(TextPredicateFilter.class, filters.get(1).getClass());
         assertEquals(BooleanPredicateFilter.class, filters.get(2).getClass());
         assertEquals(TokenPredicateFilter.class, filters.get(3).getClass());
         assertEquals(DatePredicateFilter.class, filters.get(4).getClass());
         assertEquals(EnumPredicateFilter.class, filters.get(5).getClass());
+        assertEquals(UUIDPredicateFilter.class, filters.get(6).getClass());
     }
 
     @Test
@@ -70,5 +73,7 @@ class SpecificationHelperTest extends MockHelper {
         private Date aDate;
         @FilterType(type = FilterType.Type.ENUM)
         private String aEnum;
+        @FilterType(type = FilterType.Type.UUID)
+        private UUID aUUID;
     }
 }

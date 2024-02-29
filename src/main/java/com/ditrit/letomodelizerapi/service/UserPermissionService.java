@@ -2,10 +2,11 @@ package com.ditrit.letomodelizerapi.service;
 
 import com.ditrit.letomodelizerapi.model.permission.ActionPermission;
 import com.ditrit.letomodelizerapi.model.permission.EntityPermission;
+import com.ditrit.letomodelizerapi.persistence.model.Permission;
 import com.ditrit.letomodelizerapi.persistence.model.User;
-import com.ditrit.letomodelizerapi.persistence.model.UserPermission;
 
 import java.util.List;
+import java.util.UUID;
 
 /**
  * The UserPermissionService interface defines the operations for managing permissions of the current user within
@@ -18,9 +19,9 @@ public interface UserPermissionService {
      * Only retrieve permissions used in Leto-modelizer, Library permissions are excluded here.
      *
      * @param user The user whose permissions are to be retrieved.
-     * @return A list of {@link UserPermission} objects representing the permissions of the user.
+     * @return A list of {@link Permission} objects representing the permissions of the user.
      */
-    List<UserPermission> getAllPermissions(User user);
+    List<Permission> getAllPermissions(User user);
 
     /**
      * Checks if a given user has permission for a specific action on an entity.
@@ -67,5 +68,5 @@ public interface UserPermissionService {
      * @param id the ID of the library on which the action is attempted
      * @throws SecurityException or a custom application-specific exception if the user lacks the required permission
      */
-    void checkLibraryPermission(User user, ActionPermission action, Long id);
+    void checkLibraryPermission(User user, ActionPermission action, UUID id);
 }

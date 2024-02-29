@@ -1,5 +1,5 @@
 CREATE TABLE IF NOT EXISTS libraries (
-    lib_id            SERIAL PRIMARY KEY,
+    lib_id            UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     url               TEXT NOT NULL UNIQUE,
     name              VARCHAR(255) NOT NULL,
     version           VARCHAR(255),

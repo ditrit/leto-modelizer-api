@@ -55,6 +55,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -209,7 +210,7 @@ public class LibraryServiceImpl implements LibraryService {
     }
 
     @Override
-    public void update(final Long id, final String url) throws JsonProcessingException {
+    public void update(final UUID id, final String url) throws JsonProcessingException {
         findById(id);
         if (libraryWhitelistHosts.stream().noneMatch(url::startsWith)) {
             throw new ApiException(ErrorType.UNAUTHORIZED_LIBRARY_URL, "url", url);
@@ -237,7 +238,7 @@ public class LibraryServiceImpl implements LibraryService {
      * @return the saved or updated Library entity
      * @throws JsonProcessingException if there is an error reading the JSON data into a JsonNode
      */
-    Library save(final String url, final Long id) throws JsonProcessingException {
+    Library save(final String url, final UUID id) throws JsonProcessingException {
         String libraryValue = downloadLibrary(String.format("%sindex.json", url));
         validate(libraryValue);
 
@@ -251,7 +252,7 @@ public class LibraryServiceImpl implements LibraryService {
         }
 
         library = libraryRepository.save(library);
-        final Long libraryId = library.getId();
+        final UUID libraryId = library.getId();
 
         List<LibraryTemplate> templates = new ArrayList<>();
         libraryJson.get("templates").forEach(templateJson -> {
@@ -314,13 +315,13 @@ public class LibraryServiceImpl implements LibraryService {
     }
 
     @Override
-    public Library findById(final Long id) {
+    public Library findById(final UUID id) {
         return libraryRepository.findById(id)
                 .orElseThrow(() -> new ApiException(ErrorType.ENTITY_NOT_FOUND, "id", id.toString()));
     }
 
     @Override
-    public void delete(final Long id) {
+    public void delete(final UUID id) {
         Library library = this.findById(id);
 
         libraryRepository.delete(library);
@@ -365,13 +366,13 @@ public class LibraryServiceImpl implements LibraryService {
     }
 
     @Override
-    public LibraryTemplate getTemplateById(final Long id) {
+    public LibraryTemplate getTemplateById(final UUID id) {
         return libraryTemplateRepository.findById(id)
                 .orElseThrow(() -> new ApiException(ErrorType.ENTITY_NOT_FOUND, "id", id.toString()));
     }
 
     @Override
-    public HttpResponse<byte[]> getIcon(final Long id) {
+    public HttpResponse<byte[]> getIcon(final UUID id) {
         Library library = findById(id);
 
         if (library.getIcon() == null) {

@@ -1,8 +1,8 @@
 CREATE TYPE library_template_type AS ENUM ('PROJECT', 'DIAGRAM', 'COMPONENT');
 
 CREATE TABLE IF NOT EXISTS library_templates (
-    lit_id            SERIAL PRIMARY KEY,
-    lib_id            INTEGER REFERENCES libraries(lib_id) ON DELETE CASCADE,
+    lit_id            UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    lib_id            UUID REFERENCES libraries(lib_id) ON DELETE CASCADE,
     name              VARCHAR(255) NOT NULL,
     type              library_template_type NOT NULL,
     description       TEXT,
@@ -16,7 +16,8 @@ CREATE TABLE IF NOT EXISTS library_templates (
     update_date       TIMESTAMP NOT NULL DEFAULT now()
 );
 
-COMMENT ON TYPE   library_template_type               IS 'An ENUM type representing the different type of template.';
+-- Unsupported by cockroachdb
+-- COMMENT ON TYPE   library_template_type               IS 'An ENUM type representing the different type of template.';
 
 COMMENT ON TABLE  library_templates                   IS 'This table stores information about various libraries used within the diagram system.';
 COMMENT ON COLUMN library_templates.lit_id            IS 'Primary key, serial.';

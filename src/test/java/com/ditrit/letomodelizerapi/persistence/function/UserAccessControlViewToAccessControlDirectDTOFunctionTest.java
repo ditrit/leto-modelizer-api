@@ -6,6 +6,8 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
+import java.util.UUID;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -17,14 +19,14 @@ class UserAccessControlViewToAccessControlDirectDTOFunctionTest {
     @DisplayName("Test apply: should transform UserAccessControlView to AccessControlDirectDTO with parent")
     void testApply() {
         UserAccessControlView userAccessControlView = new UserAccessControlView();
-        userAccessControlView.setAccessControlId(1L);
+        userAccessControlView.setAccessControlId(UUID.randomUUID());
         userAccessControlView.setAccessControlName("current");
         userAccessControlView.setIsDirect(true);
 
         AccessControlDirectDTO accessControl = new UserAccessControlViewToAccessControlDirectDTOFunction()
                 .apply(userAccessControlView);
 
-        assertEquals(1L, accessControl.getId());
+        assertEquals(userAccessControlView.getAccessControlId(), accessControl.getId());
         assertEquals("current", accessControl.getName());
         assertTrue(accessControl.getIsDirect());
     }

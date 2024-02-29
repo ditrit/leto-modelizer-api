@@ -10,6 +10,7 @@ import org.springframework.data.domain.Pageable;
 
 import java.net.http.HttpResponse;
 import java.util.Map;
+import java.util.UUID;
 
 /**
  * The PermissionService interface defines the operations for managing permissions within the application.
@@ -37,7 +38,7 @@ public interface LibraryService {
      * @param url the new URL to set for the library
      * @throws JsonProcessingException if there is an error processing the updated library data
      */
-    void update(Long id, String url) throws JsonProcessingException;
+    void update(UUID id, String url) throws JsonProcessingException;
 
     /**
      * Validates a given JSON string to ensure it meets the library data structure requirements.
@@ -52,14 +53,14 @@ public interface LibraryService {
      * @param id the ID of the library to find
      * @return the found Library entity, or null if not found
      */
-    Library findById(Long id);
+    Library findById(UUID id);
 
     /**
      * Deletes a library entity by its ID.
      *
      * @param id the ID of the library to delete
      */
-    void delete(Long id);
+    void delete(UUID id);
 
     /**
      * Finds all libraries that match the given filters and pagination settings.
@@ -107,7 +108,7 @@ public interface LibraryService {
      * @param id the ID of the library template to retrieve
      * @return the LibraryTemplate entity if found, or null otherwise
      */
-    LibraryTemplate getTemplateById(Long id);
+    LibraryTemplate getTemplateById(UUID id);
 
     /**
      * Retrieves the icon for a library identified by its ID.
@@ -117,7 +118,7 @@ public interface LibraryService {
      * @param id the ID of the library whose icon is being retrieved
      * @return an HttpResponse containing the byte array of the icon
      */
-    HttpResponse<byte[]> getIcon(Long id);
+    HttpResponse<byte[]> getIcon(UUID id);
 
     /**
      * Retrieves the icon for a specific library template.

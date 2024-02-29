@@ -8,12 +8,21 @@ import com.ditrit.letomodelizerapi.model.permission.EntityPermission;
 import com.ditrit.letomodelizerapi.persistence.model.AccessControl;
 import com.ditrit.letomodelizerapi.persistence.model.Library;
 import com.ditrit.letomodelizerapi.persistence.model.Permission;
+import com.ditrit.letomodelizerapi.persistence.repository.AccessControlRepository;
 import com.ditrit.letomodelizerapi.persistence.repository.PermissionRepository;
+import com.ditrit.letomodelizerapi.persistence.specification.SpecificationHelper;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+
+import java.util.Map;
+import java.util.UUID;
 
 /**
  * Implementation of the PermissionService interface.
@@ -36,12 +45,27 @@ public class PermissionServiceImpl implements PermissionService {
     private PermissionRepository permissionRepository;
 
     /**
+     * The AccessControlRepository instance is injected by Spring's dependency injection mechanism.
+     * This repository is used for performing database operations related to AccessControl entities, such as querying,
+     * saving and updating user data.
+     */
+    private AccessControlRepository accessControlRepository;
+
+    /**
      * Service to manage permission of access control.
      */
     private AccessControlPermissionService accessControlPermissionService;
 
     @Override
-    public Permission findById(final Long id) {
+    public Page<Permission> findAll(final Map<String, String> filters, final Pageable pageable) {
+        return permissionRepository.findAll(new SpecificationHelper<>(Permission.class, filters), PageRequest.of(
+                pageable.getPageNumber(),
+                pageable.getPageSize(),
+                pageable.getSortOr(Sort.by(Sort.Direction.ASC, "entity"))));
+    }
+
+    @Override
+    public Permission findById(final UUID id) {
         return permissionRepository.findById(id)
                 .orElseThrow(() -> new ApiException(ErrorType.ENTITY_NOT_FOUND, "permissionId", id.toString()));
     }
@@ -70,7 +94,7 @@ public class PermissionServiceImpl implements PermissionService {
      * @param libraryId the ID of the library to which the permission is specifically applied, if applicable
      * @return the saved Permission object, now associated with the super administrator role and persisted in the system
      */
-    public Permission create(final EntityPermission entity, final ActionPermission action, final Long libraryId) {
+    public Permission create(final EntityPermission entity, final ActionPermission action, final UUID libraryId) {
         Permission permission = new Permission();
 
         permission.setAction(action.name());
@@ -78,7 +102,8 @@ public class PermissionServiceImpl implements PermissionService {
         permission.setLibraryId(libraryId);
 
         permission = permissionRepository.save(permission);
-        accessControlPermissionService.associate(Constants.SUPER_ADMINISTRATOR_ROLE_ID, permission.getId());
+        UUID superAdministratorId = accessControlRepository.findByName(Constants.SUPER_ADMINISTRATOR_ROLE_NAME).getId();
+        accessControlPermissionService.associate(superAdministratorId, permission.getId());
 
         return permission;
     }

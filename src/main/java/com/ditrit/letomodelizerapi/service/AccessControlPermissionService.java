@@ -5,6 +5,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 import java.util.Map;
+import java.util.UUID;
 
 /**
  * Service interface for managing AccessControl entities.
@@ -20,7 +21,7 @@ public interface AccessControlPermissionService {
      * @param pageable a Pageable object for pagination information
      * @return a Page of AccessControl entities matching the specified type and filters
      */
-    Page<AccessControlPermissionView> findAll(Long id, Map<String, String> filters, Pageable pageable);
+    Page<AccessControlPermissionView> findAll(UUID id, Map<String, String> filters, Pageable pageable);
 
     /**
      * Associates a specific permission with an AccessControl entity. This method creates a new linkage between the
@@ -30,7 +31,7 @@ public interface AccessControlPermissionService {
      * @param id           the ID of the AccessControl entity to which the permission will be associated
      * @param permissionId the ID of the permission to associate with the AccessControl entity
      */
-    void associate(Long id, Long permissionId);
+    void associate(UUID id, UUID permissionId);
 
     /**
      * Dissociates a specific permission from an AccessControl entity. This method removes an existing linkage between
@@ -40,5 +41,5 @@ public interface AccessControlPermissionService {
      * @param id           the ID of the AccessControl entity from which the permission will be dissociated
      * @param permissionId the ID of the permission to dissociate from the AccessControl entity
      */
-    void dissociate(Long id, Long permissionId);
+    void dissociate(UUID id, UUID permissionId);
 }

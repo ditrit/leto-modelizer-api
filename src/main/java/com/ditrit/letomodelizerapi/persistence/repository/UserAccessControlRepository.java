@@ -4,6 +4,7 @@ import com.ditrit.letomodelizerapi.persistence.model.UserAccessControl;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;
+import java.util.UUID;
 
 /**
  * UserAccessControlRepository interface extends JpaRepository for handling data persistence operations for
@@ -14,7 +15,7 @@ import java.util.Optional;
  *
  * @see JpaRepository
  */
-public interface UserAccessControlRepository extends JpaRepository<UserAccessControl, Long> {
+public interface UserAccessControlRepository extends JpaRepository<UserAccessControl, UUID> {
     /**
      * Finds and returns an Optional of UserAccessControl entity based on the provided accessControlId and userId.
      * This method allows for retrieving a UserAccessControl entity when both the ID of the access control and the ID
@@ -25,5 +26,5 @@ public interface UserAccessControlRepository extends JpaRepository<UserAccessCon
      * @param userId the ID of the User entity
      * @return an Optional containing the found UserAccessControl entity or an empty Optional if no entity is found
      */
-    Optional<UserAccessControl> findByAccessControlIdAndUserId(Long accessControlId, Long userId);
+    Optional<UserAccessControl> findByAccessControlIdAndUserId(UUID accessControlId, UUID userId);
 }

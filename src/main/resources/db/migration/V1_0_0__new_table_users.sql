@@ -1,5 +1,5 @@
 CREATE TABLE IF NOT EXISTS users (
-    usr_id      SERIAL PRIMARY KEY,
+    usr_id      UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     login       VARCHAR(255) NOT NULL UNIQUE,
     email       VARCHAR(255),
     name        VARCHAR(510),

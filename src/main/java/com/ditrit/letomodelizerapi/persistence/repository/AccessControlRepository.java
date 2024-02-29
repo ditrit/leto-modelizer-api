@@ -7,13 +7,14 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;
+import java.util.UUID;
 
 /**
  * Repository interface for AccessControl entity.
  * This interface extends JpaRepository, inheriting standard CRUD operations for AccessControl entities.
  * It also provides additional methods to find AccessControl entities based on specifications.
  */
-public interface AccessControlRepository extends JpaRepository<AccessControl, Long> {
+public interface AccessControlRepository extends JpaRepository<AccessControl, UUID> {
     /**
      * Retrieves a page of AccessControl entities that match the given specification.
      * This method allows for complex queries and filtering of AccessControl records using the provided specification.
@@ -33,4 +34,14 @@ public interface AccessControlRepository extends JpaRepository<AccessControl, Lo
      * @return an Optional containing the found AccessControl entity, or an empty Optional if no match is found
      */
     Optional<AccessControl> findOne(Specification<AccessControl> specification);
+
+    /**
+     * Finds an AccessControl entity based on the provided name.
+     * This method searches for an AccessControl entity that matches the given name. It is typically used to retrieve
+     * access control records from the database, such as roles or permissions, by their unique names.
+     *
+     * @param name the name of the AccessControl entity to search for.
+     * @return the found AccessControl entity matching the given name, or null if no such entity exists.
+     */
+    AccessControl findByName(String name);
 }

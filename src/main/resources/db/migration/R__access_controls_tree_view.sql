@@ -45,4 +45,5 @@ on
 where
     all_access_controls.aco_id <> all_access_controls.parent;
 
-COMMENT ON VIEW access_controls_tree_view IS 'This view provides a consolidated look at access controls tree across the system. It combines information from various tables to present a clear picture of which access controls are assigned to access controls. The view employs a recursive CTE (Common Table Expression) to traverse the hierarchical structure of access controls. The final output includes unique combinations of IDs and access control details.';
+-- Unsupported by cockroachdb
+-- COMMENT ON VIEW access_controls_tree_view IS 'This view provides a consolidated look at access controls tree across the system. It combines information from various tables to present a clear picture of which access controls are assigned to access controls. The view employs a recursive CTE (Common Table Expression) to traverse the hierarchical structure of access controls. The final output includes unique combinations of IDs and access control details.';

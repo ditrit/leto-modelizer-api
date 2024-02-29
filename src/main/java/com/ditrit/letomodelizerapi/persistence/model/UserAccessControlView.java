@@ -10,6 +10,8 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import lombok.Data;
 
+import java.util.UUID;
+
 /**
  * Represents a user access control entity in the system.
  */
@@ -31,8 +33,8 @@ public class UserAccessControlView {
      * The identifier of the user to whom this access control is assigned.
      */
     @Column(name = "usr_id")
-    @FilterType(type = FilterType.Type.NUMBER)
-    private Long userId;
+    @FilterType(type = FilterType.Type.UUID)
+    private UUID userId;
 
     /**
      * Email of the user.
@@ -59,8 +61,8 @@ public class UserAccessControlView {
      * The identifier of the access control.
      */
     @Column(name = "aco_id")
-    @FilterType(type = FilterType.Type.NUMBER)
-    private Long accessControlId;
+    @FilterType(type = FilterType.Type.UUID)
+    private UUID accessControlId;
 
     /**
      * The name of the access control.

@@ -1,5 +1,26 @@
 Feature: Role feature
 
+  Scenario: Should return 400 on bad uuid
+    Given I initialize the admin user
+    And   I clean role "TEST"
+
+    When I request "/roles" with method "POST" with json
+      | key  | value |
+      | name | TEST  |
+    Then I expect "201" as status code
+    And  I set response field "id" to context "role_id"
+
+    When I request "/roles/[role_id]/roles" with method "POST" with body
+      | value   | type |
+      | badUUID | text |
+    Then I expect "400" as status code
+    And  I expect response fields length is "5"
+    And  I expect response field "message" is "Wrong field value."
+    And  I expect response field "code" is "206"
+    And  I expect response field "field" is "id"
+    And  I expect response field "value" is "NULL"
+    And  I expect response field "cause" is "Invalid UUID string: badUUID"
+
   Scenario: Should return 200 on a valid role creation
     Given I initialize the admin user
     And   I clean role "TEST"
@@ -71,7 +92,12 @@ Feature: Role feature
   Scenario: Should return all user associate to a specific role
     Given I initialize the admin user
 
-    When I request "/roles/1/users" with method "GET"
+    When I request "/roles?name=SUPER_ADMINISTRATOR" with method "GET"
+    Then I expect "200" as status code
+    And  I extract first resource from response
+    And  I set response field "id" to context "role_id"
+
+    When I request "/roles/[role_id]/users" with method "GET"
     Then I expect "200" as status code
     And  I extract resources from response
     And  I expect response resources length is "1"
@@ -215,7 +241,6 @@ Feature: Role feature
     Then I expect "200" as status code
     And  I extract resources from response
     And  I expect response resources length is "4"
-    And  I expect one resource contains "id" equals to "1"
     And  I expect one resource contains "id" equals to "[role_test_1_id]"
     And  I expect one resource contains "id" equals to "[role_test_2_id]"
     And  I expect one resource contains "id" equals to "[role_test_3_id]"
@@ -320,10 +345,16 @@ Feature: Role feature
     And  I extract resources from response
     And  I expect response resources length is "0"
 
+    # Retrieve permission id
+    When I request "/permissions?action=ACCESS&entity=ADMIN" with method "GET"
+    Then I expect "200" as status code
+    And  I extract first resource from response
+    And  I set response field "id" to context "permission_id"
+
     # Associate permission and role
     When I request "/roles/[role_id]/permissions" with method "POST" with body
-      | value | type   |
-      | 1     | number |
+      | value           | type   |
+      | [permission_id] | number |
     Then I expect "201" as status code
 
     # Verify all permissions of role
@@ -331,13 +362,12 @@ Feature: Role feature
     Then I expect "200" as status code
     And  I extract resources from response
     And  I expect response resources length is "1"
-    And  I expect one resource contains "id" equals to "1"
     And  I expect one resource contains "action" equals to "ACCESS"
     And  I expect one resource contains "entity" equals to "ADMIN"
     And  I expect one resource contains "isDirect" equals to "true" as "boolean"
 
     # Dissociate group and role
-    When I request "/roles/[role_id]/permissions/1" with method "DELETE"
+    When I request "/roles/[role_id]/permissions/[permission_id]" with method "DELETE"
     Then I expect "204" as status code
 
     # Role shouldn't have permissions
@@ -371,10 +401,16 @@ Feature: Role feature
     And  I extract resources from response
     And  I expect response resources length is "0"
 
+    # Retrieve permission id
+    When I request "/permissions?action=ACCESS&entity=ADMIN" with method "GET"
+    Then I expect "200" as status code
+    And  I extract first resource from response
+    And  I set response field "id" to context "permission_id"
+
     # Associate permission and role
     When I request "/roles/[role_id]/permissions" with method "POST" with body
-      | value | type   |
-      | 1     | number |
+      | value           | type   |
+      | [permission_id] | number |
     Then I expect "201" as status code
 
     # Associate role and group
@@ -395,15 +431,20 @@ Feature: Role feature
   Scenario: Verify super admin role can't be modified or deleted
     Given I initialize the admin user
 
-    When I request "/roles/1" with method "DELETE"
+    When I request "/roles?name=SUPER_ADMINISTRATOR" with method "GET"
+    Then I expect "200" as status code
+    And  I extract first resource from response
+    And  I set response field "id" to context "role_id"
+
+    When I request "/roles/[role_id]" with method "DELETE"
     Then I expect "400" as status code
     And  I expect response fields length is "5"
     And  I expect response field "message" is "Wrong field value."
     And  I expect response field "code" is "206"
     And  I expect response field "field" is "id"
-    And  I expect response field "value" is "1"
+    And  I expect response field "value" is "[role_id]"
 
-    When I request "/roles/1" with method "PUT" with json
+    When I request "/roles/[role_id]" with method "PUT" with json
       | key  | value |
       | name | TEST2 |
     Then I expect "400" as status code
@@ -411,58 +452,63 @@ Feature: Role feature
     And  I expect response field "message" is "Wrong field value."
     And  I expect response field "code" is "206"
     And  I expect response field "field" is "id"
-    And  I expect response field "value" is "1"
+    And  I expect response field "value" is "[role_id]"
 
-    When I request "/roles/1/roles" with method "POST" with body
-      | value | type |
-      | 2     | text |
+    When I request "/roles/[role_id]/roles" with method "POST" with body
+      | value     | type |
+      | [role_id] | text |
     Then I expect "400" as status code
     And  I expect response fields length is "5"
     And  I expect response field "message" is "Wrong field value."
     And  I expect response field "code" is "206"
     And  I expect response field "field" is "id"
-    And  I expect response field "value" is "1"
+    And  I expect response field "value" is "[role_id]"
 
-    When I request "/roles/1/roles/2" with method "DELETE"
+    When I request "/roles/[role_id]/roles/[role_id]" with method "DELETE"
     Then I expect "400" as status code
     And  I expect response fields length is "5"
     And  I expect response field "message" is "Wrong field value."
     And  I expect response field "code" is "206"
     And  I expect response field "field" is "id"
-    And  I expect response field "value" is "1"
+    And  I expect response field "value" is "[role_id]"
 
-    When I request "/roles/1/groups" with method "POST" with body
-      | value | type |
-      | 2     | text |
+    When I request "/roles/[role_id]/groups" with method "POST" with body
+      | value     | type |
+      | [role_id] | text |
     Then I expect "400" as status code
     And  I expect response fields length is "5"
     And  I expect response field "message" is "Wrong field value."
     And  I expect response field "code" is "206"
     And  I expect response field "field" is "id"
-    And  I expect response field "value" is "1"
+    And  I expect response field "value" is "[role_id]"
 
-    When I request "/roles/1/groups/2" with method "DELETE"
+    When I request "/roles/[role_id]/groups/[role_id]" with method "DELETE"
     Then I expect "400" as status code
     And  I expect response fields length is "5"
     And  I expect response field "message" is "Wrong field value."
     And  I expect response field "code" is "206"
     And  I expect response field "field" is "id"
-    And  I expect response field "value" is "1"
+    And  I expect response field "value" is "[role_id]"
 
-    When I request "/roles/1/permissions" with method "POST" with body
-      | value | type |
-      | 2     | text |
+    When I request "/permissions?action=ACCESS&entity=ADMIN" with method "GET"
+    Then I expect "200" as status code
+    And  I extract first resource from response
+    And  I set response field "id" to context "permission_id"
+
+    When I request "/roles/[role_id]/permissions" with method "POST" with body
+      | value           | type |
+      | [permission_id] | text |
     Then I expect "400" as status code
     And  I expect response fields length is "5"
     And  I expect response field "message" is "Wrong field value."
     And  I expect response field "code" is "206"
     And  I expect response field "field" is "id"
-    And  I expect response field "value" is "1"
+    And  I expect response field "value" is "[role_id]"
 
-    When I request "/roles/1/permissions/2" with method "DELETE"
+    When I request "/roles/[role_id]/permissions/[permission_id]" with method "DELETE"
     Then I expect "400" as status code
     And  I expect response fields length is "5"
     And  I expect response field "message" is "Wrong field value."
     And  I expect response field "code" is "206"
     And  I expect response field "field" is "id"
-    And  I expect response field "value" is "1"
+    And  I expect response field "value" is "[role_id]"

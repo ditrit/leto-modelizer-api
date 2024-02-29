@@ -1,7 +1,5 @@
 package com.ditrit.letomodelizerapi;
 
-import com.ditrit.letomodelizerapi.config.Constants;
-import com.ditrit.letomodelizerapi.model.accesscontrol.AccessControlType;
 import com.ditrit.letomodelizerapi.persistence.model.User;
 import com.ditrit.letomodelizerapi.service.AccessControlService;
 import com.ditrit.letomodelizerapi.service.UserService;
@@ -13,6 +11,8 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.core.env.Environment;
+
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -52,7 +52,8 @@ class LetoModelizerApiApplicationTest {
 
         Mockito.when(environment.getProperty(Mockito.any())).thenReturn("login");
         Mockito.when(userService.createAdmin("login")).thenReturn(new User());
-        Mockito.doNothing().when(accessControlService).associateUser(AccessControlType.ROLE, Constants.SUPER_ADMINISTRATOR_ROLE_ID, "login");
+        Mockito.doNothing().when(accessControlService).associateUser(Mockito.any(), Mockito.any(), Mockito.any());
+        Mockito.when(accessControlService.getSuperAdministratorId()).thenReturn(UUID.randomUUID());
 
         assertTrue(application.initSuperAdministrator(environment, userService, accessControlService));
     }

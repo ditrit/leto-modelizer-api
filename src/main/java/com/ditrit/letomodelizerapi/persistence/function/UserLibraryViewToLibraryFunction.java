@@ -18,7 +18,7 @@ public class UserLibraryViewToLibraryFunction implements Function<UserLibraryVie
         Library> {
     @Override
     public Library apply(final UserLibraryView userLibraryView) {
-        Library library = new BeanMapper<>(Library.class).apply(userLibraryView);
+        Library library = new BeanMapper<>(Library.class, "id").apply(userLibraryView);
 
         library.setId(userLibraryView.getLibraryId());
 
