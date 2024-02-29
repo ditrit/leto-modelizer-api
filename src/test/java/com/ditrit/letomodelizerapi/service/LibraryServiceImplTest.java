@@ -359,6 +359,30 @@ class LibraryServiceImplTest {
     }
 
     @Test
+    @DisplayName("Test validateLibrary: should validate library")
+    void testValidateLibrary() throws IOException, InterruptedException {
+        MockedStatic<HttpRequest> requestStatic = Mockito.mockStatic(HttpRequest.class);
+        MockedStatic<HttpClient> clientStatic = Mockito.mockStatic(HttpClient.class);
+        Library expectedLibrary = new Library();
+        expectedLibrary.setId(UUID.randomUUID());
+
+        mockHttp(loadJson("libraries/valid/simple/index.json"), requestStatic, clientStatic);
+        LibraryServiceImpl service = newInstance("test");
+
+        ApiException exception = null;
+        try {
+            service.validateLibrary("test");
+        } catch (ApiException e) {
+            exception = e;
+        }
+
+        assertNull(exception);
+        Mockito.reset();
+        requestStatic.close();
+        clientStatic.close();
+    }
+
+    @Test
     @DisplayName("Test save: should update library")
     void testSaveUpdate() throws IOException, InterruptedException {
         MockedStatic<HttpRequest> requestStatic = Mockito.mockStatic(HttpRequest.class);
@@ -386,6 +410,27 @@ class LibraryServiceImplTest {
 
         try {
             service.create(new LibraryRecord("bad", null), "login");
+        } catch (ApiException e) {
+            exception = e;
+        }
+
+        assertNotNull(exception);
+        assertEquals(ErrorType.UNAUTHORIZED_LIBRARY_URL.getStatus(), exception.getStatus());
+        assertEquals(ErrorType.UNAUTHORIZED_LIBRARY_URL.getMessage(), exception.getMessage());
+        assertEquals("url", exception.getError().getField());
+        assertEquals("bad", exception.getError().getValue());
+        Mockito.reset();
+    }
+
+    @Test
+    @DisplayName("Test validateLibrary: should throw an error on unauthorized library url")
+    void testValidateLibraryWithUnauthorizedUrl() {
+        LibraryServiceImpl service = newInstance("http://localhost:8080/test/");
+
+        ApiException exception = null;
+
+        try {
+            service.validateLibrary("bad");
         } catch (ApiException e) {
             exception = e;
         }
