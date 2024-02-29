@@ -124,6 +124,25 @@ class LibraryControllerTest extends MockHelper {
     }
 
     @Test
+    @DisplayName("Test validateLibrary: should return valid response.")
+    void testValidateLibrary() {
+        HttpSession session = Mockito.mock(HttpSession.class);
+        HttpServletRequest request = Mockito.mock(HttpServletRequest.class);
+        Mockito
+                .when(request.getSession())
+                .thenReturn(session);
+        User user = new User();
+        user.setLogin("login");
+        Mockito.when(userService.getFromSession(Mockito.any())).thenReturn(user);
+        Mockito.doNothing().when(userPermissionService).checkLibraryPermission(Mockito.any(), Mockito.any(), Mockito.any());
+        Mockito.doNothing().when(this.libraryService).validateLibrary(Mockito.any());
+        final Response response = this.controller.validateLibrary(request, "url");
+
+        assertNotNull(response);
+        assertEquals(HttpStatus.NO_CONTENT.value(), response.getStatus());
+    }
+
+    @Test
     @DisplayName("Test updateLibrary: should return valid response.")
     void testUpdateLibrary() throws JsonProcessingException {
         HttpSession session = Mockito.mock(HttpSession.class);

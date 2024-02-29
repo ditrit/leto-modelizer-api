@@ -250,6 +250,34 @@ public class LibraryController implements DefaultController {
     }
 
     /**
+     * Handles the POST request to validate the format and content of a library located at the specified URL.
+     * This method ensures that the user has the necessary permissions to create a library (which includes validation
+     * actions) before proceeding to validate the library itself. The validation process may involve checking the
+     * library's structure, format, and compliance with expected standards or schemas. This endpoint is crucial for
+     * ensuring that libraries added to the system meet the required specifications and for providing early feedback to
+     * users about any issues with their library files.
+     *
+     * @param request the HttpServletRequest, used to access the user's session and authenticate the user.
+     * @param url the URL of the library to be validated, which must match a specific pattern ending in "/index.json".
+     * @return a Response object indicating the outcome of the validation process. A response with no content
+     * (204 status code) is returned if the validation is successful, indicating that the library at the specified URL
+     * meets the required standards.
+     */
+    @POST
+    @Path("/validate")
+    public Response validateLibrary(final @Context HttpServletRequest request,
+                                    final @Valid @Pattern(regexp = ".+/index\\.json$")  String url) {
+        HttpSession session = request.getSession();
+        User user = userService.getFromSession(session);
+        userPermissionService.checkLibraryPermission(user, ActionPermission.CREATE, null);
+
+        log.info("Received POST request to validate a library with {}", url);
+        libraryService.validateLibrary(url);
+
+        return Response.noContent().build();
+    }
+
+    /**
      * Handles the PUT request to update the URL of an existing library identified by its ID.
      * Validates the user's permission to update the library before proceeding with the update operation.
      * The URL must match a specific pattern, indicating it should end with "/index.json".
