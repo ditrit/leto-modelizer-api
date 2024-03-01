@@ -1,5 +1,6 @@
 package com.ditrit.letomodelizerapi.persistence.repository;
 
+import com.ditrit.letomodelizerapi.config.Constants;
 import com.ditrit.letomodelizerapi.persistence.model.UserCsrfToken;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -38,7 +39,7 @@ public class DatabaseCsrfTokenRepository implements CsrfTokenRepository {
 
     @Override
     public CsrfToken generateToken(final HttpServletRequest request) {
-        String login = (String) request.getSession().getAttribute("login");
+        String login = (String) request.getSession().getAttribute(Constants.DEFAULT_USER_PROPERTY);
 
         log.info("Generate token for user {}", login);
 
@@ -55,7 +56,7 @@ public class DatabaseCsrfTokenRepository implements CsrfTokenRepository {
 
     @Override
     public void saveToken(final CsrfToken token, final HttpServletRequest request, final HttpServletResponse response) {
-        String login = (String) request.getSession().getAttribute("login");
+        String login = (String) request.getSession().getAttribute(Constants.DEFAULT_USER_PROPERTY);
 
         if (token == null) {
             log.info("Delete previous token for user {}", login);
@@ -75,7 +76,7 @@ public class DatabaseCsrfTokenRepository implements CsrfTokenRepository {
 
     @Override
     public CsrfToken loadToken(final HttpServletRequest request) {
-        String login = (String) request.getSession().getAttribute("login");
+        String login = (String) request.getSession().getAttribute(Constants.DEFAULT_USER_PROPERTY);
 
         if (login == null) {
             return null;

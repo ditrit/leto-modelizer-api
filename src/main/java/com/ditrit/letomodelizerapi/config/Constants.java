@@ -19,6 +19,14 @@ public final class Constants {
     public static final String SUPER_ADMINISTRATOR_ROLE_NAME = "SUPER_ADMINISTRATOR";
 
     /**
+     * Constant defining the default property name used to identify the user within the application.
+     * This property, typically "login", is used as a key in various contexts such as session management,
+     * authentication processes, and user identification within the application's data layer. It represents
+     * the standard field through which users are uniquely identified across the application.
+     */
+    public static final String DEFAULT_USER_PROPERTY = "login";
+
+    /**
      * Private constructor.
      */
     private Constants() {

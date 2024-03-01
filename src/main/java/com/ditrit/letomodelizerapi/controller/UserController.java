@@ -1,5 +1,6 @@
 package com.ditrit.letomodelizerapi.controller;
 
+import com.ditrit.letomodelizerapi.config.Constants;
 import com.ditrit.letomodelizerapi.controller.model.QueryFilter;
 import com.ditrit.letomodelizerapi.model.BeanMapper;
 import com.ditrit.letomodelizerapi.model.accesscontrol.AccessControlDTO;
@@ -121,7 +122,7 @@ public class UserController implements DefaultController {
     @GET
     @Path("/{login}")
     public Response getUserByLogin(final @Context HttpServletRequest request,
-                                   final @PathParam("login") @Valid @NotBlank String login) {
+                                   final @PathParam(Constants.DEFAULT_USER_PROPERTY) @Valid @NotBlank String login) {
         HttpSession session = request.getSession();
         User user = userService.getFromSession(session);
         userPermissionService.checkIsAdmin(user, null);
@@ -144,7 +145,7 @@ public class UserController implements DefaultController {
     @DELETE
     @Path("/{login}")
     public Response deleteUserByLogin(final @Context HttpServletRequest request,
-                                      final @PathParam("login") @Valid @NotBlank String login) {
+                                      final @PathParam(Constants.DEFAULT_USER_PROPERTY) @Valid @NotBlank String login) {
         HttpSession session = request.getSession();
         User user = userService.getFromSession(session);
         userPermissionService.checkIsAdmin(user, null);
@@ -172,7 +173,7 @@ public class UserController implements DefaultController {
     @GET
     @Path("/{login}/roles")
     public Response getRolesOfUser(final @Context HttpServletRequest request,
-                                   final @PathParam("login") @Valid @NotBlank String login,
+                                   final @PathParam(Constants.DEFAULT_USER_PROPERTY) @Valid @NotBlank String login,
                                    final @Context UriInfo uriInfo,
                                    final @BeanParam @Valid QueryFilter queryFilter) {
         HttpSession session = request.getSession();
@@ -212,7 +213,7 @@ public class UserController implements DefaultController {
     @GET
     @Path("/{login}/groups")
     public Response getGroupsOfUser(final @Context HttpServletRequest request,
-                                    final @PathParam("login") @Valid @NotBlank String login,
+                                    final @PathParam(Constants.DEFAULT_USER_PROPERTY) @Valid @NotBlank String login,
                                     final @Context UriInfo uriInfo,
                                     final @BeanParam @Valid QueryFilter queryFilter) {
         HttpSession session = request.getSession();
@@ -249,7 +250,7 @@ public class UserController implements DefaultController {
     @GET
     @Path("/{login}/picture")
     public Response getPictureOfUser(final @Context HttpServletRequest request,
-                                     final @PathParam("login") @Valid @NotBlank String login) {
+                                     final @PathParam(Constants.DEFAULT_USER_PROPERTY) @Valid @NotBlank String login) {
         HttpSession session = request.getSession();
         User me = userService.getFromSession(session);
         userPermissionService.checkIsAdmin(me, null);

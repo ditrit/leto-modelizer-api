@@ -1,5 +1,6 @@
 package com.ditrit.letomodelizerapi.service;
 
+import com.ditrit.letomodelizerapi.config.Constants;
 import com.ditrit.letomodelizerapi.model.user.UserRecord;
 import lombok.AllArgsConstructor;
 import lombok.SneakyThrows;
@@ -36,7 +37,7 @@ public class OAuth2UserService extends DefaultOAuth2UserService {
 
         userService.save(new UserRecord(
             oAuth2User.getAttribute("email"),
-            oAuth2User.getAttribute("login"),
+            oAuth2User.getAttribute(Constants.DEFAULT_USER_PROPERTY),
             oAuth2User.getAttribute("name"),
             oAuth2User.getAttribute("avatar_url")
         ));

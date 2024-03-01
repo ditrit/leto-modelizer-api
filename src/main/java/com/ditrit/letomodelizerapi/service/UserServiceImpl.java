@@ -1,5 +1,6 @@
 package com.ditrit.letomodelizerapi.service;
 
+import com.ditrit.letomodelizerapi.config.Constants;
 import com.ditrit.letomodelizerapi.model.error.ApiException;
 import com.ditrit.letomodelizerapi.model.error.ErrorType;
 import com.ditrit.letomodelizerapi.model.user.UserRecord;
@@ -41,12 +42,6 @@ import java.util.Map;
 public class UserServiceImpl implements UserService {
 
     /**
-     * The attribute key used for retrieving the user's login information from a session or context.
-     * This constant defines how the login attribute is referenced within the application.
-     */
-    private static final String LOGIN_ATTRIBUTE = "login";
-
-    /**
      * This constant defines how the picture attribute is referenced within the application.
      */
     public static final String PICTURE_ATTRIBUTE = "picture";
@@ -84,11 +79,11 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User getFromSession(final HttpSession session) {
-        String login = session.getAttribute(LOGIN_ATTRIBUTE).toString();
+        String login = session.getAttribute(Constants.DEFAULT_USER_PROPERTY).toString();
 
         return userRepository
             .findByLogin(login)
-            .orElseThrow(() -> new ApiException(ErrorType.AUTHORIZATION_ERROR, LOGIN_ATTRIBUTE, login));
+            .orElseThrow(() -> new ApiException(ErrorType.AUTHORIZATION_ERROR, Constants.DEFAULT_USER_PROPERTY, login));
     }
 
     @Override
@@ -133,7 +128,11 @@ public class UserServiceImpl implements UserService {
     @Override
     public User findByLogin(final String login) {
         return this.userRepository.findByLogin(login)
-                .orElseThrow(() -> new ApiException(ErrorType.ENTITY_NOT_FOUND, LOGIN_ATTRIBUTE, login));
+                .orElseThrow(() -> new ApiException(
+                        ErrorType.ENTITY_NOT_FOUND,
+                        Constants.DEFAULT_USER_PROPERTY,
+                        login
+                ));
     }
 
     @Override
