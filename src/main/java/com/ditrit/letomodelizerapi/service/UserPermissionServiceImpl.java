@@ -60,7 +60,7 @@ public class UserPermissionServiceImpl implements UserPermissionService {
         filters.put("userId", user.getId().toString());
         filters.put("entity", entity.name());
         filters.put("action", action.name());
-        filters.put("libraryId", null);
+        filters.put(LIBRARY_ID, null);
 
         return userPermissionRepository.exists(new SpecificationHelper<>(UserPermission.class, filters));
     }
@@ -90,7 +90,7 @@ public class UserPermissionServiceImpl implements UserPermissionService {
         filters.put("action", action.name());
 
         if (id == null) {
-            filters.put("libraryId", "null");
+            filters.put(LIBRARY_ID, "null");
         } else {
             libraryId = id.toString();
             filters.put(LIBRARY_ID, String.format("null|%s", libraryId));
