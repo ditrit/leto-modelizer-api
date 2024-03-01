@@ -1,5 +1,6 @@
 package com.ditrit.letomodelizerapi.controller;
 
+import com.ditrit.letomodelizerapi.config.Constants;
 import com.ditrit.letomodelizerapi.controller.model.QueryFilter;
 import com.ditrit.letomodelizerapi.model.BeanMapper;
 import com.ditrit.letomodelizerapi.model.accesscontrol.AccessControlDTO;
@@ -272,7 +273,7 @@ public class GroupController implements DefaultController {
     @Path("/{id}/users/{login}")
     public Response dissociateUser(final @Context HttpServletRequest request,
                                   final @PathParam("id") @Valid @NotNull UUID id,
-                                  final @PathParam("login") @Valid @NotBlank String login) {
+                                  final @PathParam(Constants.DEFAULT_USER_PROPERTY) @Valid @NotBlank String login) {
         HttpSession session = request.getSession();
         User user = userService.getFromSession(session);
         userPermissionService.checkIsAdmin(user, null);

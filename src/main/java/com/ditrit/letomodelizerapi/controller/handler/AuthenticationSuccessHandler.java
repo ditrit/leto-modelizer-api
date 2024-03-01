@@ -1,5 +1,6 @@
 package com.ditrit.letomodelizerapi.controller.handler;
 
+import com.ditrit.letomodelizerapi.config.Constants;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -29,8 +30,8 @@ public class AuthenticationSuccessHandler extends SimpleUrlAuthenticationSuccess
         OAuth2AuthenticationToken oauthToken = (OAuth2AuthenticationToken) authentication;
 
         // Extract user details and store in session
-        String login = oauthToken.getPrincipal().getAttribute("login");
-        session.setAttribute("login", login);
+        String login = oauthToken.getPrincipal().getAttribute(Constants.DEFAULT_USER_PROPERTY);
+        session.setAttribute(Constants.DEFAULT_USER_PROPERTY, login);
 
         super.onAuthenticationSuccess(request, response, authentication);
     }
