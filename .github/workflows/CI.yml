@@ -54,6 +54,8 @@ jobs:
           java-version: '21'
           distribution: 'temurin'
           architecture: x64
+      - name: Install Pandoc
+        run: sudo apt-get update && sudo apt-get install -y pandoc
       - name: Generate certificate
         run: |
           keytool \
@@ -75,8 +77,20 @@ jobs:
           GITHUB_CLIENT_SECRET: test
       - name: Setup Gradle
         uses: gradle/gradle-build-action@v2
-      - name: Execute tests
+      - name: Execute unit/e2e tests
         run: ./gradlew test
+      - name: Execute mutation tests
+        run: ./gradlew pitest
+      - name: Extract summary from pitest
+        run: echo "<html><head></head><body><h1>Pit Test Coverage Report</h1><h3>Project Summary</h3>" > pitest.html && perl -0777 -ne 'print "$1\n" if /(<table>.*?<\/table>)/s' build/reports/pitest/index.html >> pitest.html && echo "</body></html>" >> pitest.html
+      - name: Convert pitest report to markdown
+        run: pandoc --from html --to markdown_github --no-highlight pitest.html
+      - name: Post comment
+        uses: luukkemp/pr-comment@2024.1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          path: pitest.html
       - name: Execute sonar scan
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
