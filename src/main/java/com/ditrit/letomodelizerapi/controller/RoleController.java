@@ -11,6 +11,7 @@ import com.ditrit.letomodelizerapi.model.error.ApiException;
 import com.ditrit.letomodelizerapi.model.error.ErrorType;
 import com.ditrit.letomodelizerapi.model.permission.PermissionDirectDTO;
 import com.ditrit.letomodelizerapi.model.user.UserDTO;
+import com.ditrit.letomodelizerapi.persistence.function.AccessControlPermissionViewToPermissionDirectDTOFunction;
 import com.ditrit.letomodelizerapi.persistence.model.AccessControl;
 import com.ditrit.letomodelizerapi.persistence.model.Permission;
 import com.ditrit.letomodelizerapi.persistence.model.User;
@@ -542,17 +543,7 @@ public class RoleController implements DefaultController {
         AccessControl accessControl = accessControlService.findById(AccessControlType.ROLE, id);
         Page<PermissionDirectDTO> resources = accessControlPermissionService
                 .findAll(accessControl.getId(), filters, queryFilter.getPagination())
-                .map(accessControlPermissionView -> {
-                    PermissionDirectDTO dto = new PermissionDirectDTO();
-
-                    dto.setId(accessControlPermissionView.getPermissionId());
-                    dto.setAction(accessControlPermissionView.getAction());
-                    dto.setEntity(accessControlPermissionView.getEntity());
-                    dto.setLibraryId(accessControlPermissionView.getLibraryId());
-                    dto.setIsDirect(accessControlPermissionView.getIsDirect());
-
-                    return dto;
-                });
+                .map(new AccessControlPermissionViewToPermissionDirectDTOFunction());
 
         return Response.status(this.getStatus(resources)).entity(resources).build();
     }
