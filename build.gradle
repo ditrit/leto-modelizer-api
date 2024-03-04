@@ -8,6 +8,7 @@ plugins {
 	id 'com.adarshr.test-logger' version '4.0.0'
 	id 'jacoco'
 	id 'idea'
+	id "info.solidsoft.pitest" version "1.15.0"
 }
 
 idea {
@@ -95,5 +96,12 @@ sonar {
 		property "sonar.projectName", "leto-modelizer-api"
 		property "sonar.host.url", "https://sonarcloud.io"
 		property "sonar.coverage.jacoco.xmlReportPaths", "build/reports/jacoco/test/jacocoTestReport.xml"
+		property "sonar.pitest.reportsDirectory", "build/reports/pitest"
 	}
+}
+
+pitest {
+	junit5PluginVersion = '1.2.1'
+	pitestVersion = '1.15.2'
+	excludedTestClasses = ['com.ditrit.letomodelizerapi.cucumber.RunCucumberTest', 'com.ditrit.letomodelizerapi.cucumber.StepDefinitions']
 }
