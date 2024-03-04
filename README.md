@@ -183,6 +183,12 @@ docker-compose down
 In order to directly interact with the DB or the API, you can use the
 dashboard [Leto-Modelizer-Admin](https://github.com/ditrit/leto-modelizer-admin).
 
+#### Notes
+
+- Cockroach console can be accessed from http://localhost:8081/ and it uses login/password defined in configuration.
+
+  Defaults are : login `leto_admin`, password `password`.
+
 ### OAuth Authentication Setup
 
 To configure OAuth authentication for Leto-modelizer, you need to set up an OAuth application with specific details.
