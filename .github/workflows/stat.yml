@@ -44,6 +44,9 @@ jobs:
         run: docker build -t leto-modelizer-api .
       - name: Run application
         run: docker compose up -d
+        env:
+          GITHUB_CLIENT_ID: test
+          GITHUB_CLIENT_SECRET: test
       - name: Setup Gradle
         uses: gradle/gradle-build-action@v2
       - name: Execute tests
@@ -52,4 +55,4 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        run: ./gradlew sonar -Dsonar.token=$SONAR_TOKEN
+        run: ./gradlew sonar -Dsonar.token=$SONAR_TOKEN -Dsonar.gradle.skipCompile=true
