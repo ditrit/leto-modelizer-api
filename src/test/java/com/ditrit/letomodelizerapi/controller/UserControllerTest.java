@@ -163,6 +163,30 @@ class UserControllerTest extends MockHelper {
     }
 
     @Test
+    @DisplayName("Test getScopesOfUser: should return valid response.")
+    void testGetScopesOfUser() {
+        User user = new User();
+        user.setLogin("login");
+        Mockito
+                .when(userService.getFromSession(Mockito.any()))
+                .thenReturn(user);
+        HttpSession session = Mockito.mock(HttpSession.class);
+        HttpServletRequest request = Mockito.mock(HttpServletRequest.class);
+        Mockito
+                .when(request.getSession())
+                .thenReturn(session);
+        Mockito.doNothing().when(userPermissionService).checkIsAdmin(Mockito.any(), Mockito.any());
+        Mockito.when(this.userService.findByLogin(Mockito.any())).thenReturn(new User());
+        Mockito.when(this.accessControlService.findAll(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any()))
+                .thenReturn(Page.empty());
+        final Response response = this.controller.getScopesOfUser(request, "test", mockUriInfo(), new QueryFilter());
+
+        assertNotNull(response);
+        assertEquals(HttpStatus.OK.value(), response.getStatus());
+        assertNotNull(response.getEntity());
+    }
+
+    @Test
     @DisplayName("Test getPicture: should return valid response.")
     void testGetPicture() {
         UserController controller = new UserController(userService, userPermissionService, accessControlService, "1");

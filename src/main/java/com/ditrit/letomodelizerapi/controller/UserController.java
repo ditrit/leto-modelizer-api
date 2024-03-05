@@ -237,6 +237,47 @@ public class UserController implements DefaultController {
     }
 
     /**
+     * Retrieves scopes associated with a user identified by their login.
+     *
+     * <p>This method processes a GET request to fetch scopes assigned to a user, utilizing the user's login as the
+     * identifier. It supports filtering based on query parameters and pagination. The operation requires administrative
+     * privileges to execute, as it involves accessing sensitive user role information.
+     *
+     * @param request the HttpServletRequest from which to obtain the HttpSession for user validation.
+     * @param login the login identifier of the user whose scopes are being requested. Must be a valid, non-blank
+     *              String.
+     * @param uriInfo UriInfo context to extract query parameters for filtering results.
+     * @param queryFilter bean parameter encapsulating filtering and pagination criteria.
+     * @return a Response object containing the requested page of AccessControlDTO objects representing the scopes
+     * associated with the specified user. The response status varies based on the outcome of the request.
+     */
+    @GET
+    @Path("/{login}/scopes")
+    public Response getScopesOfUser(final @Context HttpServletRequest request,
+                                    final @PathParam(Constants.DEFAULT_USER_PROPERTY) @Valid @NotBlank String login,
+                                    final @Context UriInfo uriInfo,
+                                    final @BeanParam @Valid QueryFilter queryFilter) {
+        HttpSession session = request.getSession();
+        User me = userService.getFromSession(session);
+        userPermissionService.checkIsAdmin(me, null);
+
+        Map<String, String> filters = this.getFilters(uriInfo);
+        log.info(
+                "[{}] Received GET request to get scopes of user {} with the following filters: {}",
+                me.getLogin(),
+                login,
+                filters
+        );
+
+        User user = userService.findByLogin(login);
+        Page<AccessControlDTO> resources = accessControlService
+                .findAll(AccessControlType.SCOPE, user, filters, queryFilter.getPagination())
+                .map(new BeanMapper<>(AccessControlDTO.class));
+
+        return Response.status(this.getStatus(resources)).entity(resources).build();
+    }
+
+    /**
      * Retrieves the profile picture of a user identified by their login. Access to this endpoint is restricted to
      * users with administrative privileges. The method fetches the picture from the user service and returns it
      * along with the appropriate content type. If the user does not have a profile picture or if any error occurs
