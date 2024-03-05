@@ -408,6 +408,11 @@ public class StepDefinitions {
         this.clean("groups", String.format("name=%s", name));
     }
 
+    @Given("I clean scope {string}")
+    public void cleanScope(String name) throws URISyntaxException, IOException, InterruptedException {
+        this.clean("scopes", String.format("name=%s", name));
+    }
+
     @Given("I clean library {string}")
     public void cleanLibrary(String url) throws URISyntaxException, IOException, InterruptedException {
         this.clean("libraries", String.format("url=%s", url));

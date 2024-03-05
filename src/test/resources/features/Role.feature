@@ -328,6 +328,77 @@ Feature: Role feature
     And  I extract resources from response
     And  I expect response resources length is "0"
 
+  Scenario: Should add scope to a role
+    Given I initialize the admin user
+    And   I clean role "ROLE"
+    And   I clean scope "SCOPE"
+
+    # Create all role
+    When I request "/roles" with method "POST" with json
+      | key  | value |
+      | name | ROLE  |
+    Then I expect "201" as status code
+    And  I set response field "id" to context "role_id"
+
+    # Create all scope
+    When I request "/scopes" with method "POST" with json
+      | key  | value |
+      | name | SCOPE |
+    Then I expect "201" as status code
+    And  I set response field "id" to context "scope_id"
+
+    # Role shouldn't have scope
+    When I request "/roles/[role_id]/scopes" with method "GET"
+    Then I expect "200" as status code
+    And  I extract resources from response
+    And  I expect response resources length is "0"
+
+    # Group shouldn't have role
+    When I request "/scopes/[scope_id]/roles" with method "GET"
+    Then I expect "200" as status code
+    And  I extract resources from response
+    And  I expect response resources length is "0"
+
+    # Associate scope and role
+    When I request "/roles/[role_id]/scopes" with method "POST" with body
+      | value      | type |
+      | [scope_id] | text |
+    Then I expect "201" as status code
+
+    # Verify all scopes of role
+    When I request "/roles/[role_id]/scopes" with method "GET"
+    Then I expect "200" as status code
+    And  I extract resources from response
+    And  I expect response resources length is "1"
+    And  I expect one resource contains "id" equals to "[scope_id]"
+    And  I expect one resource contains "name" equals to "SCOPE"
+    And  I expect one resource contains "isDirect" equals to "true" as "boolean"
+
+    # Verify all roles of scope
+    When I request "/scopes/[scope_id]/roles" with method "GET"
+    Then I expect "200" as status code
+    And  I extract resources from response
+    And  I expect response resources length is "1"
+    And  I expect one resource contains "id" equals to "[role_id]"
+    And  I expect one resource contains "name" equals to "ROLE"
+    And  I expect one resource contains "isDirect" equals to "true" as "boolean"
+
+    # Dissociate scope and role
+    When I request "/roles/[role_id]/scopes/[scope_id]" with method "DELETE"
+    Then I expect "204" as status code
+
+    # Role shouldn't have scope
+    When I request "/roles/[role_id]/scopes" with method "GET"
+    Then I expect "200" as status code
+    And  I extract resources from response
+    And  I expect response resources length is "0"
+
+    # Scope shouldn't have role
+    When I request "/scopes/[scope_id]/roles" with method "GET"
+    Then I expect "200" as status code
+    And  I extract resources from response
+    And  I expect response resources length is "0"
+
   Scenario: Should add permission to a role
     Given I initialize the admin user
     And   I clean role "ROLE"
