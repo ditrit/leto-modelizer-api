@@ -31,8 +31,8 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @Tag("unit")
 @ExtendWith(MockitoExtension.class)
-@DisplayName("Test class: GroupController")
-class GroupControllerTest extends MockHelper {
+@DisplayName("Test class: ScopeController")
+class ScopeControllerTest extends MockHelper {
 
     @Mock
     UserService userService;
@@ -47,7 +47,7 @@ class GroupControllerTest extends MockHelper {
     AccessControlPermissionService accessControlPermissionService;
 
     @InjectMocks
-    GroupController controller;
+    ScopeController controller;
 
     @Test
     @DisplayName("Test findAll: should return valid response.")
@@ -86,7 +86,7 @@ class GroupControllerTest extends MockHelper {
                 .thenReturn(session);
         Mockito.doNothing().when(userPermissionService).checkIsAdmin(Mockito.any(), Mockito.any());
         Mockito.when(this.accessControlService.findById(Mockito.any(), Mockito.any())).thenReturn(new AccessControl());
-        final Response response = this.controller.getGroupById(request, UUID.randomUUID());
+        final Response response = this.controller.getScopeById(request, UUID.randomUUID());
 
         assertNotNull(response);
         assertEquals(HttpStatus.OK.value(), response.getStatus());
@@ -108,7 +108,7 @@ class GroupControllerTest extends MockHelper {
                 .thenReturn(session);
         Mockito.doNothing().when(userPermissionService).checkIsAdmin(Mockito.any(), Mockito.any());
         Mockito.when(this.accessControlService.create(Mockito.any(), Mockito.any())).thenReturn(new AccessControl());
-        final Response response = this.controller.createGroup(request, new AccessControlRecord("test"));
+        final Response response = this.controller.createScope(request, new AccessControlRecord("test"));
 
         assertNotNull(response);
         assertEquals(HttpStatus.CREATED.value(), response.getStatus());
@@ -116,8 +116,8 @@ class GroupControllerTest extends MockHelper {
     }
 
     @Test
-    @DisplayName("Test updateGroup: should return valid response.")
-    void testUpdateGroup() {
+    @DisplayName("Test updateScope: should return valid response.")
+    void testUpdateScope() {
         User user = new User();
         user.setLogin("login");
         Mockito
@@ -130,7 +130,7 @@ class GroupControllerTest extends MockHelper {
                 .thenReturn(session);
         Mockito.doNothing().when(userPermissionService).checkIsAdmin(Mockito.any(), Mockito.any());
         Mockito.when(this.accessControlService.update(Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(new AccessControl());
-        final Response response = this.controller.updateGroup(request, UUID.randomUUID(), new AccessControlRecord("test"));
+        final Response response = this.controller.updateScope(request, UUID.randomUUID(), new AccessControlRecord("test"));
 
         assertNotNull(response);
         assertEquals(HttpStatus.OK.value(), response.getStatus());
@@ -138,8 +138,8 @@ class GroupControllerTest extends MockHelper {
     }
 
     @Test
-    @DisplayName("Test deleteGroup: should return valid response.")
-    void testDeleteGroup() {
+    @DisplayName("Test deleteScope: should return valid response.")
+    void testDeleteScope() {
         User user = new User();
         user.setLogin("login");
         Mockito
@@ -152,15 +152,15 @@ class GroupControllerTest extends MockHelper {
                 .thenReturn(session);
         Mockito.doNothing().when(userPermissionService).checkIsAdmin(Mockito.any(), Mockito.any());
         Mockito.doNothing().when(this.accessControlService).delete(Mockito.any(), Mockito.any());
-        final Response response = this.controller.deleteGroup(request, UUID.randomUUID());
+        final Response response = this.controller.deleteScope(request, UUID.randomUUID());
 
         assertNotNull(response);
         assertEquals(HttpStatus.NO_CONTENT.value(), response.getStatus());
     }
 
     @Test
-    @DisplayName("Test getUsersByGroup: should return valid response.")
-    void testGetUsersByGroup() {
+    @DisplayName("Test getUsersByScope: should return valid response.")
+    void testGetUsersByScope() {
         User user = new User();
         user.setLogin("login");
         Mockito
@@ -173,7 +173,7 @@ class GroupControllerTest extends MockHelper {
                 .thenReturn(session);
         Mockito.doNothing().when(userPermissionService).checkIsAdmin(Mockito.any(), Mockito.any());
         Mockito.when(this.accessControlService.findAllUsers(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(Page.empty());
-        final Response response = this.controller.getUsersByGroup(request, UUID.randomUUID(), mockUriInfo(), new QueryFilter());
+        final Response response = this.controller.getUsersByScope(request, UUID.randomUUID(), mockUriInfo(), new QueryFilter());
 
         assertNotNull(response);
         assertEquals(HttpStatus.OK.value(), response.getStatus());
@@ -224,8 +224,8 @@ class GroupControllerTest extends MockHelper {
     }
 
     @Test
-    @DisplayName("Test getSubGroupsOfGroup: should return valid response.")
-    void testGetSubGroupsOfGroup() {
+    @DisplayName("Test getGroupsOfScope: should return valid response.")
+    void testGetGroupsOfScope() {
         User user = new User();
         user.setLogin("login");
         Mockito
@@ -238,7 +238,7 @@ class GroupControllerTest extends MockHelper {
                 .thenReturn(session);
         Mockito.doNothing().when(userPermissionService).checkIsAdmin(Mockito.any(), Mockito.any());
         Mockito.when(this.accessControlService.findAllAccessControls(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(Page.empty());
-        final Response response = this.controller.getSubGroupsOfGroup(request, UUID.randomUUID(), mockUriInfo(), new QueryFilter());
+        final Response response = this.controller.getGroupsOfScope(request, UUID.randomUUID(), mockUriInfo(), new QueryFilter());
 
         assertNotNull(response);
         assertEquals(HttpStatus.OK.value(), response.getStatus());
@@ -289,8 +289,8 @@ class GroupControllerTest extends MockHelper {
     }
 
     @Test
-    @DisplayName("Test getRolesOfGroup: should return valid response.")
-    void testGetRolesOfGroup() {
+    @DisplayName("Test getRolesOfScope: should return valid response.")
+    void testGetRolesOfScope() {
         User user = new User();
         user.setLogin("login");
         Mockito
@@ -303,7 +303,7 @@ class GroupControllerTest extends MockHelper {
                 .thenReturn(session);
         Mockito.doNothing().when(userPermissionService).checkIsAdmin(Mockito.any(), Mockito.any());
         Mockito.when(this.accessControlService.findAllAccessControls(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(Page.empty());
-        final Response response = this.controller.getRolesOfGroup(request, UUID.randomUUID(), mockUriInfo(), new QueryFilter());
+        final Response response = this.controller.getRolesOfScope(request, UUID.randomUUID(), mockUriInfo(), new QueryFilter());
 
         assertNotNull(response);
         assertEquals(HttpStatus.OK.value(), response.getStatus());
@@ -311,30 +311,8 @@ class GroupControllerTest extends MockHelper {
     }
 
     @Test
-    @DisplayName("Test getScopesOfGroup: should return valid response.")
-    void testGetScopesOfGroup() {
-        User user = new User();
-        user.setLogin("login");
-        Mockito
-                .when(userService.getFromSession(Mockito.any()))
-                .thenReturn(user);
-        HttpSession session = Mockito.mock(HttpSession.class);
-        HttpServletRequest request = Mockito.mock(HttpServletRequest.class);
-        Mockito
-                .when(request.getSession())
-                .thenReturn(session);
-        Mockito.doNothing().when(userPermissionService).checkIsAdmin(Mockito.any(), Mockito.any());
-        Mockito.when(this.accessControlService.findAllAccessControls(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(Page.empty());
-        final Response response = this.controller.getScopesOfGroup(request, UUID.randomUUID(), mockUriInfo(), new QueryFilter());
-
-        assertNotNull(response);
-        assertEquals(HttpStatus.OK.value(), response.getStatus());
-        assertNotNull(response.getEntity());
-    }
-
-    @Test
-    @DisplayName("Test getPermissionsOfGroup: should return valid response.")
-    void testGetPermissionsOfGroup() {
+    @DisplayName("Test getPermissionsOfScope: should return valid response.")
+    void testGetPermissionsOfScope() {
         User user = new User();
         user.setLogin("login");
         Mockito
@@ -352,7 +330,7 @@ class GroupControllerTest extends MockHelper {
         Mockito
                 .when(this.accessControlPermissionService.findAll(Mockito.any(), Mockito.any(), Mockito.any()))
                 .thenReturn(Page.empty());
-        final Response response = this.controller.getPermissionsOfGroup(request, UUID.randomUUID(), mockUriInfo(), new QueryFilter());
+        final Response response = this.controller.getPermissionsOfScope(request, UUID.randomUUID(), mockUriInfo(), new QueryFilter());
 
         assertNotNull(response);
         assertEquals(HttpStatus.OK.value(), response.getStatus());

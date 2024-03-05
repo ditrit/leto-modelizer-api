@@ -19,12 +19,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     * `GET /api/user/me/picture`, to get its picture.
     * `GET /api/user/me/roles`, to get its roles.
     * `GET /api/user/me/groups`, to get its groups.
+    * `GET /api/user/me/scopes`, to get its scopes.
   * For all users:
     * `GET    /api/users`, to get all users.
     * `GET    /api/users/{login}`, to get user by login.
     * `DELETE /api/users/{login}`, to delete user by login.
     * `GET    /api/users/{login}/roles`, to get all roles associated to the user.
     * `GET    /api/users/{login}/groups`, to get all groups associated to the user.
+    * `GET    /api/users/{login}/scopes`, to get all scopes associated to the user.
     * `GET    /api/users/{login}/picture`, to get picture associated to the user.
   * For all roles:
     * `GET    /api/roles`, to get all roles.
@@ -38,6 +40,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     * `GET    /api/roles/[ROLE_ID]/groups`, to get all groups associated to the role.
     * `POST   /api/roles/[ROLE_ID]/groups`, to associate role and group.
     * `DELETE /api/roles/[ROLE_ID]/groups/[GROUP_ID]`, to dissociate role and group.
+    * `GET    /api/roles/[ROLE_ID]/scopes`, to get all scopes associated to the role.
+    * `POST   /api/roles/[ROLE_ID]/scopes`, to associate role and scope.
+    * `DELETE /api/roles/[ROLE_ID]/scopes/[SCOPE_ID]`, to dissociate role and scope.
     * `GET    /api/roles/[ROLE_ID]/permissions`, to get all permissions associated to the role.
     * `POST   /api/roles/[ROLE_ID]/permissions`, to associate role and permission.
     * `DELETE /api/roles/[ROLE_ID]/permissions/[PERMISSION_ID]`, to dissociate role and permission.
@@ -55,6 +60,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     * `DELETE /api/groups/[GROUP_ID]/groups/[GROUP_ID]`, to dissociate group and group.
     * `GET    /api/groups/[GROUP_ID]/roles`, to get all roles associated to the group.
     * `GET    /api/groups/[GROUP_ID]/permissions`, to get all permissions associated to the group.
+  * For all scopes:
+    * `GET    /api/scopes`, to get all groups.
+    * `POST   /api/scopes`, to create a group.
+    * `GET    /api/scopes/[SCOPE_ID]`, to get group by id.
+    * `PUT    /api/scopes/[SCOPE_ID]`, to update a scope.
+    * `DELETE /api/scopes/[SCOPE_ID]`, to delete a scope.
+    * `GET    /api/scopes/[SCOPE_ID]/users`, to get all users associated to the scope.
+    * `POST   /api/scopes/[SCOPE_ID]/users`, to associate scope and user.
+    * `DELETE /api/scopes/[SCOPE_ID]/users/[USER_LOGIN]`, to dissociate scope and user.
+    * `GET    /api/scopes/[SCOPE_ID]/groups`, to get all groups associated to the scope.
+    * `POST   /api/scopes/[SCOPE_ID]/groups`, to associate group and scope.
+    * `DELETE /api/scopes/[SCOPE_ID]/groups/[GROUP_ID]`, to dissociate group and scope.
+    * `GET    /api/scopes/[SCOPE_ID]/roles`, to get all roles associated to the scope.
+    * `GET    /api/scopes/[SCOPE_ID]/permissions`, to get all permissions associated to the scope.
   * For all libraries:
     * `GET    /api/libraries`, to get all libraries.
     * `POST   /api/libraries`, to create a libraries.

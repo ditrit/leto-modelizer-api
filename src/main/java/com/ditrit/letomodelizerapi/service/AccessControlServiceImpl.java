@@ -173,13 +173,15 @@ public class AccessControlServiceImpl implements AccessControlService {
     }
 
     @Override
-    public Page<AccessControlDirectDTO> findAllAccessControls(final UUID id,
-                                                              final AccessControlType type,
+    public Page<AccessControlDirectDTO> findAllAccessControls(final AccessControlType type,
+                                                              final UUID id,
+                                                              final AccessControlType subType,
                                                               final Map<String, String> immutableFilters,
                                                               final Pageable pageable) {
+        AccessControl accessControl = this.findById(type, id);
         Map<String, String> filters = new HashMap<>(immutableFilters);
-        filters.put("accessControlId", id.toString());
-        filters.put("parentAccessControlType", type.name());
+        filters.put("accessControlId", accessControl.getId().toString());
+        filters.put("parentAccessControlType", subType.name());
 
         return accessControlTreeViewRepository.findAll(new SpecificationHelper<>(AccessControlTreeView.class, filters),
                 PageRequest.of(

@@ -98,7 +98,7 @@ Feature: group feature
     And  I extract resources from response
     And  I expect response resources length is "0"
 
-    # Check current user has only one group.
+    # Check current user has no group
     When I request "/users/me/groups" with method "GET"
     Then I expect "200" as status code
     And  I extract resources from response
@@ -117,7 +117,7 @@ Feature: group feature
     And  I expect response resources length is "1"
     And  I expect one resource contains "login" equals to "admin"
 
-    # Check current user has two groups.
+    # Check current user has one group
     When I request "/users/me/groups" with method "GET"
     Then I expect "200" as status code
     And  I extract resources from response
@@ -134,7 +134,7 @@ Feature: group feature
     And  I extract resources from response
     And  I expect response resources length is "0"
 
-    # Check current user has only one group.
+    # Check current user has no group
     When I request "/users/me/groups" with method "GET"
     Then I expect "200" as status code
     And  I extract resources from response

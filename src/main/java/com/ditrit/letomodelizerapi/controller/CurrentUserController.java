@@ -221,4 +221,41 @@ public class CurrentUserController implements DefaultController {
 
         return Response.status(this.getStatus(resources)).entity(resources).build();
     }
+
+    /**
+     * Retrieves all scopes associated to the current user.
+     * This endpoint provides a paginated list of scopes that the current user has, based on the provided query filters.
+     * The method uses the session information from the HttpServletRequest to identify the current user and
+     * then fetches their scopes using the AccessControlService.
+     *
+     * @param request      HttpServletRequest to access the HTTP session and thereby identify the current user.
+     * @param uriInfo      UriInfo to extract query parameters for additional filtering.
+     * @param queryFilter  BeanParam object for pagination and filtering purposes.
+     * @return a Response containing a paginated list of AccessControlDTO objects representing the scopes of the current
+     * user.
+     */
+    @GET
+    @Path("/scopes")
+    public Response getMyScopes(final @Context HttpServletRequest request,
+                                final @Context UriInfo uriInfo,
+                                final @BeanParam @Valid QueryFilter queryFilter) {
+        HttpSession session = request.getSession();
+        User user = userService.getFromSession(session);
+        Map<String, String> filters = this.getFilters(uriInfo);
+
+        log.info(
+                "[{}] Received GET request to get current user scopes with the following filters: {}",
+                user.getLogin(),
+                filters
+        );
+
+        Page<AccessControlDTO> resources = accessControlService.findAll(
+                AccessControlType.SCOPE,
+                user,
+                filters,
+                queryFilter.getPagination()
+        ).map(new BeanMapper<>(AccessControlDTO.class));
+
+        return Response.status(this.getStatus(resources)).entity(resources).build();
+    }
 }

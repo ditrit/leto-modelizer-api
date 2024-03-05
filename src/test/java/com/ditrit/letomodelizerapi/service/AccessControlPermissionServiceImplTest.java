@@ -25,7 +25,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @Tag("unit")
 @ExtendWith(MockitoExtension.class)
-@DisplayName("Test class: AccessControlServiceImpl")
+@DisplayName("Test class: AccessControlPermissionServiceImpl")
 class AccessControlPermissionServiceImplTest {
 
     @Mock

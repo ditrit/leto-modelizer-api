@@ -86,11 +86,18 @@ class AccessControlServiceImplTest {
     @Test
     @DisplayName("Test findAllAccessControls: should return all access controls of access control")
     void testFindAllAccessControls() {
+        UUID id = UUID.randomUUID();
+        AccessControl accessControl = new AccessControl();
+        accessControl.setId(id);
+
         Mockito
                 .when(accessControlTreeViewRepository.findAll(Mockito.any(Specification.class), Mockito.any()))
                 .thenReturn(Page.empty());
+        Mockito
+                .when(accessControlRepository.findOne(Mockito.any(Specification.class)))
+                .thenReturn(Optional.of(accessControl));
 
-        assertEquals(Page.empty(), service.findAllAccessControls(UUID.randomUUID(), AccessControlType.ROLE, Map.of(), Pageable.ofSize(10)));
+        assertEquals(Page.empty(), service.findAllAccessControls(AccessControlType.ROLE, id, AccessControlType.ROLE, Map.of(), Pageable.ofSize(10)));
     }
 
     @Test
