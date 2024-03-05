@@ -237,7 +237,7 @@ class GroupControllerTest extends MockHelper {
                 .when(request.getSession())
                 .thenReturn(session);
         Mockito.doNothing().when(userPermissionService).checkIsAdmin(Mockito.any(), Mockito.any());
-        Mockito.when(this.accessControlService.findAllAccessControls(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(Page.empty());
+        Mockito.when(this.accessControlService.findAllAccessControls(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(Page.empty());
         final Response response = this.controller.getSubGroupsOfGroup(request, UUID.randomUUID(), mockUriInfo(), new QueryFilter());
 
         assertNotNull(response);
@@ -302,8 +302,30 @@ class GroupControllerTest extends MockHelper {
                 .when(request.getSession())
                 .thenReturn(session);
         Mockito.doNothing().when(userPermissionService).checkIsAdmin(Mockito.any(), Mockito.any());
-        Mockito.when(this.accessControlService.findAllAccessControls(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(Page.empty());
+        Mockito.when(this.accessControlService.findAllAccessControls(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(Page.empty());
         final Response response = this.controller.getRolesOfGroup(request, UUID.randomUUID(), mockUriInfo(), new QueryFilter());
+
+        assertNotNull(response);
+        assertEquals(HttpStatus.OK.value(), response.getStatus());
+        assertNotNull(response.getEntity());
+    }
+
+    @Test
+    @DisplayName("Test getScopesOfGroup: should return valid response.")
+    void testGetScopesOfGroup() {
+        User user = new User();
+        user.setLogin("login");
+        Mockito
+                .when(userService.getFromSession(Mockito.any()))
+                .thenReturn(user);
+        HttpSession session = Mockito.mock(HttpSession.class);
+        HttpServletRequest request = Mockito.mock(HttpServletRequest.class);
+        Mockito
+                .when(request.getSession())
+                .thenReturn(session);
+        Mockito.doNothing().when(userPermissionService).checkIsAdmin(Mockito.any(), Mockito.any());
+        Mockito.when(this.accessControlService.findAllAccessControls(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(Page.empty());
+        final Response response = this.controller.getScopesOfGroup(request, UUID.randomUUID(), mockUriInfo(), new QueryFilter());
 
         assertNotNull(response);
         assertEquals(HttpStatus.OK.value(), response.getStatus());
