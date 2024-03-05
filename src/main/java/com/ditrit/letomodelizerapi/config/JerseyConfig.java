@@ -7,6 +7,7 @@ import com.ditrit.letomodelizerapi.controller.HomeController;
 import com.ditrit.letomodelizerapi.controller.LibraryController;
 import com.ditrit.letomodelizerapi.controller.PermissionController;
 import com.ditrit.letomodelizerapi.controller.RoleController;
+import com.ditrit.letomodelizerapi.controller.ScopeController;
 import com.ditrit.letomodelizerapi.controller.UserController;
 import com.ditrit.letomodelizerapi.controller.handler.ApiExceptionHandler;
 import com.ditrit.letomodelizerapi.controller.handler.ConstraintViolationExceptionHandler;
@@ -31,6 +32,7 @@ public class JerseyConfig extends ResourceConfig {
         register(CurrentUserController.class);
         register(RoleController.class);
         register(GroupController.class);
+        register(ScopeController.class);
         register(LibraryController.class);
         register(HomeController.class);
         register(CsrfController.class);
