@@ -89,10 +89,11 @@ public interface AccessControlService {
      * The method is essential for hierarchical access control systems where access controls may have multiple levels
      * of granularity or inheritance.
      *
+     * @param type          the AccessControlType of the parent AccessControl entity whose children are to be found
      * @param id the ID of the parent access control for which sub-access controls are being searched. This ID uniquely
      *           identifies an access control entity within the system.
-     * @param type the specific type of access control entities to retrieve, which helps in narrowing down the search to
-     *             relevant sub-categories or classifications of access controls.
+     * @param subType the specific type of access control entities to retrieve, which helps in narrowing down the search
+     *                to relevant sub-categories or classifications of access controls.
      * @param filters a map containing key-value pairs used for filtering the search results. These filters can apply to
      *                various attributes of the access controls, such as names, statuses, or custom properties, to
      *                refine the results further.
@@ -103,8 +104,9 @@ public interface AccessControlService {
      * specified parent ID. This paginated object includes the subset of access controls that match the search criteria,
      * along with pagination details such as total results, current page number, and total pages available.
      */
-    Page<AccessControlDirectDTO> findAllAccessControls(UUID id,
-                                                       AccessControlType type,
+    Page<AccessControlDirectDTO> findAllAccessControls(AccessControlType type,
+                                                       UUID id,
+                                                       AccessControlType subType,
                                                        Map<String, String> filters,
                                                        Pageable pageable);
 
