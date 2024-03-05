@@ -246,7 +246,7 @@ class RoleControllerTest extends MockHelper {
                 .when(request.getSession())
                 .thenReturn(session);
         Mockito.doNothing().when(userPermissionService).checkIsAdmin(Mockito.any(), Mockito.any());
-        Mockito.when(this.accessControlService.findAllAccessControls(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(Page.empty());
+        Mockito.when(this.accessControlService.findAllAccessControls(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(Page.empty());
         final Response response = this.controller.getSubRolesOfRole(request, UUID.randomUUID(), mockUriInfo(), new QueryFilter());
 
         assertNotNull(response);
@@ -320,6 +320,73 @@ class RoleControllerTest extends MockHelper {
         assertNotNull(response);
         assertEquals(HttpStatus.OK.value(), response.getStatus());
         assertNotNull(response.getEntity());
+    }
+
+    @Test
+    @DisplayName("Test getScopesOfRole: should return valid response.")
+    void testGetScopesOfRole() {
+        User user = new User();
+        user.setLogin("login");
+        Mockito
+                .when(userService.getFromSession(Mockito.any()))
+                .thenReturn(user);
+        HttpSession session = Mockito.mock(HttpSession.class);
+        HttpServletRequest request = Mockito.mock(HttpServletRequest.class);
+        Mockito
+                .when(request.getSession())
+                .thenReturn(session);
+        Mockito.doNothing().when(userPermissionService).checkIsAdmin(Mockito.any(), Mockito.any());
+        Mockito.when(this.accessControlService.findAllChildren(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(Page.empty());
+        final Response response = this.controller.getScopesOfRole(request, UUID.randomUUID(), mockUriInfo(), new QueryFilter());
+
+        assertNotNull(response);
+        assertEquals(HttpStatus.OK.value(), response.getStatus());
+        assertNotNull(response.getEntity());
+    }
+
+    @Test
+    @DisplayName("Test associateScope: should return valid response.")
+    void testAssociateScope() {
+        User user = new User();
+        user.setLogin("login");
+        Mockito
+                .when(userService.getFromSession(Mockito.any()))
+                .thenReturn(user);
+        HttpSession session = Mockito.mock(HttpSession.class);
+        HttpServletRequest request = Mockito.mock(HttpServletRequest.class);
+        Mockito
+                .when(request.getSession())
+                .thenReturn(session);
+        Mockito.when(accessControlService.getSuperAdministratorId()).thenReturn(UUID.randomUUID());
+        Mockito.doNothing().when(userPermissionService).checkIsAdmin(Mockito.any(), Mockito.any());
+        Mockito.doNothing().when(this.accessControlService).associate(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any());
+        final Response response = this.controller.associateScope(request, UUID.randomUUID(), UUID.randomUUID().toString());
+
+        assertNotNull(response);
+        assertEquals(HttpStatus.CREATED.value(), response.getStatus());
+        assertNull(response.getEntity());
+    }
+
+    @Test
+    @DisplayName("Test dissociateScope: should return valid response.")
+    void testDissociateScope() {
+        User user = new User();
+        user.setLogin("login");
+        Mockito
+                .when(userService.getFromSession(Mockito.any()))
+                .thenReturn(user);
+        HttpSession session = Mockito.mock(HttpSession.class);
+        HttpServletRequest request = Mockito.mock(HttpServletRequest.class);
+        Mockito
+                .when(request.getSession())
+                .thenReturn(session);
+        Mockito.when(accessControlService.getSuperAdministratorId()).thenReturn(UUID.randomUUID());
+        Mockito.doNothing().when(userPermissionService).checkIsAdmin(Mockito.any(), Mockito.any());
+        Mockito.doNothing().when(this.accessControlService).dissociate(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any());
+        final Response response = this.controller.dissociateScope(request, UUID.randomUUID(), UUID.randomUUID());
+
+        assertNotNull(response);
+        assertEquals(HttpStatus.NO_CONTENT.value(), response.getStatus());
     }
 
     @Test
