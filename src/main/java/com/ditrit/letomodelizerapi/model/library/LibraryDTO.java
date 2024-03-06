@@ -47,4 +47,9 @@ public class LibraryDTO {
      * Description of the library.
      */
     private String description;
+
+    /**
+     * Icon of the library.
+     */
+    private String icon;
 }
