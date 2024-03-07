@@ -4,8 +4,11 @@ import com.ditrit.letomodelizerapi.model.permission.ActionPermission;
 import com.ditrit.letomodelizerapi.model.permission.EntityPermission;
 import com.ditrit.letomodelizerapi.persistence.model.Permission;
 import com.ditrit.letomodelizerapi.persistence.model.User;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 /**
@@ -22,6 +25,27 @@ public interface UserPermissionService {
      * @return A list of {@link Permission} objects representing the permissions of the user.
      */
     List<Permission> getAllPermissions(User user);
+
+    /**
+     * Retrieves a paginated list of Permission entities based on the provided user, filter criteria, and pagination
+     * settings.
+     * This method allows for the application to retrieve permissions relevant to a specific user, applying various
+     * filters to narrow down the results according to specified criteria. It supports advanced search and filtering
+     * capabilities, which are crucial for managing permissions effectively in systems with complex access control
+     * requirements.
+     * Pagination is handled through the Pageable parameter, enabling clients to request subsets of data based on page
+     * number and size, as well as sort order.
+     *
+     * @param user the User object for whom the permissions are being queried. This can be used to limit the search to
+     *             permissions relevant to the user, either directly or through roles and groups the user belongs to.
+     * @param filters a map containing key-value pairs representing the filters to apply to the search. Each entry in
+     *                the map corresponds to a field and value to filter by.
+     * @param pageable a Pageable object specifying the pagination information such as page number, size, and sort
+     *                 order.
+     * @return a Page<Permission> containing the permissions that match the given user, filters, and pagination
+     * settings.
+     */
+    Page<Permission> findAll(User user, Map<String, String> filters, Pageable pageable);
 
     /**
      * Checks if a given user has permission for a specific action on an entity.

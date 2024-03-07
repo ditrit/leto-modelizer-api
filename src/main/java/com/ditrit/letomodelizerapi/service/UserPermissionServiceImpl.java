@@ -14,6 +14,10 @@ import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
@@ -38,6 +42,22 @@ public class UserPermissionServiceImpl implements UserPermissionService {
      * Library id field name.
      */
     private static final String LIBRARY_ID = "libraryId";
+
+    /**
+     * User id field name.
+     */
+    private static final String USER_ID = "userId";
+
+    /**
+     * Library action field name.
+     */
+    private static final String LIBRARY_ACTION = "action";
+
+    /**
+     * Library entity field name.
+     */
+    private static final String LIBRARY_ENTITY = "entity";
+
     /**
      * The UserPermissionRepository instance is injected by Spring's dependency injection mechanism.
      * This repository is used for performing database operations related to UserPermission entities, such as querying,
@@ -52,14 +72,29 @@ public class UserPermissionServiceImpl implements UserPermissionService {
     }
 
     @Override
+    public Page<Permission> findAll(final User user,
+                                    final Map<String, String> immutableFilters,
+                                    final Pageable pageable) {
+        Map<String, String> filters = new HashMap<>(immutableFilters);
+        filters.put(USER_ID, user.getId().toString());
+
+        return this.userPermissionRepository.findAll(
+                new SpecificationHelper<>(UserPermission.class, filters), PageRequest.of(
+                    pageable.getPageNumber(),
+                    pageable.getPageSize(),
+                    pageable.getSortOr(Sort.by(Sort.Direction.ASC, LIBRARY_ENTITY, LIBRARY_ACTION))))
+                .map(new UserPermissionToPermissionFunction());
+    }
+
+    @Override
     public boolean hasPermission(
             final User user,
             final EntityPermission entity,
             final ActionPermission action) {
         Map<String, String> filters = new HashMap<>();
-        filters.put("userId", user.getId().toString());
-        filters.put("entity", entity.name());
-        filters.put("action", action.name());
+        filters.put(USER_ID, user.getId().toString());
+        filters.put(LIBRARY_ENTITY, entity.name());
+        filters.put(LIBRARY_ACTION, action.name());
         filters.put(LIBRARY_ID, null);
 
         return userPermissionRepository.exists(new SpecificationHelper<>(UserPermission.class, filters));
@@ -85,9 +120,9 @@ public class UserPermissionServiceImpl implements UserPermissionService {
     public void checkLibraryPermission(final User user, final  ActionPermission action, final UUID id) {
         String libraryId = null;
         Map<String, String> filters = new HashMap<>();
-        filters.put("userId", user.getId().toString());
-        filters.put("entity", EntityPermission.LIBRARY.name());
-        filters.put("action", action.name());
+        filters.put(USER_ID, user.getId().toString());
+        filters.put(LIBRARY_ENTITY, EntityPermission.LIBRARY.name());
+        filters.put(LIBRARY_ACTION, action.name());
 
         if (id == null) {
             filters.put(LIBRARY_ID, "null");
