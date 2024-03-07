@@ -27,6 +27,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     * `GET    /api/users/{login}/roles`, to get all roles associated to the user.
     * `GET    /api/users/{login}/groups`, to get all groups associated to the user.
     * `GET    /api/users/{login}/scopes`, to get all scopes associated to the user.
+    * `GET    /api/users/{login}/permissions`, to get all permissions associated to the user.
     * `GET    /api/users/{login}/picture`, to get picture associated to the user.
   * For all roles:
     * `GET    /api/roles`, to get all roles.
