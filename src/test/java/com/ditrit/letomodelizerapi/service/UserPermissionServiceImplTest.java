@@ -16,10 +16,13 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -55,6 +58,20 @@ class UserPermissionServiceImplTest {
                 .thenReturn(List.of(userPermission));
 
         assertEquals(List.of(expectedPermission), service.getAllPermissions(new User()));
+    }
+
+    @Test
+    @DisplayName("Test findAll: should return wanted permissions")
+    void testFindAll() {
+        UUID id = UUID.randomUUID();
+        User user = new User();
+        user.setId(id);
+
+        Mockito
+                .when(userPermissionRepository.findAll(Mockito.any(Specification.class), Mockito.any()))
+                .thenReturn(Page.empty());
+
+        assertEquals(Page.empty(), service.findAll(user, Map.of(), Pageable.ofSize(10)));
     }
 
     @Test

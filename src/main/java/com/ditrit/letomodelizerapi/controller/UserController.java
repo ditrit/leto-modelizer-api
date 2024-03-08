@@ -6,6 +6,7 @@ import com.ditrit.letomodelizerapi.model.BeanMapper;
 import com.ditrit.letomodelizerapi.model.accesscontrol.AccessControlDTO;
 import com.ditrit.letomodelizerapi.model.accesscontrol.AccessControlDirectDTO;
 import com.ditrit.letomodelizerapi.model.accesscontrol.AccessControlType;
+import com.ditrit.letomodelizerapi.model.permission.PermissionDTO;
 import com.ditrit.letomodelizerapi.model.user.UserDTO;
 import com.ditrit.letomodelizerapi.persistence.model.User;
 import com.ditrit.letomodelizerapi.service.AccessControlService;
@@ -232,6 +233,51 @@ public class UserController implements DefaultController {
         Page<AccessControlDTO> resources = accessControlService
                 .findAll(AccessControlType.GROUP, user, filters, queryFilter.getPagination())
                 .map(new BeanMapper<>(AccessControlDTO.class));
+
+        return Response.status(this.getStatus(resources)).entity(resources).build();
+    }
+
+    /**
+     * Retrieves permissions associated with a user identified by their login.
+     *
+     * <p>This method processes a GET request to fetch permissions assigned to a user, utilizing the user's login as the
+     * identifier. It supports filtering based on query parameters and pagination. The operation requires administrative
+     * privileges to execute, as it involves accessing sensitive user role information.
+     *
+     * @param request the HttpServletRequest from which to obtain the HttpSession for user validation.
+     * @param login the login identifier of the user whose groups are being requested. Must be a valid, non-blank
+     *              String.
+     * @param uriInfo UriInfo context to extract query parameters for filtering results.
+     * @param queryFilter bean parameter encapsulating filtering and pagination criteria.
+     * @return a Response object containing the requested page of AccessControlDTO objects representing the groups
+     * associated with the specified user. The response status varies based on the outcome of the request.
+     */
+    @GET
+    @Path("/{login}/permissions")
+    public Response getPermissionsOfUser(final @Context HttpServletRequest request,
+                                         final @PathParam(Constants.DEFAULT_USER_PROPERTY) @Valid @NotBlank
+                                         String login,
+                                         final @Context UriInfo uriInfo,
+                                         final @BeanParam @Valid QueryFilter queryFilter) {
+        HttpSession session = request.getSession();
+        Map<String, String> filters = this.getFilters(uriInfo);
+        User me = userService.getFromSession(session);
+
+        log.info(
+                "[{}] Received GET request to get permissions of user {} with the following filters: {}",
+                me.getLogin(),
+                login,
+                filters
+        );
+        User user = userService.findByLogin(login);
+
+        if (!me.getId().equals(user.getId())) {
+            userPermissionService.checkIsAdmin(me, null);
+        }
+
+        Page<PermissionDTO> resources = userPermissionService
+                .findAll(user, filters, queryFilter.getPagination())
+                .map(new BeanMapper<>(PermissionDTO.class));
 
         return Response.status(this.getStatus(resources)).entity(resources).build();
     }

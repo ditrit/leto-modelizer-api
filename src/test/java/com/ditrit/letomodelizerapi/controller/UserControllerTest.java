@@ -163,6 +163,58 @@ class UserControllerTest extends MockHelper {
     }
 
     @Test
+    @DisplayName("Test getPermissionsOfUser: should return valid response for our user.")
+    void testGetPermissionsOfUser() {
+        UUID id = UUID.randomUUID();
+        User user = new User();
+        user.setLogin("login");
+        user.setId(id);
+
+        Mockito.when(userService.getFromSession(Mockito.any())).thenReturn(user);
+        Mockito.when(userService.findByLogin(Mockito.any())).thenReturn(user);
+
+        HttpSession session = Mockito.mock(HttpSession.class);
+        HttpServletRequest request = Mockito.mock(HttpServletRequest.class);
+        Mockito.when(request.getSession()).thenReturn(session);
+        Mockito.when(this.userService.findByLogin(Mockito.any())).thenReturn(new User());
+        Mockito.when(this.userPermissionService.findAll(Mockito.any(), Mockito.any(), Mockito.any()))
+                .thenReturn(Page.empty());
+        final Response response = this.controller.getPermissionsOfUser(request, "login", mockUriInfo(), new QueryFilter());
+
+        assertNotNull(response);
+        assertEquals(HttpStatus.OK.value(), response.getStatus());
+        assertNotNull(response.getEntity());
+    }
+
+    @Test
+    @DisplayName("Test getPermissionsOfUser: should return valid response for another user.")
+    void testGetPermissionsOfUserAnother() {
+        User me = new User();
+        me.setLogin("me");
+        me.setId(UUID.randomUUID());
+
+        User user = new User();
+        user.setLogin("login");
+        user.setId(UUID.randomUUID());
+
+        Mockito.when(userService.getFromSession(Mockito.any())).thenReturn(me);
+        Mockito.when(userService.findByLogin(Mockito.any())).thenReturn(user);
+
+        HttpSession session = Mockito.mock(HttpSession.class);
+        HttpServletRequest request = Mockito.mock(HttpServletRequest.class);
+        Mockito.when(request.getSession()).thenReturn(session);
+        Mockito.doNothing().when(userPermissionService).checkIsAdmin(Mockito.any(), Mockito.any());
+        Mockito.when(this.userService.findByLogin(Mockito.any())).thenReturn(new User());
+        Mockito.when(this.userPermissionService.findAll(Mockito.any(), Mockito.any(), Mockito.any()))
+                .thenReturn(Page.empty());
+        final Response response = this.controller.getPermissionsOfUser(request, "login", mockUriInfo(), new QueryFilter());
+
+        assertNotNull(response);
+        assertEquals(HttpStatus.OK.value(), response.getStatus());
+        assertNotNull(response.getEntity());
+    }
+
+    @Test
     @DisplayName("Test getScopesOfUser: should return valid response.")
     void testGetScopesOfUser() {
         User user = new User();
