@@ -54,9 +54,11 @@ public class JsonNodeToLibraryTemplateFunction implements Function<JsonNode, Lib
         }
 
         if ("PROJECT".equals(template.getType().name())) {
-            template.setPlugins(json.get("plugins").toString());
+            template.setPlugins(StreamSupport.stream(json.get("plugins").spliterator(), false)
+                    .map(JsonNode::asText)
+                    .toList());
         } else {
-            template.setPlugins(String.format("[\"%s\"]", json.get("plugin").asText()));
+            template.setPlugins(List.of(json.get("plugin").asText()));
         }
 
         return template;
