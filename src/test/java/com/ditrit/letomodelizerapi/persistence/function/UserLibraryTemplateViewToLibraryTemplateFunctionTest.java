@@ -29,7 +29,7 @@ class UserLibraryTemplateViewToLibraryTemplateFunctionTest {
         expectedLibraryTemplate.setDescription("description");
         expectedLibraryTemplate.setDocumentationUrl("documentationUrl");
         expectedLibraryTemplate.setFiles(List.of("file1"));
-        expectedLibraryTemplate.setPlugins("[]");
+        expectedLibraryTemplate.setPlugins(List.of());
         expectedLibraryTemplate.setSchemas(List.of("schema1"));
         expectedLibraryTemplate.setBasePath("basePath");
         expectedLibraryTemplate.setType(LibraryTemplateType.COMPONENT);
@@ -44,7 +44,7 @@ class UserLibraryTemplateViewToLibraryTemplateFunctionTest {
         view.setDescription("description");
         view.setDocumentationUrl("documentationUrl");
         view.setFiles(List.of("file1"));
-        view.setPlugins("[]");
+        view.setPlugins(List.of());
         view.setSchemas(List.of("schema1"));
         view.setBasePath("basePath");
         view.setType(LibraryTemplateType.COMPONENT);

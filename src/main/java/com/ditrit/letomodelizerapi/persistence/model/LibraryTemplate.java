@@ -88,8 +88,9 @@ public class LibraryTemplate extends AbstractEntity {
      * JSON string representing the plugins associated with the template.
      */
     @Column(name = "plugins")
+    @Convert(converter = StringListConverter.class)
     @FilterType(type = FilterType.Type.TEXT)
-    private String plugins;
+    private List<String> plugins;
 
     /**
      * Icon for the template.

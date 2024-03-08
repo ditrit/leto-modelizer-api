@@ -27,7 +27,7 @@ class JsonNodeToLibraryTemplateFunctionTest {
         expectedTemplate.setName("name");
         expectedTemplate.setType(LibraryTemplateType.PROJECT);
         expectedTemplate.setBasePath("basePath");
-        expectedTemplate.setPlugins("[\"plugin\"]");
+        expectedTemplate.setPlugins(List.of("plugin"));
         expectedTemplate.setFiles(List.of("file1"));
         expectedTemplate.setSchemas(List.of());
 
@@ -60,7 +60,7 @@ class JsonNodeToLibraryTemplateFunctionTest {
         expectedTemplate.setDescription("description");
         expectedTemplate.setDocumentationUrl("documentationUrl");
         expectedTemplate.setIcon("icon");
-        expectedTemplate.setPlugins("[\"plugin\"]");
+        expectedTemplate.setPlugins(List.of("plugin"));
         expectedTemplate.setFiles(List.of("file1"));
         expectedTemplate.setSchemas(List.of("schema1"));
 

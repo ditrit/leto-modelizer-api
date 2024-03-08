@@ -97,8 +97,9 @@ public class UserLibraryTemplateView {
      * JSON string representing the plugins associated with the library template.
      */
     @Column(name = "plugins")
+    @Convert(converter = StringListConverter.class)
     @FilterType(type = FilterType.Type.TEXT)
-    private String plugins;
+    private List<String> plugins;
 
     /**
      * Icon associated with the library template.
