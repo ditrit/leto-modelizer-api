@@ -24,7 +24,7 @@ class UserAccesControlViewToUserFunctionTest {
         userAccessControlView.setUserId(UUID.randomUUID());
         userAccessControlView.setId("3");
         userAccessControlView.setUserName("userName");
-        userAccessControlView.setAccessControlName("accessControlName");
+        userAccessControlView.setName("accessControlName");
         userAccessControlView.setEmail("email");
         userAccessControlView.setLogin("login");
         userAccessControlView.setType(AccessControlType.ROLE);

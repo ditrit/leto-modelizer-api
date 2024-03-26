@@ -69,7 +69,7 @@ public class UserAccessControlView {
      */
     @Column(name = "access_control_name")
     @FilterType(type = FilterType.Type.TEXT)
-    private String accessControlName;
+    private String name;
 
     /**
      * The type of access control, which determines whether it's a ROLE, GROUP, or SCOPE.

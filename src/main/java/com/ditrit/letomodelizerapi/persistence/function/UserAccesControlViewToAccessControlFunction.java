@@ -18,7 +18,7 @@ public class UserAccesControlViewToAccessControlFunction implements Function<Use
         AccessControl accessControl = new AccessControl();
 
         accessControl.setId(userAccessControlView.getAccessControlId());
-        accessControl.setName(userAccessControlView.getAccessControlName());
+        accessControl.setName(userAccessControlView.getName());
         accessControl.setType(userAccessControlView.getType());
 
         return accessControl;
