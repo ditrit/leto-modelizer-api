@@ -129,7 +129,7 @@ public class AccessControlServiceImpl implements AccessControlService {
                 PageRequest.of(
                         pageable.getPageNumber(),
                         pageable.getPageSize(),
-                        pageable.getSortOr(Sort.by(Sort.Direction.ASC, "accessControlName"))
+                        pageable.getSortOr(Sort.by(Sort.Direction.ASC, "name"))
                 )
         ).map(new UserAccessControlViewToAccessControlDirectDTOFunction());
     }

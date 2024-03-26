@@ -20,7 +20,7 @@ class UserAccessControlViewToAccessControlDirectDTOFunctionTest {
     void testApply() {
         UserAccessControlView userAccessControlView = new UserAccessControlView();
         userAccessControlView.setAccessControlId(UUID.randomUUID());
-        userAccessControlView.setAccessControlName("current");
+        userAccessControlView.setName("current");
         userAccessControlView.setIsDirect(true);
 
         AccessControlDirectDTO accessControl = new UserAccessControlViewToAccessControlDirectDTOFunction()

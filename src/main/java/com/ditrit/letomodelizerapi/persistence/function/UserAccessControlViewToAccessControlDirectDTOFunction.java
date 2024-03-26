@@ -19,7 +19,7 @@ public class UserAccessControlViewToAccessControlDirectDTOFunction implements Fu
         AccessControlDirectDTO dto = new AccessControlDirectDTO();
 
         dto.setId(userAccessControlView.getAccessControlId());
-        dto.setName(userAccessControlView.getAccessControlName());
+        dto.setName(userAccessControlView.getName());
         dto.setIsDirect(userAccessControlView.getIsDirect());
 
         return dto;
