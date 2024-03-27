@@ -7,6 +7,12 @@ services:
       - ./src/test/resources/libraries:/usr/share/nginx/html:ro
       - ./nginx_lib_dev.conf:/etc/nginx/conf.d/default.conf:ro
     restart: always
+  ai:
+    image: leto-modelizer-ai-proxy:latest
+    ports:
+      - "8585:8585"
+    network_mode: "host"
+    restart: always
   db:
     image: cockroachdb/cockroach:v23.1.15
     command: start-single-node --certs-dir=/certs --advertise-addr=db
@@ -21,26 +27,12 @@ services:
     restart: always
     image: leto-modelizer-api:latest
     environment:
-      POSTGRES_DB: ${POSTGRES_DB:-leto_db}
-      POSTGRES_USER: ${POSTGRES_USER:-leto_admin}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-password}
       DATABASE_HOST: db:26257
-      DATABASE_NAME: ${DATABASE_NAME:-leto_db}
-      DATABASE_USER: ${DATABASE_USER:-leto_admin}
-      DATABASE_PASSWORD: ${DATABASE_PASSWORD:-password}
-      SSL_KEY_STORE: ${SSL_KEY_STORE:-classpath:keystore.jks}
-      SSL_KEY_STORE_PASSWORD: ${SSL_KEY_STORE_PASSWORD:-password}
-      SSL_KEY_PASSWORD: ${SSL_KEY_PASSWORD:-password}
+      AI_HOST: http://ai/api/
       GITHUB_CLIENT_ID: ${GITHUB_CLIENT_ID}
       GITHUB_CLIENT_SECRET: ${GITHUB_CLIENT_SECRET}
+      LIBRARY_HOST_WHITELIST: http://libraries/
       SUPER_ADMINISTRATOR_LOGIN: ${SUPER_ADMINISTRATOR_LOGIN}
-      LETO_MODELIZER_URL: ${LETO_MODELIZER_URL:-http://localhost:8080/}
-      LETO_ADMIN_URL: ${LETO_ADMIN_URL:-http://localhost:9000/}
-      LIBRARY_HOST_WHITELIST: ${LIBRARY_HOST_WHITELIST:-http://libraries/}
-      CSRF_TOKEN_TIMEOUT: ${CSRF_TOKEN_TIMEOUT:-3600}
-      USER_SESSION_TIMEOUT: ${USER_SESSION_TIMEOUT:-3600}
-
-      
     ports:
       - "8443:8443"
     depends_on:
