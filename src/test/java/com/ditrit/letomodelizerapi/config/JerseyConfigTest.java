@@ -15,7 +15,7 @@ class JerseyConfigTest {
         Exception exception = null;
 
         try {
-            new JerseyConfig();
+            new JerseyConfig("");
         } catch (Exception e) {
             exception = e;
         }
