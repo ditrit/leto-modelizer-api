@@ -143,14 +143,14 @@ public class AccessControlServiceImpl implements AccessControlService {
         AccessControl accessControl = findById(type, id);
         Map<String, String> filters = new HashMap<>(immutableFilters);
         filters.put("type", childrenType.name());
-        filters.put("parentAccessControlId", accessControl.getId().toString());
+        filters.put("parentId", accessControl.getId().toString());
 
         return accessControlTreeViewRepository.findAll(
                 new SpecificationHelper<>(AccessControlTreeView.class, filters),
                 PageRequest.of(
                         pageable.getPageNumber(),
                         pageable.getPageSize(),
-                        pageable.getSortOr(Sort.by(Sort.Direction.ASC, "parentAccessControlName"))
+                        pageable.getSortOr(Sort.by(Sort.Direction.ASC, "parentName"))
                 )
         ).map(new AccessControlTreeViewToAccessControlDirectDTOFunction(false));
     }
@@ -180,14 +180,14 @@ public class AccessControlServiceImpl implements AccessControlService {
                                                               final Pageable pageable) {
         AccessControl accessControl = this.findById(type, id);
         Map<String, String> filters = new HashMap<>(immutableFilters);
-        filters.put("accessControlId", accessControl.getId().toString());
-        filters.put("parentAccessControlType", subType.name());
+        filters.put("id", accessControl.getId().toString());
+        filters.put("parentType", subType.name());
 
         return accessControlTreeViewRepository.findAll(new SpecificationHelper<>(AccessControlTreeView.class, filters),
                 PageRequest.of(
                         pageable.getPageNumber(),
                         pageable.getPageSize(),
-                        pageable.getSortOr(Sort.by(Sort.Direction.ASC, "parentAccessControlName")))
+                        pageable.getSortOr(Sort.by(Sort.Direction.ASC, "parentName")))
         ).map(new AccessControlTreeViewToAccessControlDirectDTOFunction());
     }
 
@@ -230,7 +230,7 @@ public class AccessControlServiceImpl implements AccessControlService {
         AccessControl parentAccessControl = findById(parentType, id);
         AccessControl accessControl = findById(type, roleId);
         Optional<AccessControlTreeView> userAccessControlOptional = accessControlTreeViewRepository
-                .findByAccessControlIdAndParentAccessControlId(parentAccessControl.getId(), accessControl.getId());
+                .findByIdAndParentId(parentAccessControl.getId(), accessControl.getId());
 
         if (userAccessControlOptional.isPresent()) {
             return;

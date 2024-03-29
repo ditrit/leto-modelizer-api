@@ -40,5 +40,5 @@ public interface AccessControlTreeViewRepository extends JpaRepository<AccessCon
      * @return an {@link Optional} containing the found {@link AccessControlTreeView} entity, or an empty Optional
      *         if no entity matches the provided IDs.
      */
-    Optional<AccessControlTreeView> findByAccessControlIdAndParentAccessControlId(UUID id, UUID parent);
+    Optional<AccessControlTreeView> findByIdAndParentId(UUID id, UUID parent);
 }

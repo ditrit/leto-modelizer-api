@@ -67,7 +67,7 @@ public class UserAccessControlView {
     /**
      * The name of the access control.
      */
-    @Column(name = "access_control_name")
+    @Column(name = "name")
     @FilterType(type = FilterType.Type.TEXT)
     private String name;
 

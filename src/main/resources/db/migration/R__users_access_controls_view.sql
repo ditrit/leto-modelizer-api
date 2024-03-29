@@ -30,7 +30,7 @@ SELECT DISTINCT
     users.email,
     users.name as "user_name",
     access_controls.aco_id,
-    access_controls.name as "access_control_name",
+    access_controls.name as "name",
     access_controls.type::text,
     not all_access_controls.direct as "direct"
 FROM
