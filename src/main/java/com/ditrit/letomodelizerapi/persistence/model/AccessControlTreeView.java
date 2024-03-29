@@ -29,7 +29,7 @@ public class AccessControlTreeView {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "aca_id")
     @FilterType(type = FilterType.Type.TEXT)
-    private String id;
+    private String internalId;
 
     /**
      * Identifier of the current access control.
@@ -37,42 +37,42 @@ public class AccessControlTreeView {
      */
     @Column(name = "aco_id")
     @FilterType(type = FilterType.Type.UUID)
-    private UUID accessControlId;
+    private UUID id;
 
     /**
      * Type of the current access control.
      */
     @Column(name = "type")
     @FilterType(type = FilterType.Type.TEXT)
-    private String accessControlType;
+    private String type;
 
     /**
      * Name of the current access control.
      */
     @Column(name = "name")
     @FilterType(type = FilterType.Type.TEXT)
-    private String accessControlName;
+    private String name;
 
     /**
      * Identifier of the parent access control in the tree structure.
      */
     @Column(name = "parent")
     @FilterType(type = FilterType.Type.UUID)
-    private UUID parentAccessControlId;
+    private UUID parentId;
 
     /**
      * Name of the parent access control.
      */
     @Column(name = "parent_name")
     @FilterType(type = FilterType.Type.TEXT)
-    private String parentAccessControlName;
+    private String parentName;
 
     /**
      * Type of the parent access control.
      */
     @Column(name = "parent_type")
     @FilterType(type = FilterType.Type.TEXT)
-    private String parentAccessControlType;
+    private String parentType;
 
     /**
      * Indicates whether the access control relationship is direct.

@@ -35,11 +35,11 @@ public class AccessControlTreeViewToAccessControlDirectDTOFunction implements Fu
         AccessControlDirectDTO dto = new AccessControlDirectDTO();
 
         if (this.fromParent) {
-            dto.setId(accessControlTreeView.getParentAccessControlId());
-            dto.setName(accessControlTreeView.getParentAccessControlName());
+            dto.setId(accessControlTreeView.getParentId());
+            dto.setName(accessControlTreeView.getParentName());
         } else {
-            dto.setId(accessControlTreeView.getAccessControlId());
-            dto.setName(accessControlTreeView.getAccessControlName());
+            dto.setId(accessControlTreeView.getId());
+            dto.setName(accessControlTreeView.getName());
         }
 
         dto.setIsDirect(accessControlTreeView.getIsDirect());

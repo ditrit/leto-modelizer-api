@@ -19,18 +19,18 @@ class AccessControlTreeViewToAccessControlDirectDTOFunctionTest {
     @DisplayName("Test apply: should transform AccessControlTreeView to AccessControlDirectDTO with parent")
     void testApply() {
         AccessControlTreeView accessControlTreeView = new AccessControlTreeView();
-        accessControlTreeView.setAccessControlId(UUID.randomUUID());
-        accessControlTreeView.setAccessControlName("current");
-        accessControlTreeView.setAccessControlType("current_Type");
-        accessControlTreeView.setParentAccessControlId(UUID.randomUUID());
-        accessControlTreeView.setParentAccessControlName("parent");
-        accessControlTreeView.setParentAccessControlType("parent_type");
+        accessControlTreeView.setId(UUID.randomUUID());
+        accessControlTreeView.setName("current");
+        accessControlTreeView.setType("current_Type");
+        accessControlTreeView.setParentId(UUID.randomUUID());
+        accessControlTreeView.setParentName("parent");
+        accessControlTreeView.setParentType("parent_type");
         accessControlTreeView.setIsDirect(true);
 
         AccessControlDirectDTO accessControl = new AccessControlTreeViewToAccessControlDirectDTOFunction()
                 .apply(accessControlTreeView);
 
-        assertEquals(accessControlTreeView.getParentAccessControlId(), accessControl.getId());
+        assertEquals(accessControlTreeView.getParentId(), accessControl.getId());
         assertEquals("parent", accessControl.getName());
         assertTrue(accessControl.getIsDirect());
     }
@@ -39,18 +39,18 @@ class AccessControlTreeViewToAccessControlDirectDTOFunctionTest {
     @DisplayName("Test apply: should transform AccessControlTreeView to AccessControlDirectDTO with current")
     void testApplyNotFromParent() {
         AccessControlTreeView accessControlTreeView = new AccessControlTreeView();
-        accessControlTreeView.setAccessControlId(UUID.randomUUID());
-        accessControlTreeView.setAccessControlName("current");
-        accessControlTreeView.setAccessControlType("current_Type");
-        accessControlTreeView.setParentAccessControlId(UUID.randomUUID());
-        accessControlTreeView.setParentAccessControlName("parent");
-        accessControlTreeView.setParentAccessControlType("parent_type");
+        accessControlTreeView.setId(UUID.randomUUID());
+        accessControlTreeView.setName("current");
+        accessControlTreeView.setType("current_Type");
+        accessControlTreeView.setParentId(UUID.randomUUID());
+        accessControlTreeView.setParentName("parent");
+        accessControlTreeView.setParentType("parent_type");
         accessControlTreeView.setIsDirect(true);
 
         AccessControlDirectDTO accessControl = new AccessControlTreeViewToAccessControlDirectDTOFunction(false)
                 .apply(accessControlTreeView);
 
-        assertEquals(accessControlTreeView.getAccessControlId(), accessControl.getId());
+        assertEquals(accessControlTreeView.getId(), accessControl.getId());
         assertEquals("current", accessControl.getName());
         assertTrue(accessControl.getIsDirect());
     }

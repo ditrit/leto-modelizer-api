@@ -359,7 +359,7 @@ class AccessControlServiceImplTest {
                 .when(accessControlRepository.findOne(Mockito.any(Specification.class)))
                 .thenReturn(Optional.of(accessControl));
         Mockito
-                .when(accessControlTreeViewRepository.findByAccessControlIdAndParentAccessControlId(Mockito.any(), Mockito.any()))
+                .when(accessControlTreeViewRepository.findByIdAndParentId(Mockito.any(), Mockito.any()))
                 .thenReturn(Optional.empty());
 
         service.associate(AccessControlType.ROLE, UUID.randomUUID(), AccessControlType.ROLE, UUID.randomUUID());
@@ -379,7 +379,7 @@ class AccessControlServiceImplTest {
                 .when(accessControlRepository.findOne(Mockito.any(Specification.class)))
                 .thenReturn(Optional.of(accessControl));
         Mockito
-                .when(accessControlTreeViewRepository.findByAccessControlIdAndParentAccessControlId(Mockito.any(), Mockito.any()))
+                .when(accessControlTreeViewRepository.findByIdAndParentId(Mockito.any(), Mockito.any()))
                 .thenReturn(Optional.of(new AccessControlTreeView()));
         ApiException exception = null;
 

@@ -432,8 +432,8 @@ public class RoleController implements DefaultController {
         userPermissionService.checkIsAdmin(user, null);
 
         Map<String, String> filters = new HashMap<>(this.getFilters(uriInfo));
-        filters.put("parentAccessControlId", id.toString());
-        filters.put("parentAccessControlType", AccessControlType.ROLE.name());
+        filters.put("parentId", id.toString());
+        filters.put("parentType", AccessControlType.ROLE.name());
 
         log.info(
                 "[{}] Received GET request to get groups of role {} with the following filters: {}",
@@ -658,8 +658,8 @@ public class RoleController implements DefaultController {
         userPermissionService.checkIsAdmin(user, null);
 
         Map<String, String> filters = new HashMap<>(this.getFilters(uriInfo));
-        filters.put("parentAccessControlId", id.toString());
-        filters.put("parentAccessControlType", AccessControlType.ROLE.name());
+        filters.put("parentId", id.toString());
+        filters.put("parentType", AccessControlType.ROLE.name());
 
         log.info(
                 "[{}] Received GET request to get scopes of role {} with the following filters: {}",
