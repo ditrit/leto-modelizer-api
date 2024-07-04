@@ -133,6 +133,7 @@ To generate certificate, run this command at the root of your project folder:
 ```shell
 keytool -genkey -alias myKeyAlias -keyalg RSA -keysize 2048 -keystore src/main/resources/keystore.jks -validity 3650
 ```
+You will be asked to set a password for the key store and another for the key itself. Make sure to use the same passwords in your .env file when building unless it will use the default "password" password.
 
 ### Generate certificate for cockroachdb
 
