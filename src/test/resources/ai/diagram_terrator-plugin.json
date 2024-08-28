@@ -1,4 +1,1 @@
-[{
-  "name": "main.tf",
-  "content": "provider \"aws\" {\n  region = \"us-west-2\"\n}\n\nresource \"aws_instance\" \"example\" {\n  ami           = \"ami-0c55b159cbfafe1f0\"\n  instance_type = \"t2.micro\"\n}"
-}]
+[{"name":"main.tf","content":"provider \"aws\" {}"}]

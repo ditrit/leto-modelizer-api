@@ -11,8 +11,8 @@ $requestBody = json_decode(file_get_contents('php://input'), true);
 error_log($type);
 error_log(file_get_contents('php://input'));
 
-if ($type && isset($requestBody['plugin'])) {
-	$fileName = "{$type}_{$requestBody['plugin']}.json";
+if ($type && isset($requestBody['pluginName'])) {
+	$fileName = "{$type}_{$requestBody['pluginName']}.json";
 	error_log($fileName);
 
     if (file_exists($fileName)) {

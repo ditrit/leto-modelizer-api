@@ -359,6 +359,11 @@ public class StepDefinitions {
         }
     }
 
+    @Then("I expect response is {string}")
+    public void expectResponseIsEqualsTo(String value) {
+        assertEquals(json.toString(), value);
+    }
+
     @Then("I expect response resources value is {string}")
     public void expectResponseIs(String value) {
         assertEquals(resources.toString(), value);
