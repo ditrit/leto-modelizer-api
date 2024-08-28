@@ -89,5 +89,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     * `GET    /api/libraries/templates/[TEMPLATE_ID]/icon`, to get icon of template.
     * `GET    /api/libraries/templates/[TEMPLATE_ID]/schemas/[INDEX]`, to get schema of template.
     * `GET    /api/libraries/templates/[TEMPLATE_ID]/files/[INDEX]`, to get file of template.
+  * For AI:
+    * `GET    /api/ia`, to create diagram with AI.
   * `/api/login`, to login.
   * `/api/redirect`, to redirect with token on leto-modelizer/leto-modelizer-admin.
