@@ -1,6 +1,6 @@
 package com.ditrit.letomodelizerapi.service;
 
-import com.ditrit.letomodelizerapi.model.ai.AIRequestRecord;
+import com.ditrit.letomodelizerapi.model.ai.AICreateFileRecord;
 import com.ditrit.letomodelizerapi.model.error.ApiException;
 import com.ditrit.letomodelizerapi.model.error.ErrorType;
 import org.junit.jupiter.api.DisplayName;
@@ -45,8 +45,8 @@ class AIServiceImplTest {
     }
     
     @Test
-    @DisplayName("Test sendRequest: should return valid response when a valid request is done")
-    void testSendRequest() throws IOException, InterruptedException {
+    @DisplayName("Test createFile: should return valid response when a valid request is done")
+    void testCreateFile() throws IOException, InterruptedException {
 
         String expectedBody = "[{\"name\": \"deployment.yaml\", \"content\": \"apiVersion: apps/v1\\nkind: Deployment\"}]";
         MockedStatic<HttpClient> clientStatic = Mockito.mockStatic(HttpClient.class);
@@ -54,16 +54,16 @@ class AIServiceImplTest {
 
         AIServiceImpl service = newInstance();
 
-        AIRequestRecord aiRequestRecord = new AIRequestRecord("@ditrit/kubernator-plugin", "diagram", "I want a sample of kubernetes code");
-        assertEquals(expectedBody, service.sendRequest(aiRequestRecord));
+        AICreateFileRecord aiCreateFileRecord = new AICreateFileRecord("@ditrit/kubernator-plugin", "diagram", "I want a sample of kubernetes code");
+        assertEquals(expectedBody, service.createFile(aiCreateFileRecord));
 
         Mockito.reset();
         clientStatic.close();
     }
 
     @Test
-    @DisplayName("Test sendRequest: should return a 530 due to an error in the body")
-    void testSendRequestWrongBody() throws IOException, InterruptedException {
+    @DisplayName("Test createFile: should return a 530 due to an error in the body")
+    void testCreateFileWrongBody() throws IOException, InterruptedException {
 
         MockedStatic<HttpClient> clientStatic = Mockito.mockStatic(HttpClient.class);
         mockHttpCall(clientStatic,530, null);
@@ -73,8 +73,8 @@ class AIServiceImplTest {
         ApiException exception = null;
 
         try {
-            AIRequestRecord aiRequestRecord = new AIRequestRecord("@ditrit/kubernator-plugin", "diagram", "coucou");
-            service.sendRequest(aiRequestRecord);
+            AICreateFileRecord aiCreateFileRecord = new AICreateFileRecord("@ditrit/kubernator-plugin", "diagram", "coucou");
+            service.createFile(aiCreateFileRecord);
         } catch (ApiException e) {
             exception = e;
         }
@@ -88,8 +88,8 @@ class AIServiceImplTest {
     }
 
     @Test
-    @DisplayName("Test sendRequest: should return a 206 (Wrong value) due to an error in the url")
-    void testSendRequestWrongUrl() throws IOException, InterruptedException {
+    @DisplayName("Test createFile: should return a 206 (Wrong value) due to an error in the url")
+    void testCreateFileWrongUrl() throws IOException, InterruptedException {
 
         MockedStatic<HttpClient> clientStatic = Mockito.mockStatic(HttpClient.class);
         mockHttpCall(clientStatic,400, null);
@@ -99,8 +99,8 @@ class AIServiceImplTest {
         ApiException exception = null;
 
         try {
-            AIRequestRecord aiRequestRecord = new AIRequestRecord("@ditrit/kubernator-plugin", "diagram", "coucou");
-            service.sendRequest(aiRequestRecord);
+            AICreateFileRecord aiCreateFileRecord = new AICreateFileRecord("@ditrit/kubernator-plugin", "diagram", "coucou");
+            service.createFile(aiCreateFileRecord);
         } catch (ApiException e) {
             exception = e;
         }

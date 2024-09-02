@@ -1,7 +1,7 @@
 package com.ditrit.letomodelizerapi.controller;
 
 import com.ditrit.letomodelizerapi.helper.MockHelper;
-import com.ditrit.letomodelizerapi.model.ai.AIRequestRecord;
+import com.ditrit.letomodelizerapi.model.ai.AICreateFileRecord;
 import com.ditrit.letomodelizerapi.persistence.model.User;
 import com.ditrit.letomodelizerapi.service.AIService;
 import com.ditrit.letomodelizerapi.service.UserService;
@@ -35,11 +35,11 @@ class AIControllerTest extends MockHelper {
     AIController controller;
 
     @Test
-    @DisplayName("Test requestAI: should return valid response.")
-    void testRequestAI() throws InterruptedException {
+    @DisplayName("Test generateFiles: should return valid response.")
+    void testGenerateFiles() throws InterruptedException {
         User user = new User();
         user.setLogin("login");
-        AIRequestRecord aiRequestRecord = new AIRequestRecord("@ditrit/kubernator-plugin", "diagram", "I want a sample of kubernetes code");
+        AICreateFileRecord aiCreateFileRecord = new AICreateFileRecord("@ditrit/kubernator-plugin", "diagram", "I want a sample of kubernetes code");
 
         Mockito
                 .when(userService.getFromSession(Mockito.any()))
@@ -50,8 +50,8 @@ class AIControllerTest extends MockHelper {
                 .when(request.getSession())
                 .thenReturn(session);
 
-        Mockito.when(this.service.sendRequest(aiRequestRecord)).thenReturn("OK");
-        final Response response = this.controller.requestAI(request, aiRequestRecord);
+        Mockito.when(this.service.createFile(aiCreateFileRecord)).thenReturn("OK");
+        final Response response = this.controller.generateFiles(request, aiCreateFileRecord);
 
         assertNotNull(response);
         assertEquals(HttpStatus.CREATED.value(), response.getStatus());

@@ -1,6 +1,6 @@
 package com.ditrit.letomodelizerapi.controller;
 
-import com.ditrit.letomodelizerapi.model.ai.AIRequestRecord;
+import com.ditrit.letomodelizerapi.model.ai.AICreateFileRecord;
 import com.ditrit.letomodelizerapi.persistence.model.User;
 import com.ditrit.letomodelizerapi.service.AIService;
 import com.ditrit.letomodelizerapi.service.UserService;
@@ -41,31 +41,30 @@ public class AIController {
     private AIService aiService;
 
     /**
-     * Handles a POST request to initiate an interaction with an Artificial Intelligence (AI) based on the provided
+     * Handles a POST request to generate files with an Artificial Intelligence (AI) based on the provided
      * request details.
-     * This endpoint accepts an AI request record, which includes the parameters necessary for the AI interaction.
+     * This endpoint accepts an AI request record, which includes the parameters necessary for the files generation.
      * The method retrieves the user from the session, logs the request details, and forwards the request to the AI
      * service. It then constructs and returns a response containing the AI's output.
      *
      * <p>The method uses the AI service to process the request by the user, generating a JSON response that is returned
      * to the client.
-     * This process allows for dynamic interactions with the AI, facilitating use cases such as querying for
-     * information, executing commands, or initiating workflows within the application.
      *
      * @param request the HttpServletRequest, used to access the user's session.
-     * @param aiRequestRecord the request details for the AI, validated to ensure it meets the expected format.
-     * @return a Response object containing the AI's response in JSON format, with a status of OK (200).
+     * @param aiCreateFileRecord the request details for the AI, validated to ensure it meets the expected format.
+     * @return a Response object containing the AI's response in JSON format, with a status of CREATED (201).
      */
-
     @POST
-    public Response requestAI(final @Context HttpServletRequest request,
-                                final @Valid AIRequestRecord aiRequestRecord) throws InterruptedException {
+    @Path("/generate")
+    public Response generateFiles(final @Context HttpServletRequest request,
+                                  final @Valid AICreateFileRecord aiCreateFileRecord) {
         HttpSession session = request.getSession();
         User user = userService.getFromSession(session);
 
-        log.info("[{}] Received POST request to request AI with {}", user.getLogin(), aiRequestRecord);
+        log.info("[{}] Received POST request to generate files with AI with {}",
+                user.getLogin(), aiCreateFileRecord);
 
-        String json = aiService.sendRequest(aiRequestRecord);
+        String json = aiService.createFile(aiCreateFileRecord);
 
         return Response.status(HttpStatus.CREATED.value())
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)

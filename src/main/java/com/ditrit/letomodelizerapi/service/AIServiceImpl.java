@@ -1,8 +1,8 @@
 package com.ditrit.letomodelizerapi.service;
 
+import com.ditrit.letomodelizerapi.model.ai.AICreateFileRecord;
 import com.ditrit.letomodelizerapi.model.error.ApiException;
 import com.ditrit.letomodelizerapi.model.error.ErrorType;
-import com.ditrit.letomodelizerapi.model.ai.AIRequestRecord;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import jakarta.ws.rs.core.HttpHeaders;
@@ -49,19 +49,18 @@ public class AIServiceImpl implements AIService {
         this.aiHost = aiHost;
     }
 
-    @Override
-    public String sendRequest(final AIRequestRecord aiRequest) {
-        String url = String.format("%s%s/", aiHost, aiRequest.type());
-
-        ObjectNode json = JsonNodeFactory.instance.objectNode();
-        json.put("pluginName", aiRequest.plugin());
-        json.put("description", aiRequest.description());
-
-        String body = json.toString();
-
+    /**
+     * Sends a request to the AI service with the specified endpoint and request body.
+     *
+     * @param endpoint the URL of the AI endpoint to which the request is sent.
+     * @param body the content to be sent in the body of the request.
+     * @return the response body returned by the AI service.
+     */
+    public String sendRequest(final String endpoint, final String body) {
         try {
+            URI uri = new URI(aiHost).resolve("api/").resolve(endpoint);
             HttpRequest request = HttpRequest.newBuilder()
-                    .uri(new URI(url))
+                    .uri(uri)
                     .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
                     .headers(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON)
                     .version(HttpClient.Version.HTTP_1_1)
@@ -78,16 +77,25 @@ public class AIServiceImpl implements AIService {
             }
 
             if (!HttpStatus.valueOf(response.statusCode()).is2xxSuccessful()) {
-                throw new ApiException(ErrorType.WRONG_VALUE, "url", url);
+                throw new ApiException(ErrorType.WRONG_VALUE, "url", uri.toString());
             }
 
             return response.body();
         } catch (URISyntaxException | IOException e) {
-            throw new ApiException(ErrorType.WRONG_VALUE, "url", url);
+            throw new ApiException(ErrorType.WRONG_VALUE, "url", aiHost + "api/" + endpoint);
         } catch (InterruptedException e) {
-            log.warn("InterruptedException during requesting ai with {} and ", url, body, e);
+            log.warn("InterruptedException during requesting ai with {} and {}", aiHost + "api/" + endpoint, body, e);
             Thread.currentThread().interrupt();
-            throw new ApiException(ErrorType.INTERNAL_ERROR, "url", url);
+            throw new ApiException(ErrorType.INTERNAL_ERROR, "url", aiHost + "api/" + endpoint);
         }
+    }
+
+    @Override
+    public String createFile(final AICreateFileRecord createFileRecord) {
+        ObjectNode json = JsonNodeFactory.instance.objectNode();
+        json.put("pluginName", createFileRecord.plugin());
+        json.put("description", createFileRecord.description());
+
+        return sendRequest(createFileRecord.type(), json.toString());
     }
 }

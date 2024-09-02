@@ -245,7 +245,7 @@ enabling secure and streamlined user authentication.
 | CSRF_TOKEN_TIMEOUT                  | No, default: `3600`                                        | A configuration parameter that specifies the duration (in seconds) for which a Cross-Site Request Forgery (CSRF) token remains valid. This setting is used to prevent CSRF attacks by ensuring that the token used in a client session expires after a certain period, requiring a new token for future requests. |
 | USER_SESSION_TIMEOUT                | No, default: `3600`                                        | A configuration parameter that defines the time (in seconds) a user's session remains active without any activity. After this period, the user is automatically logged out to help protect against unauthorized access and to manage server resource utilization efficiently.                                     |
 | SUPER_ADMINISTRATOR_LOGIN           | No                                                         | A configuration parameter that defines the username on Github of the SUPER_ADMINISTRATOR. It will create user if it doesn't exist and associate it to the `SUPER_ADMINISTRATOR` role.                                                                                                                             |
-| AI_HOST                             | No                                                         | A configuration parameter that defines the host of the ia server, example: http://localhost:8001/api/. If it's not set, users will not be approve to use ia in application.                                                                                                                                       |
+| AI_HOST                             | No, default: `http://localhost:8585/`                      | A configuration parameter that defines the host of the ia server, example: http://localhost:8585/api/. If it's not set, users will not be approve to use ia in application.                                                                                                                                       |
 
 > Notes: `GITHUB_ENTERPRISE_*` variables are only required on self-hosted GitHub.
 
@@ -275,7 +275,7 @@ LETO_ADMIN_URL=http://localhost:9000/
 LIBRARY_HOST_WHITELIST=https://github.com/ditrit/
 CSRF_TOKEN_TIMEOUT=3600
 USER_SESSION_TIMEOUT=3600
-AI_HOST=http://locahost:8001/api/
+AI_HOST=http://locahost:8585/api/
 ```
 
 See Configuration section for more details.

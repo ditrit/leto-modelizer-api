@@ -1,6 +1,6 @@
 package com.ditrit.letomodelizerapi.service;
 
-import com.ditrit.letomodelizerapi.model.ai.AIRequestRecord;
+import com.ditrit.letomodelizerapi.model.ai.AICreateFileRecord;
 
 /**
  * Service implementation for interacting with an Artificial Intelligence (AI).
@@ -16,5 +16,5 @@ public interface AIService {
      * @param aiRequest the AIRequestRecord containing details about the request to be sent to the AI.
      * @return the response from the AI as a String.
      */
-    String sendRequest(AIRequestRecord aiRequest);
+    String createFile(AICreateFileRecord aiRequest);
 }
