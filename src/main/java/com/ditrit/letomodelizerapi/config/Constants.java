@@ -27,6 +27,16 @@ public final class Constants {
     public static final String DEFAULT_USER_PROPERTY = "login";
 
     /**
+     * The constant representing the default context property.
+     */
+    public static final String DEFAULT_CONTEXT_PROPERTY = "context";
+
+    /**
+     * The constant representing the default update date property.
+     */
+    public static final String DEFAULT_UPDATE_DATE_PROPERTY = "updateDate";
+
+    /**
      * Private constructor.
      */
     private Constants() {
