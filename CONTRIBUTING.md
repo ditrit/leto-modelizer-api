@@ -42,6 +42,12 @@ Once database is setup you can run :
 
 > :warning: **You have to generate keystore.jks before!**, see [README](https://github.com/ditrit/leto-modelizer-api/blob/main/README.md#Generate-certificate-for-HTTPS).
 
+If you do not want to have a real AI, you can use a fake AI:
+```shell
+docker build -t leto-modelizer-ai-proxy -f ./src/test/resources/ai/Dockerfile ./src/test/resources/ai
+docker run -p 8585:8585 -v $(pwd)/src/test/resources/ai:/var/www/html --restart always leto-modelizer-ai-proxy
+```
+
 ## Run application tests
 
 To run all the application tests (unit and integration), use this command:
