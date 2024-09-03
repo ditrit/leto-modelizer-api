@@ -4,9 +4,11 @@ import com.ditrit.letomodelizerapi.controller.model.QueryFilter;
 import com.ditrit.letomodelizerapi.model.BeanMapper;
 import com.ditrit.letomodelizerapi.model.accesscontrol.AccessControlDTO;
 import com.ditrit.letomodelizerapi.model.accesscontrol.AccessControlType;
+import com.ditrit.letomodelizerapi.model.ai.AIConversationDTO;
 import com.ditrit.letomodelizerapi.model.permission.PermissionDTO;
 import com.ditrit.letomodelizerapi.model.user.UserDTO;
 import com.ditrit.letomodelizerapi.persistence.model.User;
+import com.ditrit.letomodelizerapi.service.AIService;
 import com.ditrit.letomodelizerapi.service.AccessControlService;
 import com.ditrit.letomodelizerapi.service.UserPermissionService;
 import com.ditrit.letomodelizerapi.service.UserService;
@@ -53,6 +55,10 @@ public class CurrentUserController implements DefaultController {
      * Service to manage access control.
      */
     private AccessControlService accessControlService;
+    /**
+     * Service to manage AI request.
+     */
+    private AIService aiService;
 
     /**
      * The maximum age for caching user pictures.
@@ -73,6 +79,7 @@ public class CurrentUserController implements DefaultController {
      * @param userService the service responsible for managing user details and operations.
      * @param userPermissionService the service for checking and validating user permissions.
      * @param accessControlService the service for managing access controls and security.
+     * @param aiService the service for managing AI request.
      * @param userPictureCacheMaxAge the configured maximum age for caching user pictures, specified in application
      *                               properties, indicating how long client browsers should cache user pictures before
      *                               requesting them again.
@@ -81,10 +88,12 @@ public class CurrentUserController implements DefaultController {
     public CurrentUserController(final UserService userService,
                                  final UserPermissionService userPermissionService,
                                  final AccessControlService accessControlService,
+                                 final AIService aiService,
                                  final @Value("${user.picture.cache.max.age}") String userPictureCacheMaxAge) {
         this.userService = userService;
         this.userPermissionService = userPermissionService;
         this.accessControlService = accessControlService;
+        this.aiService = aiService;
         this.userPictureCacheMaxAge = userPictureCacheMaxAge;
     }
 
@@ -255,6 +264,43 @@ public class CurrentUserController implements DefaultController {
                 filters,
                 queryFilter.getPagination()
         ).map(new BeanMapper<>(AccessControlDTO.class));
+
+        return Response.status(this.getStatus(resources)).entity(resources).build();
+    }
+
+    /**
+     * Retrieves all AI conversations associated to the current user.
+     * This endpoint provides a paginated list of AI conversations that the current user has, based on the provided
+     * query filters.
+     * The method uses the session information from the HttpServletRequest to identify the current user and
+     * then fetches their AI conversations using the AIService.
+     *
+     * @param request      HttpServletRequest to access the HTTP session and thereby identify the current user.
+     * @param uriInfo      UriInfo to extract query parameters for additional filtering.
+     * @param queryFilter  BeanParam object for pagination and filtering purposes.
+     * @return a Response containing a paginated list of AIConversationDTO objects representing the AI conversation of
+     * the current user.
+     */
+    @GET
+    @Path("/ai/conversations")
+    public Response getMyAIConversations(final @Context HttpServletRequest request,
+                                final @Context UriInfo uriInfo,
+                                final @BeanParam @Valid QueryFilter queryFilter) {
+        HttpSession session = request.getSession();
+        User user = userService.getFromSession(session);
+        Map<String, String> filters = this.getFilters(uriInfo);
+
+        log.info(
+                "[{}] Received GET request to get current user AI conversations with the following filters: {}",
+                user.getLogin(),
+                filters
+        );
+
+        Page<AIConversationDTO> resources = aiService.findAll(
+                user,
+                filters,
+                queryFilter.getPagination()
+        ).map(new BeanMapper<>(AIConversationDTO.class));
 
         return Response.status(this.getStatus(resources)).entity(resources).build();
     }
