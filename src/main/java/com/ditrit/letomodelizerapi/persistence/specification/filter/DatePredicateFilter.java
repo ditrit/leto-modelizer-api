@@ -21,11 +21,11 @@ public class DatePredicateFilter extends PredicateFilter {
     /**
      * Default date format for date filter.
      */
-    public static final String DATE_FORMAT = "yyyy-MM-dd HH:mm:ss";
+    public static final String DATE_FORMAT = "yyyy-MM-dd HH:mm:ss.SSS";
     /**
      * Regex pattern for date format.
      */
-    private static final String FILTER_SUB_PATTERN = "\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2}";
+    private static final String FILTER_SUB_PATTERN = "\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2}\\.\\d{3}";
     /**
      * Regex to extract date.
      * <p>

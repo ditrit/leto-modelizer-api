@@ -3,6 +3,7 @@ package com.ditrit.letomodelizerapi.controller;
 import com.ditrit.letomodelizerapi.controller.model.QueryFilter;
 import com.ditrit.letomodelizerapi.helper.MockHelper;
 import com.ditrit.letomodelizerapi.persistence.model.User;
+import com.ditrit.letomodelizerapi.service.AIService;
 import com.ditrit.letomodelizerapi.service.AccessControlService;
 import com.ditrit.letomodelizerapi.service.UserPermissionService;
 import com.ditrit.letomodelizerapi.service.UserService;
@@ -45,6 +46,9 @@ class UserControllerTest extends MockHelper {
 
     @Mock
     AccessControlService accessControlService;
+
+    @Mock
+    AIService aiService;
 
     @InjectMocks
     UserController controller;
@@ -241,7 +245,7 @@ class UserControllerTest extends MockHelper {
     @Test
     @DisplayName("Test getPicture: should return valid response.")
     void testGetPicture() {
-        UserController controller = new UserController(userService, userPermissionService, accessControlService, "1");
+        UserController userController = new UserController(userService, userPermissionService, accessControlService, aiService, "1");
         User user = new User();
         user.setId(UUID.randomUUID());
         user.setEmail("email");
@@ -265,9 +269,61 @@ class UserControllerTest extends MockHelper {
                 .when(userService.getPicture(Mockito.any()))
                 .thenReturn(picture);
 
-        Response response = controller.getPictureOfUser(request, "test");
+        Response response = userController.getPictureOfUser(request, "test");
 
         assertNotNull(response);
         assertEquals(HttpStatus.OK.value(), response.getStatus());
+    }
+
+    @Test
+    @DisplayName("Test getAIConversationsOfUser: should return valid response for our user.")
+    void testGetAIConversationsOfUser() {
+        UUID id = UUID.randomUUID();
+        User user = new User();
+        user.setLogin("login");
+        user.setId(id);
+
+        Mockito.when(userService.getFromSession(Mockito.any())).thenReturn(user);
+        Mockito.when(userService.findByLogin(Mockito.any())).thenReturn(user);
+
+        HttpSession session = Mockito.mock(HttpSession.class);
+        HttpServletRequest request = Mockito.mock(HttpServletRequest.class);
+        Mockito.when(request.getSession()).thenReturn(session);
+        Mockito.when(this.userService.findByLogin(Mockito.any())).thenReturn(new User());
+        Mockito.when(this.aiService.findAll(Mockito.any(), Mockito.any(), Mockito.any()))
+                .thenReturn(Page.empty());
+        final Response response = this.controller.getAIConversationsOfUser(request, "login", mockUriInfo(), new QueryFilter());
+
+        assertNotNull(response);
+        assertEquals(HttpStatus.OK.value(), response.getStatus());
+        assertNotNull(response.getEntity());
+    }
+
+    @Test
+    @DisplayName("Test getAIConversationsOfUser: should return valid response for another user.")
+    void testGetAIConversationsOfUserAnother() {
+        User me = new User();
+        me.setLogin("me");
+        me.setId(UUID.randomUUID());
+
+        User user = new User();
+        user.setLogin("login");
+        user.setId(UUID.randomUUID());
+
+        Mockito.when(userService.getFromSession(Mockito.any())).thenReturn(me);
+        Mockito.when(userService.findByLogin(Mockito.any())).thenReturn(user);
+
+        HttpSession session = Mockito.mock(HttpSession.class);
+        HttpServletRequest request = Mockito.mock(HttpServletRequest.class);
+        Mockito.when(request.getSession()).thenReturn(session);
+        Mockito.doNothing().when(userPermissionService).checkIsAdmin(Mockito.any(), Mockito.any());
+        Mockito.when(this.userService.findByLogin(Mockito.any())).thenReturn(new User());
+        Mockito.when(this.aiService.findAll(Mockito.any(), Mockito.any(), Mockito.any()))
+                .thenReturn(Page.empty());
+        final Response response = this.controller.getAIConversationsOfUser(request, "login", mockUriInfo(), new QueryFilter());
+
+        assertNotNull(response);
+        assertEquals(HttpStatus.OK.value(), response.getStatus());
+        assertNotNull(response.getEntity());
     }
 }

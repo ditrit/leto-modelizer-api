@@ -75,6 +75,7 @@ public class StepDefinitions {
             .build();
     private final ObjectMapper mapper = new ObjectMapper();
     private int statusCode;
+    private String body;
     private JsonNode json;
     private JsonNode resources;
     private JsonNode responseObject;
@@ -163,7 +164,7 @@ public class StepDefinitions {
 
     @When("I request {string} with method {string} with body")
     public void requestWithTable(String endpoint, String method, DataTable table) {
-        this.requestFull(endpoint, method, createBody(table), MediaType.TEXT_PLAIN);
+        this.requestFull(endpoint, method, createBody(table), MediaType.APPLICATION_JSON);
     }
 
     @When("I request {string} with method {string} with json")
@@ -235,6 +236,8 @@ public class StepDefinitions {
             } catch (IOException e) {
                 LOGGER.error("Can't read body", e);
             }
+        } else {
+            this.body = response.readEntity(String.class);
         }
     }
 
@@ -364,6 +367,11 @@ public class StepDefinitions {
         assertEquals(json.toString(), value);
     }
 
+    @Then("I expect body is {string}")
+    public void expectBodyIsEqualsTo(String value) {
+        assertEquals(this.body, value);
+    }
+
     @Then("I expect response resources value is {string}")
     public void expectResponseIs(String value) {
         assertEquals(resources.toString(), value);
@@ -421,6 +429,11 @@ public class StepDefinitions {
     @Given("I clean library {string}")
     public void cleanLibrary(String url) throws URISyntaxException, IOException, InterruptedException {
         this.clean("libraries", String.format("url=%s", url));
+    }
+
+    @And("I clean the AI conversation {string}")
+    public void cleanAiConversation(String key) throws URISyntaxException, IOException, InterruptedException  {
+        this.clean("ai/conversations", String.format("key=%s", key));
     }
 
     public void clean(String entity, String query) throws URISyntaxException, IOException, InterruptedException {

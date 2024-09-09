@@ -231,6 +231,7 @@ class UserServiceImplTest {
         clientStatic.when(HttpClient::newBuilder).thenReturn(clientBuilder);
 
         assertEquals(expectedResponse, service.getPicture(user));
+        Mockito.reset();
         requestStatic.close();
         clientStatic.close();
     }

@@ -8,6 +8,7 @@ import com.ditrit.letomodelizerapi.model.permission.PermissionDTO;
 import com.ditrit.letomodelizerapi.model.user.UserDTO;
 import com.ditrit.letomodelizerapi.persistence.model.Permission;
 import com.ditrit.letomodelizerapi.persistence.model.User;
+import com.ditrit.letomodelizerapi.service.AIService;
 import com.ditrit.letomodelizerapi.service.AccessControlService;
 import com.ditrit.letomodelizerapi.service.UserPermissionService;
 import com.ditrit.letomodelizerapi.service.UserService;
@@ -39,7 +40,6 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 @ExtendWith(MockitoExtension.class)
 @DisplayName("Test class: CurrentUserController")
 class CurrentUserControllerTest extends MockHelper {
-
     @Mock
     UserService userService;
 
@@ -49,8 +49,11 @@ class CurrentUserControllerTest extends MockHelper {
     @Mock
     AccessControlService accessControlService;
 
+    @Mock
+    AIService aiService;
+
     @InjectMocks
-    CurrentUserController controller;
+    CurrentUserController currentUserController;
 
     @Test
     @DisplayName("Test getMyInformation: should return valid response.")
@@ -77,7 +80,7 @@ class CurrentUserControllerTest extends MockHelper {
                 .when(userService.getFromSession(Mockito.any()))
                 .thenReturn(user);
 
-        Response response = controller.getMyInformation(request);
+        Response response = currentUserController.getMyInformation(request);
 
         assertNotNull(response);
         assertEquals(HttpStatus.OK.value(), response.getStatus());
@@ -87,7 +90,13 @@ class CurrentUserControllerTest extends MockHelper {
     @Test
     @DisplayName("Test getPicture: should return valid response.")
     void testGetPicture() {
-        CurrentUserController controller = new CurrentUserController(userService, userPermissionService, accessControlService, "1");
+        CurrentUserController controller = new CurrentUserController(
+            userService,
+            userPermissionService,
+            accessControlService,
+            aiService,
+            "1"
+        );
         User user = new User();
         user.setId(UUID.randomUUID());
         user.setEmail("email");
@@ -152,7 +161,7 @@ class CurrentUserControllerTest extends MockHelper {
         expectedPermission.setLibraryId(permission.getLibraryId());
         List<PermissionDTO> expectedPermissions = List.of(expectedPermission);
 
-        Response response = controller.getMyPermissions(request);
+        Response response = currentUserController.getMyPermissions(request);
 
         assertNotNull(response);
         assertEquals(HttpStatus.OK.value(), response.getStatus());
@@ -178,7 +187,7 @@ class CurrentUserControllerTest extends MockHelper {
                 .when(accessControlService.findAll(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any()))
                 .thenReturn(Page.empty());
 
-        Response response = controller.getMyRoles(request, mockUriInfo(), new QueryFilter());
+        Response response = currentUserController.getMyRoles(request, mockUriInfo(), new QueryFilter());
 
         assertNotNull(response);
         assertEquals(HttpStatus.OK.value(), response.getStatus());
@@ -204,7 +213,7 @@ class CurrentUserControllerTest extends MockHelper {
                 .when(accessControlService.findAll(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any()))
                 .thenReturn(Page.empty());
 
-        Response response = controller.getMyGroups(request, mockUriInfo(), new QueryFilter());
+        Response response = currentUserController.getMyGroups(request, mockUriInfo(), new QueryFilter());
 
         assertNotNull(response);
         assertEquals(HttpStatus.OK.value(), response.getStatus());
@@ -230,7 +239,33 @@ class CurrentUserControllerTest extends MockHelper {
                 .when(accessControlService.findAll(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any()))
                 .thenReturn(Page.empty());
 
-        Response response = controller.getMyScopes(request, mockUriInfo(), new QueryFilter());
+        Response response = currentUserController.getMyScopes(request, mockUriInfo(), new QueryFilter());
+
+        assertNotNull(response);
+        assertEquals(HttpStatus.OK.value(), response.getStatus());
+        assertNotNull(response.getEntity());
+    }
+
+    @Test
+    @DisplayName("Test getMyAIConversations: should return valid response.")
+    void testMyAIConversations() {
+        User user = new User();
+        user.setId(UUID.randomUUID());
+
+        HttpSession session = Mockito.mock(HttpSession.class);
+        HttpServletRequest request = Mockito.mock(HttpServletRequest.class);
+
+        Mockito
+                .when(request.getSession())
+                .thenReturn(session);
+        Mockito
+                .when(userService.getFromSession(Mockito.any()))
+                .thenReturn(user);
+        Mockito
+                .when(aiService.findAll(Mockito.any(), Mockito.any(), Mockito.any()))
+                .thenReturn(Page.empty());
+
+        Response response = currentUserController.getMyAIConversations(request, mockUriInfo(), new QueryFilter());
 
         assertNotNull(response);
         assertEquals(HttpStatus.OK.value(), response.getStatus());

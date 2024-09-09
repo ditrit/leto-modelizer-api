@@ -49,25 +49,25 @@ class DatePredicateFilterTest extends MockHelper {
         assertNotNull(exception);
         assertEquals(ErrorType.WRONG_FILTER_VALUE.getMessage(), exception.getError().getMessage());
 
-        DatePredicateFilter filter = new DatePredicateFilter(null, "2019-01-01 00:00:00");
+        DatePredicateFilter filter = new DatePredicateFilter(null, "2019-01-01 00:00:00.000");
         assertTrue(filter.extract());
         assertEquals(PredicateOperator.EQUALS, filter.getOperator(0));
-        assertEquals("2019-01-01 00:00:00", filter.getValue(0));
+        assertEquals("2019-01-01 00:00:00.000", filter.getValue(0));
 
-        filter = new DatePredicateFilter(null, "gt2019-01-01 00:00:00");
+        filter = new DatePredicateFilter(null, "gt2019-01-01 00:00:00.000");
         assertTrue(filter.extract());
         assertEquals(PredicateOperator.SUPERIOR, filter.getOperator(0));
-        assertEquals("2019-01-01 00:00:00", filter.getValue(0));
+        assertEquals("2019-01-01 00:00:00.000", filter.getValue(0));
 
-        filter = new DatePredicateFilter(null, "lt2019-01-01 00:00:00");
+        filter = new DatePredicateFilter(null, "lt2019-01-01 00:00:00.000");
         assertTrue(filter.extract());
         assertEquals(PredicateOperator.INFERIOR, filter.getOperator(0));
-        assertEquals("2019-01-01 00:00:00", filter.getValue(0));
+        assertEquals("2019-01-01 00:00:00.000", filter.getValue(0));
 
-        filter = new DatePredicateFilter(null, "2018-01-01 00:00:00bt2019-01-01 00:00:00");
+        filter = new DatePredicateFilter(null, "2018-01-01 00:00:00.000bt2019-01-01 00:00:00.000");
         assertTrue(filter.extract());
         assertEquals(PredicateOperator.BETWEEN, filter.getOperator(0));
-        assertEquals("2019-01-01 00:00:00", filter.getValue(0));
+        assertEquals("2019-01-01 00:00:00.000", filter.getValue(0));
 
         filter = new DatePredicateFilter(null, "null");
         assertTrue(filter.extract());
@@ -82,7 +82,7 @@ class DatePredicateFilterTest extends MockHelper {
 
         exception = null;
         try {
-            new DatePredicateFilter(null, "bt2019-01-01 00:00:00").extract();
+            new DatePredicateFilter(null, "bt2019-01-01 00:00:00.000").extract();
         } catch (ApiException e) {
             exception = e;
         }
@@ -96,7 +96,7 @@ class DatePredicateFilterTest extends MockHelper {
     void getSpecificOperatorTest() {
         ApiException exception = null;
         try {
-            new DatePredicateFilter(null, "2019-01-01 00:00:00aa2019-01-01 00:00:00").extract();
+            new DatePredicateFilter(null, "2019-01-01 00:00:00.000aa2019-01-01 00:00:00.000").extract();
         } catch (ApiException e) {
             exception = e;
         }
@@ -105,7 +105,7 @@ class DatePredicateFilterTest extends MockHelper {
         assertEquals(ErrorType.WRONG_FILTER_OPERATOR.getMessage(), exception.getError().getMessage());
         exception = null;
         try {
-            new DatePredicateFilter(null, "not_2019-01-01 00:00:00").extract();
+            new DatePredicateFilter(null, "not_2019-01-01 00:00:00.000").extract();
         } catch (ApiException e) {
             exception = e;
         }
@@ -127,7 +127,7 @@ class DatePredicateFilterTest extends MockHelper {
         Date date = null;
         exception = null;
         try {
-            date = filter.getDate("2019-12-01 00:00:00");
+            date = filter.getDate("2019-12-01 00:00:00.000");
         } catch (final ApiException e) {
             exception = e;
         }
@@ -144,27 +144,27 @@ class DatePredicateFilterTest extends MockHelper {
         final CriteriaQuery<Entity> query = builder.createQuery(Entity.class);
         final Root<Entity> root = query.from(Entity.class);
 
-        DatePredicateFilter filter = new DatePredicateFilter("name", "2019-01-01 00:00:00|not_2018-01-01 00:00:00");
+        DatePredicateFilter filter = new DatePredicateFilter("name", "2019-01-01 00:00:00.000|not_2018-01-01 00:00:00.000");
         assertTrue(filter.extract());
         Predicate predicate = filter.getPredicate(builder, root, null);
         assertNotNull(predicate);
 
-        filter = new DatePredicateFilter("date", "lt2019-01-01 00:00:00");
+        filter = new DatePredicateFilter("date", "lt2019-01-01 00:00:00.000");
         assertTrue(filter.extract());
         predicate = filter.getPredicate(builder, root, null);
         assertNotNull(predicate);
 
-        filter = new DatePredicateFilter("date", "gt2019-01-01 00:00:00");
+        filter = new DatePredicateFilter("date", "gt2019-01-01 00:00:00.000");
         assertTrue(filter.extract());
         predicate = filter.getPredicate(builder, root, null);
         assertNotNull(predicate);
 
-        filter = new DatePredicateFilter("date", "2019-01-01 00:00:00bt2019-01-02 00:00:00");
+        filter = new DatePredicateFilter("date", "2019-01-01 00:00:00.000bt2019-01-02 00:00:00.000");
         assertTrue(filter.extract());
         predicate = filter.getPredicate(builder, root, null);
         assertNotNull(predicate);
         assertEquals(1, filter.getValues().length);
-        assertEquals("2019-01-02 00:00:00", filter.getValue(0));
+        assertEquals("2019-01-02 00:00:00.000", filter.getValue(0));
 
         filter = new DatePredicateFilter("date", "NULL");
         assertTrue(filter.extract());
@@ -176,17 +176,17 @@ class DatePredicateFilterTest extends MockHelper {
         predicate = filter.getPredicate(builder, root, null);
         assertNotNull(predicate);
 
-        filter = new DatePredicateFilter("date", "NOT_2019-01-01 00:00:00");
+        filter = new DatePredicateFilter("date", "NOT_2019-01-01 00:00:00.000");
         assertTrue(filter.extract());
         predicate = filter.getPredicate(builder, root, null);
         assertNotNull(predicate);
 
-        filter = new DatePredicateFilter("date", "not_2019-01-01 00:00:00bt2019-01-02 00:00:00");
+        filter = new DatePredicateFilter("date", "not_2019-01-01 00:00:00.000bt2019-01-02 00:00:00.000");
         assertTrue(filter.extract());
         predicate = filter.getPredicate(builder, root, null);
         assertNotNull(predicate);
         assertEquals(1, filter.getValues().length);
-        assertEquals("2019-01-02 00:00:00", filter.getValue(0));
+        assertEquals("2019-01-02 00:00:00.000", filter.getValue(0));
     }
 
     class Entity {

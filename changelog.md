@@ -20,6 +20,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     * `GET /api/user/me/roles`, to get its roles.
     * `GET /api/user/me/groups`, to get its groups.
     * `GET /api/user/me/scopes`, to get its scopes.
+    * `GET /api/users/me/ai/conversations`, to get its conversations.
   * For all users:
     * `GET    /api/users`, to get all users.
     * `GET    /api/users/{login}`, to get user by login.
@@ -29,6 +30,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     * `GET    /api/users/{login}/scopes`, to get all scopes associated to the user.
     * `GET    /api/users/{login}/permissions`, to get all permissions associated to the user.
     * `GET    /api/users/{login}/picture`, to get picture associated to the user.
+    * `GET    /api/users/{login}/ai/conversations`, to get all conversations associated to the user.
   * For all roles:
     * `GET    /api/roles`, to get all roles.
     * `POST   /api/roles`, to create a role.
@@ -90,6 +92,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     * `GET    /api/libraries/templates/[TEMPLATE_ID]/schemas/[INDEX]`, to get schema of template.
     * `GET    /api/libraries/templates/[TEMPLATE_ID]/files/[INDEX]`, to get file of template.
   * For AI:
-    * `GET    /api/ia`, to create diagram with AI.
+    * `GET    /api/ai/generate`, to generate diagram with AI.
+    * `GET    /api/ai/conversations`, to get all conversation.
+    * `POST   /api/ai/conversations`, to create a conversation.
+    * `GET    /api/ai/conversations/[CONVERSATION_ID]`, to get a conversation by id.
+    * `DELETE /api/ai/conversations/[CONVERSATION_ID]`, to delete a conversation.
+    * `GET    /api/ai/conversations/[CONVERSATION_ID]/messages`, to get all messages of a conversations.
+    * `POST   /api/ai/conversations/[CONVERSATION_ID]/messages`, to send a message to AI.
   * `/api/login`, to login.
   * `/api/redirect`, to redirect with token on leto-modelizer/leto-modelizer-admin.

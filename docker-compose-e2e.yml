@@ -10,7 +10,7 @@ services:
   ai:
     build: ./src/test/resources/ai
     ports:
-      - "8001:80"
+      - "8585:80"
     volumes:
       - ./src/test/resources/ai:/var/www/html
     restart: always
@@ -29,7 +29,7 @@ services:
     image: leto-modelizer-api:latest
     environment:
       DATABASE_HOST: db:26257
-      AI_HOST: http://ai/api/
+      AI_HOST: http://ai/
       GITHUB_CLIENT_ID: ${GITHUB_CLIENT_ID}
       GITHUB_CLIENT_SECRET: ${GITHUB_CLIENT_SECRET}
       LIBRARY_HOST_WHITELIST: http://libraries/

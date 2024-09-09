@@ -6,9 +6,11 @@ import com.ditrit.letomodelizerapi.model.BeanMapper;
 import com.ditrit.letomodelizerapi.model.accesscontrol.AccessControlDTO;
 import com.ditrit.letomodelizerapi.model.accesscontrol.AccessControlDirectDTO;
 import com.ditrit.letomodelizerapi.model.accesscontrol.AccessControlType;
+import com.ditrit.letomodelizerapi.model.ai.AIConversationDTO;
 import com.ditrit.letomodelizerapi.model.permission.PermissionDTO;
 import com.ditrit.letomodelizerapi.model.user.UserDTO;
 import com.ditrit.letomodelizerapi.persistence.model.User;
+import com.ditrit.letomodelizerapi.service.AIService;
 import com.ditrit.letomodelizerapi.service.AccessControlService;
 import com.ditrit.letomodelizerapi.service.UserPermissionService;
 import com.ditrit.letomodelizerapi.service.UserService;
@@ -59,6 +61,11 @@ public class UserController implements DefaultController {
     private AccessControlService accessControlService;
 
     /**
+     * Service to manage access controls.
+     */
+    private AIService aiService;
+
+    /**
      * The maximum age for caching user pictures.
      * This value is typically specified in application properties and injected into the controller or service
      * to determine how long user pictures should be cached by clients. It is expressed in a format understood
@@ -74,16 +81,19 @@ public class UserController implements DefaultController {
      * @param userService the service responsible for user-related operations.
      * @param userPermissionService the service for checking user permissions.
      * @param accessControlService the service for managing access controls.
+     * @param aiService the service for managing AI functionality.
      * @param userPictureCacheMaxAge the maximum age for caching user pictures, injected from application properties.
      */
     @Autowired
     public UserController(final UserService userService,
                           final UserPermissionService userPermissionService,
                           final AccessControlService accessControlService,
+                          final AIService aiService,
                           final @Value("${user.picture.cache.max.age}") String userPictureCacheMaxAge) {
         this.userService = userService;
         this.userPermissionService = userPermissionService;
         this.accessControlService = accessControlService;
+        this.aiService = aiService;
         this.userPictureCacheMaxAge = userPictureCacheMaxAge;
     }
 
@@ -319,6 +329,50 @@ public class UserController implements DefaultController {
         Page<AccessControlDTO> resources = accessControlService
                 .findAll(AccessControlType.SCOPE, user, filters, queryFilter.getPagination())
                 .map(new BeanMapper<>(AccessControlDTO.class));
+
+        return Response.status(this.getStatus(resources)).entity(resources).build();
+    }
+
+    /**
+     * Retrieves scopes associated with a user identified by their login.
+     *
+     * <p>This method processes a GET request to fetch scopes assigned to a user, utilizing the user's login as the
+     * identifier. It supports filtering based on query parameters and pagination. The operation requires administrative
+     * privileges to execute, as it involves accessing sensitive user role information.
+     *
+     * @param request the HttpServletRequest from which to obtain the HttpSession for user validation.
+     * @param login the login identifier of the user whose scopes are being requested. Must be a valid, non-blank
+     *              String.
+     * @param uriInfo UriInfo context to extract query parameters for filtering results.
+     * @param queryFilter bean parameter encapsulating filtering and pagination criteria.
+     * @return a Response object containing the requested page of AccessControlDTO objects representing the scopes
+     * associated with the specified user. The response status varies based on the outcome of the request.
+     */
+    @GET
+    @Path("/{login}/ai/conversations")
+    public Response getAIConversationsOfUser(final @Context HttpServletRequest request,
+                                    final @PathParam(Constants.DEFAULT_USER_PROPERTY) @Valid @NotBlank String login,
+                                    final @Context UriInfo uriInfo,
+                                    final @BeanParam @Valid QueryFilter queryFilter) {
+        HttpSession session = request.getSession();
+        User me = userService.getFromSession(session);
+
+        Map<String, String> filters = this.getFilters(uriInfo);
+        log.info(
+                "[{}] Received GET request to get AI conversations of user {} with the following filters: {}",
+                me.getLogin(),
+                login,
+                filters
+        );
+
+        User user = userService.findByLogin(login);
+
+        if (!me.getId().equals(user.getId())) {
+            userPermissionService.checkIsAdmin(me, null);
+        }
+
+        Page<AIConversationDTO> resources = aiService.findAll(user, filters, queryFilter.getPagination())
+                    .map(new BeanMapper<>(AIConversationDTO.class));
 
         return Response.status(this.getStatus(resources)).entity(resources).build();
     }

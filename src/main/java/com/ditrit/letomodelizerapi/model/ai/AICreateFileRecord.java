@@ -14,7 +14,7 @@ import jakarta.validation.constraints.Pattern;
  *        to ensure that only valid request types are considered.
  * @param description a description of the AI request, providing context or additional information. Must not be blank.
  */
-public record AIRequestRecord(
+public record AICreateFileRecord(
         @NotBlank String plugin,
         @Pattern(regexp = "diagram") String type,
         @NotBlank String description
