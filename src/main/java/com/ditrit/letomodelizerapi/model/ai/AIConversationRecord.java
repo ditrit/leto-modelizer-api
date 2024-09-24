@@ -17,7 +17,7 @@ import java.util.List;
  */
 public record AIConversationRecord(
         @NotBlank String project,
-        @NotBlank String diagram,
+        @NotNull String diagram,
         @NotBlank String plugin,
         String checksum,
         @NotNull List<FileRecord> files
