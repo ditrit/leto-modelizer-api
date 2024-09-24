@@ -3,6 +3,7 @@ package com.ditrit.letomodelizerapi.service;
 import com.ditrit.letomodelizerapi.config.Constants;
 import com.ditrit.letomodelizerapi.model.ai.AIConversationRecord;
 import com.ditrit.letomodelizerapi.model.ai.AICreateFileRecord;
+import com.ditrit.letomodelizerapi.model.ai.AIMessageRecord;
 import com.ditrit.letomodelizerapi.model.error.ApiException;
 import com.ditrit.letomodelizerapi.model.error.ErrorType;
 import com.ditrit.letomodelizerapi.model.file.FileRecord;
@@ -109,7 +110,6 @@ public class AIServiceImpl implements AIService {
                     .uri(uri)
                     .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
                     .headers(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON)
-                    .version(HttpClient.Version.HTTP_1_1)
                     .POST(HttpRequest.BodyPublishers.ofString(body))
                     .build();
 
@@ -158,11 +158,10 @@ public class AIServiceImpl implements AIService {
         });
 
         ObjectNode json = JsonNodeFactory.instance.objectNode();
-        json.put("pluginName", conversation.getKey().split("/")[2]);
+        json.put(Constants.DEFAULT_PLUGIN_NAME_PROPERTY, conversation.getKey().split("/")[2]);
         json.set("files", arrayNode);
 
-        JsonNode response = mapper.readTree(sendRequest("chat", json.toString()));
-
+        JsonNode response = mapper.readTree(sendRequest(Constants.DEFAULT_MESSAGE_PROPERTY, json.toString()));
         return response.get(Constants.DEFAULT_CONTEXT_PROPERTY).asText();
     }
 
@@ -185,7 +184,7 @@ public class AIServiceImpl implements AIService {
     @Override
     public String createFile(final AICreateFileRecord createFileRecord) {
         ObjectNode json = JsonNodeFactory.instance.objectNode();
-        json.put("pluginName", createFileRecord.plugin());
+        json.put(Constants.DEFAULT_PLUGIN_NAME_PROPERTY, createFileRecord.plugin());
         json.put("description", createFileRecord.description());
 
         return sendRequest(createFileRecord.type(), json.toString());
@@ -252,12 +251,12 @@ public class AIServiceImpl implements AIService {
     }
 
     @Override
-    public AIMessage sendMessage(final User user, final UUID id, final String message) throws IOException {
+    public AIMessage sendMessage(final User user, final UUID id, final AIMessageRecord aiMessage) throws IOException {
         AIConversation conversation = aiConversationRepository.findByIdAndUserId(id, user.getId())
                 .orElseThrow(() -> new ApiException(ErrorType.ENTITY_NOT_FOUND, "id", id.toString()));
 
-        byte[] compressedMessage = compress(message);
-        Long size = conversation.getSize() + compressedMessage.length;
+        byte[] compressedMessage = compress(aiMessage.message());
+        long size = conversation.getSize() + compressedMessage.length;
 
         AIMessage userMessage = new AIMessage();
         userMessage.setAiConversation(conversation.getId());
@@ -267,24 +266,26 @@ public class AIServiceImpl implements AIService {
 
         ObjectNode json = JsonNodeFactory.instance.objectNode();
         json.put(Constants.DEFAULT_CONTEXT_PROPERTY, conversation.getContext());
-        json.put("message", message);
+        json.put(Constants.DEFAULT_MESSAGE_PROPERTY, aiMessage.message());
+        json.put(Constants.DEFAULT_PLUGIN_NAME_PROPERTY, aiMessage.plugin());
 
-        JsonNode response = new ObjectMapper().readTree(sendRequest("chat", json.toString()));
+        JsonNode response = new ObjectMapper()
+                .readTree(sendRequest(Constants.DEFAULT_MESSAGE_PROPERTY, json.toString()));
 
-        compressedMessage = compress(response.get("message").asText());
+        compressedMessage = compress(response.get(Constants.DEFAULT_MESSAGE_PROPERTY).asText());
         size += compressedMessage.length;
 
-        AIMessage aiMessage = new AIMessage();
-        aiMessage.setAiConversation(conversation.getId());
-        aiMessage.setIsUser(false);
-        aiMessage.setMessage(compressedMessage);
-        aiMessage = aiMessageRepository.save((aiMessage));
+        AIMessage aiMessageResponse = new AIMessage();
+        aiMessageResponse.setAiConversation(conversation.getId());
+        aiMessageResponse.setIsUser(false);
+        aiMessageResponse.setMessage(compressedMessage);
+        aiMessageResponse = aiMessageRepository.save((aiMessageResponse));
 
         conversation.setContext(response.get(Constants.DEFAULT_CONTEXT_PROPERTY).asText());
         conversation.setSize(size);
         aiConversationRepository.save(conversation);
 
-        return aiMessage;
+        return aiMessageResponse;
     }
 
     @Override

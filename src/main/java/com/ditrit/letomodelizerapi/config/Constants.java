@@ -37,6 +37,16 @@ public final class Constants {
     public static final String DEFAULT_UPDATE_DATE_PROPERTY = "updateDate";
 
     /**
+     * The constant representing the default message property.
+     */
+    public static final String DEFAULT_MESSAGE_PROPERTY = "message";
+
+    /**
+     * The constant representing the default plugin name property.
+     */
+    public static final String DEFAULT_PLUGIN_NAME_PROPERTY = "pluginName";
+
+    /**
      * Private constructor.
      */
     private Constants() {

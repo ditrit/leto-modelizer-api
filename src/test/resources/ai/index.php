@@ -11,7 +11,7 @@ $requestBody = json_decode(file_get_contents('php://input'), true);
 error_log($type);
 error_log(file_get_contents('php://input'));
 
-if ($type == "chat") {
+if ($type == "message") {
     $contextValue = isset($requestBody["context"]) ? (int) $requestBody["context"] : 0;
     $data = [
         "context" =>1 + $contextValue,

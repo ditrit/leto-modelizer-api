@@ -45,9 +45,10 @@ Feature: ai feature
     And  I extract resources from response
     And  I expect one resource contains "id" equals to "[conversation_id]"
 
-    When I request "/ai/conversations/[conversation_id]/messages" with method "POST" with body
-      | body | type   |
-      | test | String |
+    When I request "/ai/conversations/[conversation_id]/messages" with method "POST" with json
+      | key     | value                   | type   |
+      | message | TEST                    | string |
+      | plugin  | @ditrit/terrator-plugin | string |
     Then I expect "201" as status code
     And  I expect response fields length is "5"
     And  I expect response field "id" is "NOT_NULL"

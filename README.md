@@ -275,7 +275,7 @@ LETO_ADMIN_URL=http://localhost:9000/
 LIBRARY_HOST_WHITELIST=https://github.com/ditrit/
 CSRF_TOKEN_TIMEOUT=3600
 USER_SESSION_TIMEOUT=3600
-AI_HOST=http://locahost:8585/api/
+AI_HOST=http://locahost:8585/
 ```
 
 See Configuration section for more details.
