@@ -130,8 +130,8 @@ Feature: Library feature
 
     # Check if library templates are created
     When I request "/libraries/templates" with method "GET"
-    Then I expect "200" as status code
-    And  I expect response field "totalElements" is "3" as "number"
+    Then I expect "206" as status code
+    And  I expect response field "totalElements" is "33" as "number"
 
     # Delete library
     When I request "/libraries/[libraryId]" with method "DELETE"
