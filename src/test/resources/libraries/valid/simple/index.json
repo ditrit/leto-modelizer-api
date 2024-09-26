@@ -6,12 +6,12 @@
   "icon": "icon.svg",
   "templates": [
     {
-      "name": "Template of project",
+      "name": "Template of project 01",
       "type": "PROJECT",
       "description": "Project template example.",
       "documentationUrl": "doc url",
       "basePath": "",
-      "plugins": ["terrator-plugin", "githubator-plugin"],
+      "plugins": ["@ditrit/terrator-plugin", "@ditrit/githubator-plugin"],
       "icon": "project.svg",
       "schemas": [
         ".github/workflows/schema.svg",
@@ -23,23 +23,407 @@
       ]
     },
     {
-      "name": "Template of diagram",
+      "name": "Template of project 02",
+      "type": "PROJECT",
+      "description": "Project template example.",
+      "documentationUrl": "doc url",
+      "basePath": "",
+      "plugins": ["@ditrit/terrator-plugin", "@ditrit/githubator-plugin"],
+      "icon": "project.svg",
+      "schemas": [
+        ".github/workflows/schema.svg",
+        "infra/schema.svg"
+      ],
+      "files": [
+        ".github/workflows/CI.yml",
+        "infra/main.tf"
+      ]
+    },
+    {
+      "name": "Template of project 03",
+      "type": "PROJECT",
+      "description": "Project template example.",
+      "documentationUrl": "doc url",
+      "basePath": "",
+      "plugins": ["@ditrit/terrator-plugin", "@ditrit/githubator-plugin"],
+      "icon": "project.svg",
+      "schemas": [
+        ".github/workflows/schema.svg",
+        "infra/schema.svg"
+      ],
+      "files": [
+        ".github/workflows/CI.yml",
+        "infra/main.tf"
+      ]
+    },
+    {
+      "name": "Template of project 04",
+      "type": "PROJECT",
+      "description": "Project template example.",
+      "documentationUrl": "doc url",
+      "basePath": "",
+      "plugins": ["@ditrit/terrator-plugin", "@ditrit/githubator-plugin"],
+      "icon": "project.svg",
+      "schemas": [
+        ".github/workflows/schema.svg",
+        "infra/schema.svg"
+      ],
+      "files": [
+        ".github/workflows/CI.yml",
+        "infra/main.tf"
+      ]
+    },
+    {
+      "name": "Template of project 05",
+      "type": "PROJECT",
+      "description": "Project template example.",
+      "documentationUrl": "doc url",
+      "basePath": "",
+      "plugins": ["@ditrit/terrator-plugin", "@ditrit/githubator-plugin"],
+      "icon": "project.svg",
+      "schemas": [
+        ".github/workflows/schema.svg",
+        "infra/schema.svg"
+      ],
+      "files": [
+        ".github/workflows/CI.yml",
+        "infra/main.tf"
+      ]
+    },
+    {
+      "name": "Template of project 06",
+      "type": "PROJECT",
+      "description": "Project template example.",
+      "documentationUrl": "doc url",
+      "basePath": "",
+      "plugins": ["@ditrit/terrator-plugin", "@ditrit/githubator-plugin"],
+      "icon": "project.svg",
+      "schemas": [
+        ".github/workflows/schema.svg",
+        "infra/schema.svg"
+      ],
+      "files": [
+        ".github/workflows/CI.yml",
+        "infra/main.tf"
+      ]
+    },
+    {
+      "name": "Template of project 07",
+      "type": "PROJECT",
+      "description": "Project template example.",
+      "documentationUrl": "doc url",
+      "basePath": "",
+      "plugins": ["@ditrit/terrator-plugin", "@ditrit/githubator-plugin"],
+      "icon": "project.svg",
+      "schemas": [
+        ".github/workflows/schema.svg",
+        "infra/schema.svg"
+      ],
+      "files": [
+        ".github/workflows/CI.yml",
+        "infra/main.tf"
+      ]
+    },
+    {
+      "name": "Template of project 08",
+      "type": "PROJECT",
+      "description": "Project template example.",
+      "documentationUrl": "doc url",
+      "basePath": "",
+      "plugins": ["@ditrit/terrator-plugin", "@ditrit/githubator-plugin"],
+      "icon": "project.svg",
+      "schemas": [
+        ".github/workflows/schema.svg",
+        "infra/schema.svg"
+      ],
+      "files": [
+        ".github/workflows/CI.yml",
+        "infra/main.tf"
+      ]
+    },
+    {
+      "name": "Template of project 09",
+      "type": "PROJECT",
+      "description": "Project template example.",
+      "documentationUrl": "doc url",
+      "basePath": "",
+      "plugins": ["@ditrit/terrator-plugin", "@ditrit/githubator-plugin"],
+      "icon": "project.svg",
+      "schemas": [
+        ".github/workflows/schema.svg",
+        "infra/schema.svg"
+      ],
+      "files": [
+        ".github/workflows/CI.yml",
+        "infra/main.tf"
+      ]
+    },
+    {
+      "name": "Template of project 10",
+      "type": "PROJECT",
+      "description": "Project template example.",
+      "documentationUrl": "doc url",
+      "basePath": "",
+      "plugins": ["@ditrit/terrator-plugin", "@ditrit/githubator-plugin"],
+      "icon": "project.svg",
+      "schemas": [
+        ".github/workflows/schema.svg",
+        "infra/schema.svg"
+      ],
+      "files": [
+        ".github/workflows/CI.yml",
+        "infra/main.tf"
+      ]
+    },
+    {
+      "name": "Template of diagram 1",
       "type": "DIAGRAM",
       "description": "Diagram template example.",
       "documentationUrl": "doc url",
       "basePath": ".github/workflows/",
-      "plugin": "githubator-plugin",
+      "plugin": "@ditrit/githubator-plugin",
       "icon": "diagram.svg",
       "schemas": ["schema.svg"],
       "files": ["CI.yml"]
     },
     {
-      "name": "Template of component",
+      "name": "Template of diagram 2",
+      "type": "DIAGRAM",
+      "description": "Diagram template example.",
+      "documentationUrl": "doc url",
+      "basePath": "infra/",
+      "plugin": "@ditrit/terrator-plugin",
+      "icon": "diagram.svg",
+      "schemas": ["schema.svg"],
+      "files": ["main.tf", "schema.svg"]
+    },
+    {
+      "name": "Template of component 01",
       "type": "COMPONENT",
       "description": "Component template example.",
       "documentationUrl": "doc url",
       "basePath": "infra/",
-      "plugin": "terrator-plugin",
+      "plugin": "@ditrit/terrator-plugin",
+      "icon": "component.svg",
+      "schemas": ["schema.svg"],
+      "files": ["main.tf"]
+    },
+    {
+      "name": "Template of component 02",
+      "type": "COMPONENT",
+      "description": "Component template example.",
+      "documentationUrl": "doc url",
+      "basePath": "infra/",
+      "plugin": "@ditrit/terrator-plugin",
+      "icon": "component.svg",
+      "schemas": ["schema.svg"],
+      "files": ["main.tf"]
+    },
+    {
+      "name": "Template of component 03",
+      "type": "COMPONENT",
+      "description": "Component template example.",
+      "documentationUrl": "doc url",
+      "basePath": "infra/",
+      "plugin": "@ditrit/terrator-plugin",
+      "icon": "component.svg",
+      "schemas": ["schema.svg"],
+      "files": ["main.tf"]
+    },
+    {
+      "name": "Template of component 04",
+      "type": "COMPONENT",
+      "description": "Component template example.",
+      "documentationUrl": "doc url",
+      "basePath": "infra/",
+      "plugin": "@ditrit/terrator-plugin",
+      "icon": "component.svg",
+      "schemas": ["schema.svg"],
+      "files": ["main.tf"]
+    },
+    {
+      "name": "Template of component 05",
+      "type": "COMPONENT",
+      "description": "Component template example.",
+      "documentationUrl": "doc url",
+      "basePath": "infra/",
+      "plugin": "@ditrit/terrator-plugin",
+      "icon": "component.svg",
+      "schemas": ["schema.svg"],
+      "files": ["main.tf"]
+    },
+    {
+      "name": "Template of component 06",
+      "type": "COMPONENT",
+      "description": "Component template example.",
+      "documentationUrl": "doc url",
+      "basePath": "infra/",
+      "plugin": "@ditrit/terrator-plugin",
+      "icon": "component.svg",
+      "schemas": ["schema.svg"],
+      "files": ["main.tf"]
+    },
+    {
+      "name": "Template of component 07",
+      "type": "COMPONENT",
+      "description": "Component template example.",
+      "documentationUrl": "doc url",
+      "basePath": "infra/",
+      "plugin": "@ditrit/terrator-plugin",
+      "icon": "component.svg",
+      "schemas": ["schema.svg"],
+      "files": ["main.tf"]
+    },
+    {
+      "name": "Template of component 08",
+      "type": "COMPONENT",
+      "description": "Component template example.",
+      "documentationUrl": "doc url",
+      "basePath": "infra/",
+      "plugin": "@ditrit/terrator-plugin",
+      "icon": "component.svg",
+      "schemas": ["schema.svg"],
+      "files": ["main.tf"]
+    },
+    {
+      "name": "Template of component 09",
+      "type": "COMPONENT",
+      "description": "Component template example.",
+      "documentationUrl": "doc url",
+      "basePath": "infra/",
+      "plugin": "@ditrit/terrator-plugin",
+      "icon": "component.svg",
+      "schemas": ["schema.svg"],
+      "files": ["main.tf"]
+    },
+    {
+      "name": "Template of component 10",
+      "type": "COMPONENT",
+      "description": "Component template example.",
+      "documentationUrl": "doc url",
+      "basePath": "infra/",
+      "plugin": "@ditrit/terrator-plugin",
+      "icon": "component.svg",
+      "schemas": ["schema.svg"],
+      "files": ["main.tf"]
+    },
+    {
+      "name": "Template of component 11",
+      "type": "COMPONENT",
+      "description": "Component template example.",
+      "documentationUrl": "doc url",
+      "basePath": "infra/",
+      "plugin": "@ditrit/terrator-plugin",
+      "icon": "component.svg",
+      "schemas": ["schema.svg"],
+      "files": ["main.tf"]
+    },
+    {
+      "name": "Template of component 12",
+      "type": "COMPONENT",
+      "description": "Component template example.",
+      "documentationUrl": "doc url",
+      "basePath": "infra/",
+      "plugin": "@ditrit/terrator-plugin",
+      "icon": "component.svg",
+      "schemas": ["schema.svg"],
+      "files": ["main.tf"]
+    },
+    {
+      "name": "Template of component 13",
+      "type": "COMPONENT",
+      "description": "Component template example.",
+      "documentationUrl": "doc url",
+      "basePath": "infra/",
+      "plugin": "@ditrit/terrator-plugin",
+      "icon": "component.svg",
+      "schemas": ["schema.svg"],
+      "files": ["main.tf"]
+    },
+    {
+      "name": "Template of component 14",
+      "type": "COMPONENT",
+      "description": "Component template example.",
+      "documentationUrl": "doc url",
+      "basePath": "infra/",
+      "plugin": "@ditrit/terrator-plugin",
+      "icon": "component.svg",
+      "schemas": ["schema.svg"],
+      "files": ["main.tf"]
+    },
+    {
+      "name": "Template of component 15",
+      "type": "COMPONENT",
+      "description": "Component template example.",
+      "documentationUrl": "doc url",
+      "basePath": "infra/",
+      "plugin": "@ditrit/terrator-plugin",
+      "icon": "component.svg",
+      "schemas": ["schema.svg"],
+      "files": ["main.tf"]
+    },
+    {
+      "name": "Template of component 16",
+      "type": "COMPONENT",
+      "description": "Component template example.",
+      "documentationUrl": "doc url",
+      "basePath": "infra/",
+      "plugin": "@ditrit/terrator-plugin",
+      "icon": "component.svg",
+      "schemas": ["schema.svg"],
+      "files": ["main.tf"]
+    },
+    {
+      "name": "Template of component 17",
+      "type": "COMPONENT",
+      "description": "Component template example.",
+      "documentationUrl": "doc url",
+      "basePath": "infra/",
+      "plugin": "@ditrit/terrator-plugin",
+      "icon": "component.svg",
+      "schemas": ["schema.svg"],
+      "files": ["main.tf"]
+    },
+    {
+      "name": "Template of component 18",
+      "type": "COMPONENT",
+      "description": "Component template example.",
+      "documentationUrl": "doc url",
+      "basePath": "infra/",
+      "plugin": "@ditrit/terrator-plugin",
+      "icon": "component.svg",
+      "schemas": ["schema.svg"],
+      "files": ["main.tf"]
+    },
+    {
+      "name": "Template of component 19",
+      "type": "COMPONENT",
+      "description": "Component template example.",
+      "documentationUrl": "doc url",
+      "basePath": "infra/",
+      "plugin": "@ditrit/terrator-plugin",
+      "icon": "component.svg",
+      "schemas": ["schema.svg"],
+      "files": ["main.tf"]
+    },
+    {
+      "name": "Template of component 20",
+      "type": "COMPONENT",
+      "description": "Component template example.",
+      "documentationUrl": "doc url",
+      "basePath": "infra/",
+      "plugin": "@ditrit/terrator-plugin",
+      "icon": "component.svg",
+      "schemas": ["schema.svg"],
+      "files": ["main.tf"]
+    },
+    {
+      "name": "Template of component 21",
+      "type": "COMPONENT",
+      "description": "Component template example.",
+      "documentationUrl": "doc url",
+      "basePath": "infra/",
+      "plugin": "@ditrit/terrator-plugin",
       "icon": "component.svg",
       "schemas": ["schema.svg"],
       "files": ["main.tf"]

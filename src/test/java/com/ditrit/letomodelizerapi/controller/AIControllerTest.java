@@ -4,6 +4,7 @@ import com.ditrit.letomodelizerapi.controller.model.QueryFilter;
 import com.ditrit.letomodelizerapi.helper.MockHelper;
 import com.ditrit.letomodelizerapi.model.ai.AIConversationRecord;
 import com.ditrit.letomodelizerapi.model.ai.AICreateFileRecord;
+import com.ditrit.letomodelizerapi.model.ai.AIMessageRecord;
 import com.ditrit.letomodelizerapi.persistence.model.AIConversation;
 import com.ditrit.letomodelizerapi.persistence.model.AIMessage;
 import com.ditrit.letomodelizerapi.persistence.model.User;
@@ -217,7 +218,7 @@ class AIControllerTest extends MockHelper {
         Mockito.when(userService.getFromSession(Mockito.any())).thenReturn(user);
         Mockito.when(aiService.sendMessage(Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(message);
 
-        Response response = this.controller.createConversationMessage(request, UUID.randomUUID(), "ok");
+        Response response = this.controller.createConversationMessage(request, UUID.randomUUID(), new AIMessageRecord("ok", "plugin"));
 
         assertNotNull(response);
         assertEquals(HttpStatus.CREATED.value(), response.getStatus());

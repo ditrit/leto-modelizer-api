@@ -2,6 +2,7 @@ package com.ditrit.letomodelizerapi.service;
 
 import com.ditrit.letomodelizerapi.model.ai.AIConversationRecord;
 import com.ditrit.letomodelizerapi.model.ai.AICreateFileRecord;
+import com.ditrit.letomodelizerapi.model.ai.AIMessageRecord;
 import com.ditrit.letomodelizerapi.model.error.ApiException;
 import com.ditrit.letomodelizerapi.model.error.ErrorType;
 import com.ditrit.letomodelizerapi.persistence.model.AIConversation;
@@ -365,7 +366,7 @@ class AIServiceImplTest {
         User user = new User();
         user.setId(UUID.randomUUID());
 
-        AIMessage message = service.sendMessage(user, UUID.randomUUID(), "ok");
+        AIMessage message = service.sendMessage(user, UUID.randomUUID(), new AIMessageRecord("ok", "plugin"));
 
         assertEquals(message, expectedMessage);
 
@@ -384,7 +385,7 @@ class AIServiceImplTest {
         ApiException exception = null;
 
         try {
-            service.sendMessage(user, UUID.randomUUID(), "test");
+            service.sendMessage(user, UUID.randomUUID(), new AIMessageRecord("test", "plugin"));
         } catch (ApiException e) {
             exception = e;
         }

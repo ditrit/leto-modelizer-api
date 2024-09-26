@@ -7,6 +7,7 @@ import com.ditrit.letomodelizerapi.model.ai.AIConversationDTO;
 import com.ditrit.letomodelizerapi.model.ai.AIConversationRecord;
 import com.ditrit.letomodelizerapi.model.ai.AICreateFileRecord;
 import com.ditrit.letomodelizerapi.model.ai.AIMessageDTO;
+import com.ditrit.letomodelizerapi.model.ai.AIMessageRecord;
 import com.ditrit.letomodelizerapi.model.mapper.ai.AIMessageToDTOMapper;
 import com.ditrit.letomodelizerapi.model.permission.ActionPermission;
 import com.ditrit.letomodelizerapi.model.permission.EntityPermission;
@@ -237,7 +238,7 @@ public class AIController implements DefaultController {
      *
      * @param request the HttpServletRequest used to access the user's session.
      * @param id the ID of the AI conversation to which the message is sent.
-     * @param message the content of the message to send to the AI.
+     * @param aiMessage the record that contains the message to send to the AI.
      * @return a Response object containing the AI's reply in plain text with a status of CREATED (201).
      * @throws JsonProcessingException if there is an error processing the request data.
      */
@@ -245,14 +246,14 @@ public class AIController implements DefaultController {
     @Path("/conversations/{id}/messages")
     public Response createConversationMessage(final @Context HttpServletRequest request,
                                               final @PathParam("id") @Valid @NotNull UUID id,
-                                              final @Valid @NotNull String message) throws IOException {
+                                              final @Valid AIMessageRecord aiMessage) throws IOException {
         HttpSession session = request.getSession();
         User user = userService.getFromSession(session);
 
         log.info("[{}] Received POST request to send message to conversation id {}",
                 user.getLogin(), id.toString());
 
-        AIMessageDTO aiMessageDTO = new AIMessageToDTOMapper().apply(aiService.sendMessage(user, id, message));
+        AIMessageDTO aiMessageDTO = new AIMessageToDTOMapper().apply(aiService.sendMessage(user, id, aiMessage));
 
         return Response.status(HttpStatus.CREATED.value()).entity(aiMessageDTO).build();
     }

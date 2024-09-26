@@ -2,6 +2,7 @@ package com.ditrit.letomodelizerapi.service;
 
 import com.ditrit.letomodelizerapi.model.ai.AIConversationRecord;
 import com.ditrit.letomodelizerapi.model.ai.AICreateFileRecord;
+import com.ditrit.letomodelizerapi.model.ai.AIMessageRecord;
 import com.ditrit.letomodelizerapi.persistence.model.AIConversation;
 import com.ditrit.letomodelizerapi.persistence.model.AIMessage;
 import com.ditrit.letomodelizerapi.persistence.model.User;
@@ -80,11 +81,11 @@ public interface AIService {
      *
      * @param user the user sending the message.
      * @param id the ID of the conversation to which the message is sent.
-     * @param message the content of the message to be sent.
+     * @param aiMessage the record that contains the message to be sent.
      * @return the AI's response to the message.
      * @throws JsonProcessingException if there is an error processing the JSON data.
      */
-    AIMessage sendMessage(User user, UUID id, String message) throws IOException;
+    AIMessage sendMessage(User user, UUID id, AIMessageRecord aiMessage) throws IOException;
 
     /**
      * Finds all AI conversations for a user with optional filtering and pagination.

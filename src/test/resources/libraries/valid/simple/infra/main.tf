@@ -1,1 +1,1 @@
-resource "aws_instance" "nginx" {}
+resource "aws_instance" "{{ generateId('nginx_')}}" {}
