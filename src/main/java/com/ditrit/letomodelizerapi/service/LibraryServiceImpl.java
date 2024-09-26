@@ -353,7 +353,7 @@ public class LibraryServiceImpl implements LibraryService {
 
         return userLibraryViewRepository.findAll(
                 new SpecificationHelper<>(UserLibraryView.class, filters),
-                PageRequest.of(pageable.getPageNumber(), pageable.getPageSize())
+                PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), pageable.getSort())
         ).map(new UserLibraryViewToLibraryFunction());
     }
 
@@ -361,7 +361,7 @@ public class LibraryServiceImpl implements LibraryService {
     public Page<LibraryTemplate> findAllTemplates(final Map<String, String> filters, final Pageable pageable) {
         return libraryTemplateRepository.findAll(
                 new SpecificationHelper<>(LibraryTemplate.class, filters),
-                PageRequest.of(pageable.getPageNumber(), pageable.getPageSize())
+                PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), pageable.getSort())
         );
     }
 
@@ -372,7 +372,7 @@ public class LibraryServiceImpl implements LibraryService {
         return userLibraryTemplateViewRepository.findAllByUserId(
                 user.getId(),
                 new SpecificationHelper<>(UserLibraryTemplateView.class, filters),
-                PageRequest.of(pageable.getPageNumber(), pageable.getPageSize())
+                PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), pageable.getSort())
         ).map(new UserLibraryTemplateViewToLibraryTemplateFunction());
     }
 
