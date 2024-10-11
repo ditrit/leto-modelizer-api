@@ -452,7 +452,7 @@ class LibraryServiceImplTest {
         ApiException exception = null;
 
         try {
-            service.create(new LibraryRecord("http://localhost:8080/test/index.json", null), "login");
+            service.create(new LibraryRecord("http://localhost:8080/test/index.json", "TEST"), "login");
         } catch (ApiException e) {
             exception = e;
         }

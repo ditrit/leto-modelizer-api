@@ -7,6 +7,8 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
+import java.util.UUID;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @Tag("unit")
@@ -41,6 +43,36 @@ class JsonNodeToLibraryFunctionTest {
 
         Library expectedLibrary = new Library();
 
+        expectedLibrary.setName("name");
+        expectedLibrary.setVersion("version");
+        expectedLibrary.setMaintainer("maintainer");
+        expectedLibrary.setDescription("description");
+        expectedLibrary.setDocumentationUrl("documentationUrl");
+        expectedLibrary.setIcon("icon");
+
+        ObjectNode json = JsonNodeFactory.instance.objectNode();
+        json.put("name", "name");
+        json.put("version", "version");
+        json.put("maintainer", "maintainer");
+        json.put("description", "description");
+        json.put("documentationUrl", "documentationUrl");
+        json.put("icon", "icon");
+
+        assertEquals(expectedLibrary, mapper.apply(json));
+    }
+
+    @Test
+    @DisplayName("Test apply: should keep default if it's not override")
+    void testApplyKeepValue() {
+        Library defaultLibrary = new Library();
+        defaultLibrary.setId(UUID.randomUUID());
+        defaultLibrary.setVersion("version");
+
+        JsonNodeToLibraryFunction mapper = new JsonNodeToLibraryFunction(defaultLibrary);
+
+        Library expectedLibrary = new Library();
+
+        expectedLibrary.setId(defaultLibrary.getId());
         expectedLibrary.setName("name");
         expectedLibrary.setVersion("version");
         expectedLibrary.setMaintainer("maintainer");

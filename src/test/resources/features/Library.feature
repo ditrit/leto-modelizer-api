@@ -44,10 +44,12 @@ Feature: Library feature
 
   Scenario: Should return 400 on unknown library url
     Given I initialize the admin user
+    And   I clean role "TEST"
 
     When I request "/libraries" with method "POST" with json
-      | key | value                                            |
-      | url | http://[LIBRARY_HOST]/invalid/unknown/index.json |
+      | key  | value                                            |
+      | role | TEST                                             |
+      | url  | http://[LIBRARY_HOST]/invalid/unknown/index.json |
     Then I expect "400" as status code
     And  I expect response field "message" is "Wrong field value."
     And  I expect response field "code" is "206"
@@ -65,10 +67,12 @@ Feature: Library feature
 
   Scenario: Should return 400 on invalid library json
     Given I initialize the admin user
+    And   I clean role "TEST"
 
     When I request "/libraries" with method "POST" with json
-      | key | value                                           |
-      | url | http://[LIBRARY_HOST]/invalid/simple/index.json |
+      | key  | value                                           |
+      | role | TEST                                            |
+      | url  | http://[LIBRARY_HOST]/invalid/simple/index.json |
     Then I expect "400" as status code
     And  I expect response field "message" is "Index.json of library is invalid."
     And  I expect response field "code" is "210"
@@ -87,15 +91,19 @@ Feature: Library feature
   Scenario: Should return 400 on already exists library
     Given I initialize the admin user
     And   I clean library "http://[LIBRARY_HOST]/valid/simple/"
+    And   I clean role "TEST1"
+    And   I clean role "TEST2"
 
     When I request "/libraries" with method "POST" with json
-      | key | value                                         |
-      | url | http://[LIBRARY_HOST]/valid/simple/index.json |
+      | key  | value                                         |
+      | role | TEST1                                         |
+      | url  | http://[LIBRARY_HOST]/valid/simple/index.json |
     Then I expect "201" as status code
 
     When I request "/libraries" with method "POST" with json
-      | key | value                                         |
-      | url | http://[LIBRARY_HOST]/valid/simple/index.json |
+      | key  | value                                         |
+      | role | TEST2                                         |
+      | url  | http://[LIBRARY_HOST]/valid/simple/index.json |
     Then I expect "400" as status code
     And  I expect response field "message" is "Entity already exists."
     And  I expect response field "code" is "208"
@@ -105,6 +113,7 @@ Feature: Library feature
   Scenario: Should return 200 on a valid library creation
     Given I initialize the admin user
     And   I clean library "http://[LIBRARY_HOST]/valid/simple/"
+    And   I clean role "TEST"
 
     When I request "/libraries/validate" with method "POST" with body
       | value                                         | type |
@@ -113,8 +122,9 @@ Feature: Library feature
 
     # Library creation
     When I request "/libraries" with method "POST" with json
-      | key | value                                         |
-      | url | http://[LIBRARY_HOST]/valid/simple/index.json |
+      | key  | value                                         |
+      | role | TEST                                          |
+      | url  | http://[LIBRARY_HOST]/valid/simple/index.json |
     Then I expect "201" as status code
     And  I set response field "id" to context "libraryId"
 
