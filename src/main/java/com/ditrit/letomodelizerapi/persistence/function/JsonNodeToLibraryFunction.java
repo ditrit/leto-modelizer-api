@@ -13,9 +13,37 @@ import java.util.function.Function;
  */
 public class JsonNodeToLibraryFunction implements Function<JsonNode, Library> {
 
+    /**
+     * Library to set.
+     */
+    private Library fromLibrary;
+
+    /**
+     * Default constructor.
+     */
+    public JsonNodeToLibraryFunction()  {
+        this(null);
+    }
+
+    /**
+     * Provide a library to use it as default value.
+     * All value of this library can be upgraded by values in json.
+     * @param fromLibrary Library to use as default.
+     */
+    public JsonNodeToLibraryFunction(final Library fromLibrary) {
+        this.fromLibrary = fromLibrary;
+    }
+
     @Override
     public Library apply(final JsonNode json) {
-        Library library = new Library();
+        Library library = null;
+
+        if (fromLibrary != null) {
+            library = fromLibrary;
+        } else {
+            library = new Library();
+        }
+
         library.setName(json.get("name").asText());
         library.setVersion(json.get("version").asText());
         library.setMaintainer(json.get("maintainer").asText());

@@ -24,4 +24,4 @@ SELECT (SELECT aco_id FROM access_controls WHERE name = 'ADMINISTRATOR'), per_id
 
 -- Add permission of all actions on leto-modelizer to Developer.
 INSERT INTO access_controls_permissions(aco_id, per_id)
-SELECT (SELECT aco_id FROM access_controls WHERE name = 'DEVELOPER'), per_id FROM permissions WHERE entity in ('PROJECT', 'PROJECT_TEMPLATE', 'DIAGRAM', 'DIAGRAM_TEMPLATE', 'COMPONENT', 'COMPONENT_TEMPLATE');
+SELECT (SELECT aco_id FROM access_controls WHERE name = 'DEVELOPER'), per_id FROM permissions WHERE entity in ('PROJECT', 'PROJECT_GIT', 'PROJECT_TEMPLATE', 'DIAGRAM', 'DIAGRAM_TEMPLATE', 'COMPONENT', 'COMPONENT_TEMPLATE');

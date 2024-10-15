@@ -33,7 +33,6 @@ import com.github.erosb.jsonsKema.Validator;
 import com.github.erosb.jsonsKema.ValidatorConfig;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
@@ -190,17 +189,15 @@ public class LibraryServiceImpl implements LibraryService {
             throw new ApiException(ErrorType.UNAUTHORIZED_LIBRARY_URL, "url", libraryRecord.url());
         }
 
-        AccessControl role = null;
-        if (StringUtils.isNotBlank(libraryRecord.role())) {
-            role = accessControlService.create(AccessControlType.ROLE, new AccessControlRecord(libraryRecord.role()));
-            accessControlService.associateUser(AccessControlType.ROLE, role.getId(), login);
-        }
-
         String libraryUrl = libraryRecord.url().replace("index.json", "");
 
         if (libraryRepository.existsByUrl(libraryUrl)) {
             throw new ApiException(ErrorType.ENTITY_ALREADY_EXISTS, "url", libraryUrl);
         }
+
+        AccessControl role = accessControlService.create(AccessControlType.ROLE,
+                new AccessControlRecord(libraryRecord.role()));
+        accessControlService.associateUser(AccessControlType.ROLE, role.getId(), login);
 
         Library library = save(libraryUrl, null);
 
@@ -255,12 +252,14 @@ public class LibraryServiceImpl implements LibraryService {
 
         // JsonProcessingException can't be thrown because we already validate json before.
         JsonNode libraryJson = new ObjectMapper().readTree(libraryValue);
-        Library library = new JsonNodeToLibraryFunction().apply(libraryJson);
-        library.setUrl(url);
 
+        Library library = null;
         if (id != null) {
-            library.setId(id);
+            library = libraryRepository.findById(id).orElse(null);
         }
+
+        library = new JsonNodeToLibraryFunction(library).apply(libraryJson);
+        library.setUrl(url);
 
         library = libraryRepository.save(library);
         final UUID libraryId = library.getId();
