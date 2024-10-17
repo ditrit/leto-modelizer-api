@@ -47,6 +47,7 @@ services:
       LETO_ADMIN_URL: ${LETO_ADMIN_URL:-http://localhost:9000/}
       CSRF_TOKEN_TIMEOUT: ${CSRF_TOKEN_TIMEOUT:-3600}
       USER_SESSION_TIMEOUT: ${USER_SESSION_TIMEOUT:-3600}
+      AI_SECRETS_ENCRYPTION_KEY: the most secure key for secrets
 
     ports:
       - "8443:8443"
