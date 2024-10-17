@@ -161,6 +161,28 @@ docker run -v ./cockroach-certs:/cockroach-certs cockroachdb/cockroach:v23.1.15 
 
 ```
 
+### Generate GPG key
+
+To securely share configuration secrets with the AI proxy, a GPG key is required.
+
+* **Private key: ** This key will be used by `leto-modelizer-api` to encrypt and securely send configuration data to the AI proxy.
+* **Public key: ** This key will be used by `leto-modelizer-ai-proxy` to decrypt and read the configuration.
+
+You can generate a GPG key by following this [guide](https://docs.github.com/en/authentication/managing-commit-signature-verification/generating-a-new-gpg-key) or any other trusted resource online.
+
+Once the key is generated, set the private key in your application by using the following command:
+
+```shell
+gpg --armor --export-secret-keys <KEY_ID> > private_key.asc
+
+# Example command to set the private key in your environment
+echo "AI_PROXY_GPG_PRIVATE_KEY=\"$(cat private_key.asc | sed ':a;N;$!ba;s/\n/ /g')\"" >> .env
+```
+
+Make sure to store your private key securely and never share it.
+
+The public key can be freely distributed to the AI proxy for decryption purposes.
+
 ### Run server
 
 #### 1. Build and Run with Docker Compose
@@ -256,6 +278,7 @@ enabling secure and streamlined user authentication.
 | SUPER_ADMINISTRATOR_LOGIN           | No                                                         | A configuration parameter that defines the username on Github of the SUPER_ADMINISTRATOR. It will create user if it doesn't exist and associate it to the `SUPER_ADMINISTRATOR` role.                                                                                                                             |
 | AI_HOST                             | No, default: `http://localhost:8585/`                      | A configuration parameter that defines the host of the ia server, example: http://localhost:8585/api/. If it's not set, users will not be approve to use ia in application.                                                                                                                                       |
 | AI_SECRETS_ENCRYPTION_KEY           | Yes                                                        | The passphrase to encrypt AI secrets in database.                                                                                                                                                                                                                                                                 |
+| AI_GPG_PRIVATE_KEY                  | Yes                                                        | The GPG private key, used for securely sharing configuration with the AI proxy.                                                                                                                                                                                                                                             |
 
 > Notes: `GITHUB_ENTERPRISE_*` variables are only required on self-hosted GitHub.
 
@@ -287,6 +310,7 @@ CSRF_TOKEN_TIMEOUT=3600
 USER_SESSION_TIMEOUT=3600
 AI_HOST=http://locahost:8585/
 AI_SECRETS_ENCRYPTION_KEY=THE MOST SECURE PASSPHRASE EVER
+AI_GPG_PRIVATE_KEY="-----BEGIN PGP PRIVATE KEY BLOCK----- Version: GnuPG v1  ... =Gsnf -----END PGP PRIVATE KEY BLOCK-----"
 ```
 
 See Configuration section for more details.
