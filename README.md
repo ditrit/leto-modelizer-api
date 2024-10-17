@@ -43,6 +43,10 @@ List of permissions:
 | `{"entity": "LIBRARY", "action": "CREATE"}`                      | Allows user to register a library in `leto-modelizer-admin`.                                                                                                          |
 | `{"entity": "LIBRARY", "action": "DELETE", "libraryId": LIB_ID}` | Allows users to delete a specific library.<br/>If `LIB_ID` is null, it signifies that users can delete any of all available libraries.                                |
 | `{"entity": "LIBRARY", "action": "UPDATE", "libraryId": LIB_ID}` | Allows users to update a specific library.<br/>If `LIB_ID` is null, it signifies that users can update any of all available libraries.                                |
+| `{"entity": "AI_SECRET", "action": "CREATE"}`                    | Allows user to register a AI secret in `leto-modelizer-admin`.                                                                                                        |
+| `{"entity": "AI_SECRET", "action": "DELETE"}`                    | Allows users to delete a specific AI secret in `leto-modelizer-admin`.                                                                                                |
+| `{"entity": "AI_SECRET", "action": "UPDATE"}`                    | Allows users to update a specific AI secret in `leto-modelizer-admin`.                                                                                                |
+| `{"entity": "AI_SECRET", "action": "ACCESS"}`                    | Allows users to access a AI secret ui in `leto-modelizer-admin`.                                                                                                      |
 
 ### Manage roles
 
@@ -247,6 +251,7 @@ enabling secure and streamlined user authentication.
 | USER_SESSION_TIMEOUT                | No, default: `3600`                                        | A configuration parameter that defines the time (in seconds) a user's session remains active without any activity. After this period, the user is automatically logged out to help protect against unauthorized access and to manage server resource utilization efficiently.                                     |
 | SUPER_ADMINISTRATOR_LOGIN           | No                                                         | A configuration parameter that defines the username on Github of the SUPER_ADMINISTRATOR. It will create user if it doesn't exist and associate it to the `SUPER_ADMINISTRATOR` role.                                                                                                                             |
 | AI_HOST                             | No, default: `http://localhost:8585/`                      | A configuration parameter that defines the host of the ia server, example: http://localhost:8585/api/. If it's not set, users will not be approve to use ia in application.                                                                                                                                       |
+| AI_SECRETS_ENCRYPTION_KEY           | Yes                                                        | The passphrase to encrypt AI secrets in database.                                                                                                                                                                                                                                                                 |
 
 > Notes: `GITHUB_ENTERPRISE_*` variables are only required on self-hosted GitHub.
 
@@ -277,6 +282,7 @@ LIBRARY_HOST_WHITELIST=https://github.com/ditrit/
 CSRF_TOKEN_TIMEOUT=3600
 USER_SESSION_TIMEOUT=3600
 AI_HOST=http://locahost:8585/
+AI_SECRETS_ENCRYPTION_KEY=THE MOST SECURE PASSPHRASE EVER
 ```
 
 See Configuration section for more details.

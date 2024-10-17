@@ -17,6 +17,10 @@ public enum EntityPermission {
      */
     PROJECT,
     /**
+     * Represents permissions of project from git.
+     */
+    PROJECT_GIT,
+    /**
      * Represents permissions specific to project templates.
      */
     PROJECT_TEMPLATE,
@@ -39,5 +43,9 @@ public enum EntityPermission {
     /**
      * Represents permissions related to libraries within the system.
      */
-    LIBRARY;
+    LIBRARY,
+    /**
+     * Represents permissions for managing AI secrets.
+     */
+    AI_SECRET;
 }
