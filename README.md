@@ -47,6 +47,10 @@ List of permissions:
 | `{"entity": "AI_SECRET", "action": "DELETE"}`                    | Allows users to delete a specific AI secret in `leto-modelizer-admin`.                                                                                                |
 | `{"entity": "AI_SECRET", "action": "UPDATE"}`                    | Allows users to update a specific AI secret in `leto-modelizer-admin`.                                                                                                |
 | `{"entity": "AI_SECRET", "action": "ACCESS"}`                    | Allows users to access a AI secret ui in `leto-modelizer-admin`.                                                                                                      |
+| `{"entity": "AI_CONFIGURATION", "action": "CREATE"}`             | Allows user to register a AI configuration in `leto-modelizer-admin`.                                                                                                 |
+| `{"entity": "AI_CONFIGURATION", "action": "DELETE"}`             | Allows users to delete a specific AI configuration in `leto-modelizer-admin`.                                                                                         |
+| `{"entity": "AI_CONFIGURATION", "action": "UPDATE"}`             | Allows users to update a specific AI configuration in `leto-modelizer-admin`.                                                                                         |
+| `{"entity": "AI_CONFIGURATION", "action": "ACCESS"}`             | Allows users to access a AI configuration ui in `leto-modelizer-admin`.                                                                                               |
 
 ### Manage roles
 
