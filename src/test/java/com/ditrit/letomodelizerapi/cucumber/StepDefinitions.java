@@ -436,6 +436,11 @@ public class StepDefinitions {
         this.clean("ai/conversations", String.format("key=%s", key));
     }
 
+    @And("I clean AI secret {string}")
+    public void cleanSecret(String key) throws URISyntaxException, IOException, InterruptedException  {
+        this.clean("ai/secrets", String.format("key=%s", key));
+    }
+
     public void clean(String entity, String query) throws URISyntaxException, IOException, InterruptedException {
         this.request(String.format("/%s?%s", entity, query));
         if (statusCode == 200 && json.get("totalElements").asInt() > 0) {
