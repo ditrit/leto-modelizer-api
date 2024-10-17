@@ -16,35 +16,43 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 /**
- * Represents an AI secret in the system.
+ * Represents an AI configuration in the system.
  */
 @Entity
-@Table(name = "ai_secrets")
+@Table(name = "ai_configurations")
 @EqualsAndHashCode(callSuper = true)
 @Data
-public class AISecret extends AbstractEntity {
+public class AIConfiguration extends AbstractEntity {
 
     /**
      * Internal id.
      */
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "ais_id")
+    @Column(name = "acf_id")
     @FilterType(type = FilterType.Type.UUID)
     private UUID id;
 
     /**
-     * The secret key given by the user, must be unique.
+     * The configuration handler.
+     */
+    @Column(name = "handler")
+    @FilterType(type = FilterType.Type.TEXT)
+    private String handler;
+
+    /**
+     * The configuration key.
      */
     @Column(name = "key")
     @FilterType(type = FilterType.Type.TEXT)
     private String key;
 
     /**
-     * The encoded value of the secret.
+     * The value of the configuration.
      */
     @Column(name = "value")
-    private byte[] value;
+    @FilterType(type = FilterType.Type.TEXT)
+    private String value;
 
     /**
      * Set insertDate before persisting in repository.
