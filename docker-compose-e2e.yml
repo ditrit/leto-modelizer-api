@@ -48,6 +48,7 @@ services:
       CSRF_TOKEN_TIMEOUT: ${CSRF_TOKEN_TIMEOUT:-3600}
       USER_SESSION_TIMEOUT: ${USER_SESSION_TIMEOUT:-3600}
       AI_SECRETS_ENCRYPTION_KEY: the most secure key for secrets
+      AI_CONFIGURATION_ENCRYPTION_KEY: the most secure key for configuration
 
     ports:
       - "8443:8443"
