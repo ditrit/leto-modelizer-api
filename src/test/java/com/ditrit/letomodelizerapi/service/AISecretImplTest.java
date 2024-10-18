@@ -4,6 +4,7 @@ import com.ditrit.letomodelizerapi.model.ai.AISecretRecord;
 import com.ditrit.letomodelizerapi.model.error.ApiException;
 import com.ditrit.letomodelizerapi.model.error.ErrorType;
 import com.ditrit.letomodelizerapi.persistence.model.AISecret;
+import com.ditrit.letomodelizerapi.persistence.repository.AIConfigurationRepository;
 import com.ditrit.letomodelizerapi.persistence.repository.AISecretRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -37,13 +38,17 @@ class AISecretImplTest {
     @Mock
     AISecretRepository aiSecretRepository;
 
+    @Mock
+    AIConfigurationRepository aiConfigurationRepository;
+
     @InjectMocks
     AISecretServiceImpl service;
 
     @BeforeEach
     public void setUp() {
         MockitoAnnotations.openMocks(this);
-        service = new AISecretServiceImpl(aiSecretRepository, "secret");  // Initialisation avec la clé
+        service = new AISecretServiceImpl(aiSecretRepository, aiConfigurationRepository, "secret1",
+                "secret2");
     }
 
     @Test

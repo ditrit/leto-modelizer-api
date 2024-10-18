@@ -8,6 +8,8 @@ import com.ditrit.letomodelizerapi.model.permission.ActionPermission;
 import com.ditrit.letomodelizerapi.model.permission.EntityPermission;
 import com.ditrit.letomodelizerapi.persistence.model.User;
 import com.ditrit.letomodelizerapi.service.AIConfigurationService;
+import com.ditrit.letomodelizerapi.service.AISecretService;
+import com.ditrit.letomodelizerapi.service.AIService;
 import com.ditrit.letomodelizerapi.service.UserPermissionService;
 import com.ditrit.letomodelizerapi.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -50,14 +52,25 @@ import java.util.UUID;
 public class AIConfigurationController implements DefaultController {
 
     /**
-     * Service to manage ai configuration.
+     * Service to manage AI configuration.
      */
     private final AIConfigurationService aiConfigurationService;
+
+    /**
+     * Service to manage AI secrets.
+     */
+    private final AISecretService aiSecretService;
+
+    /**
+     * Service to manage AI configuration.
+     */
+    private final AIService aiService;
 
     /**
      * Service to manage user.
      */
     private final UserService userService;
+
     /**
      * Service to manage user permissions.
      */
@@ -143,6 +156,10 @@ public class AIConfigurationController implements DefaultController {
                 aiConfigurationRecord.key());
         var aiConfiguration = aiConfigurationService.create(aiConfigurationRecord);
 
+        var configuration = aiSecretService.generateConfiguration(aiConfiguration);
+
+        aiService.sendConfiguration(configuration);
+
         return Response.status(HttpStatus.CREATED.value())
                 .entity(new BeanMapper<>(AIConfigurationDTO.class).apply(aiConfiguration))
                 .build();
@@ -172,7 +189,11 @@ public class AIConfigurationController implements DefaultController {
         userPermissionService.checkPermission(user, "id", EntityPermission.AI_CONFIGURATION, ActionPermission.UPDATE);
 
         log.info("[{}] Received PUT request to update configuration {}", user.getLogin(), id.toString());
+
         var aiConfiguration = aiConfigurationService.update(id, aiConfigurationRecord);
+        var configuration = aiSecretService.generateConfiguration(aiConfiguration);
+
+        aiService.sendConfiguration(configuration);
 
         return Response.status(HttpStatus.OK.value())
                 .entity(new BeanMapper<>(AIConfigurationDTO.class).apply(aiConfiguration))
@@ -200,6 +221,14 @@ public class AIConfigurationController implements DefaultController {
         userPermissionService.checkPermission(user, "id", EntityPermission.AI_CONFIGURATION, ActionPermission.DELETE);
 
         log.info("[{}] Received DELETE request to delete configuration {}", user.getLogin(), id);
+        var aiConfiguration = aiConfigurationService.findById(id);
+
+        aiConfiguration.setValue(null);
+
+        var configuration = aiSecretService.generateConfiguration(aiConfiguration);
+
+        aiService.sendConfiguration(configuration);
+
         aiConfigurationService.delete(id);
 
         return Response.noContent().build();

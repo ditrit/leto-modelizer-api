@@ -1,6 +1,7 @@
 package com.ditrit.letomodelizerapi.service;
 
 import com.ditrit.letomodelizerapi.model.ai.AISecretRecord;
+import com.ditrit.letomodelizerapi.persistence.model.AIConfiguration;
 import com.ditrit.letomodelizerapi.persistence.model.AISecret;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -54,4 +55,18 @@ public interface AISecretService {
      * @param id   the ID of the AISecret entity to delete.
      */
     void delete(UUID id);
+
+    /**
+     * Retrieve all configurations, apply secrets in configuration values and return encrypted configuration for AI
+     * proxy.
+     * @return Encrypted configuration.
+     */
+    byte[] generateConfiguration();
+
+    /**
+     * Apply secret in provided configuration value and return encrypted configuration for AI proxy.
+     * @param configuration Provided configuration.
+     * @return Encrypted configuration.
+     */
+    byte[] generateConfiguration(AIConfiguration configuration);
 }

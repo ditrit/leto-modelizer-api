@@ -6,6 +6,8 @@ import com.ditrit.letomodelizerapi.model.ai.AIConfigurationRecord;
 import com.ditrit.letomodelizerapi.persistence.model.AIConfiguration;
 import com.ditrit.letomodelizerapi.persistence.model.User;
 import com.ditrit.letomodelizerapi.service.AIConfigurationService;
+import com.ditrit.letomodelizerapi.service.AISecretService;
+import com.ditrit.letomodelizerapi.service.AIService;
 import com.ditrit.letomodelizerapi.service.UserPermissionService;
 import com.ditrit.letomodelizerapi.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -40,6 +42,12 @@ class AIConfigurationControllerTest extends MockHelper {
 
     @Mock
     AIConfigurationService aiConfigurationService;
+
+    @Mock
+    AISecretService aiSecretService;
+
+    @Mock
+    AIService aiService;
 
     @InjectMocks
     AIConfigurationController controller;
@@ -100,6 +108,8 @@ class AIConfigurationControllerTest extends MockHelper {
         Mockito.doNothing().when(userPermissionService).checkPermission(Mockito.any(), Mockito.any(), Mockito.any(),
                 Mockito.any());
         Mockito.when(this.aiConfigurationService.create(Mockito.any())).thenReturn(new AIConfiguration());
+        Mockito.when(this.aiSecretService.generateConfiguration(Mockito.any())).thenReturn("test".getBytes());
+        Mockito.doNothing().when(this.aiService).sendConfiguration(Mockito.any());
 
         final Response response = this.controller.createConfiguration(request,
                 new AIConfigurationRecord("handler","key", "value"));
@@ -123,6 +133,8 @@ class AIConfigurationControllerTest extends MockHelper {
                 Mockito.any());
         Mockito.when(this.aiConfigurationService.update(Mockito.any(), Mockito.any()))
                 .thenReturn(new AIConfiguration());
+        Mockito.when(this.aiSecretService.generateConfiguration(Mockito.any())).thenReturn("test".getBytes());
+        Mockito.doNothing().when(this.aiService).sendConfiguration(Mockito.any());
 
         final Response response = this.controller.updateConfiguration(request, UUID.randomUUID(),
                 new AIConfigurationRecord("handler", "key", "value"));
@@ -133,7 +145,7 @@ class AIConfigurationControllerTest extends MockHelper {
     }
 
     @Test
-    @DisplayName("Test updateConfiguration: should return valid response on delete a configuration.")
+    @DisplayName("Test deleteConfiguration: should return valid response on delete a configuration.")
     void testDeleteConfiguration() {
         User user = new User();
         user.setLogin("login");
@@ -145,6 +157,9 @@ class AIConfigurationControllerTest extends MockHelper {
         Mockito.doNothing().when(userPermissionService).checkPermission(Mockito.any(), Mockito.any(), Mockito.any(),
                 Mockito.any());
         Mockito.doNothing().when(aiConfigurationService).delete(Mockito.any());
+        Mockito.when(aiConfigurationService.findById(Mockito.any())).thenReturn(new AIConfiguration());
+        Mockito.when(this.aiSecretService.generateConfiguration(Mockito.any())).thenReturn("test".getBytes());
+        Mockito.doNothing().when(this.aiService).sendConfiguration(Mockito.any());
 
         final Response response = this.controller.deleteConfiguration(request, UUID.randomUUID());
 
