@@ -100,17 +100,18 @@ public class AIServiceImpl implements AIService {
      * Sends a request to the AI service with the specified endpoint and request body.
      *
      * @param endpoint the URL of the AI endpoint to which the request is sent.
+     * @param contentType the content type of the body.
      * @param body the content to be sent in the body of the request.
      * @return the response body returned by the AI service.
      */
-    public String sendRequest(final String endpoint, final String body) {
+    public String sendRequest(final String endpoint, final String contentType, final byte[] body) {
         try {
             URI uri = new URI(aiHost).resolve("api/").resolve(endpoint);
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(uri)
-                    .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
+                    .header(HttpHeaders.CONTENT_TYPE, contentType)
                     .headers(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON)
-                    .POST(HttpRequest.BodyPublishers.ofString(body))
+                    .POST(HttpRequest.BodyPublishers.ofByteArray(body))
                     .build();
 
             HttpResponse<String> response = HttpClient
@@ -119,7 +120,7 @@ public class AIServiceImpl implements AIService {
                     .send(request, HttpResponse.BodyHandlers.ofString());
 
             if (response.statusCode() == ErrorType.AI_GENERATION_ERROR.getCode()) {
-                throw new ApiException(ErrorType.AI_GENERATION_ERROR, "body", body);
+                throw new ApiException(ErrorType.AI_GENERATION_ERROR, "body");
             }
 
             if (!HttpStatus.valueOf(response.statusCode()).is2xxSuccessful()) {
@@ -161,7 +162,8 @@ public class AIServiceImpl implements AIService {
         json.put(Constants.DEFAULT_PLUGIN_NAME_PROPERTY, conversation.getKey().split("/")[2]);
         json.set("files", arrayNode);
 
-        JsonNode response = mapper.readTree(sendRequest(Constants.DEFAULT_MESSAGE_PROPERTY, json.toString()));
+        JsonNode response = mapper.readTree(sendRequest(Constants.DEFAULT_MESSAGE_PROPERTY, MediaType.APPLICATION_JSON,
+                json.toString().getBytes()));
         return response.get(Constants.DEFAULT_CONTEXT_PROPERTY).asText();
     }
 
@@ -187,7 +189,7 @@ public class AIServiceImpl implements AIService {
         json.put(Constants.DEFAULT_PLUGIN_NAME_PROPERTY, createFileRecord.plugin());
         json.put("description", createFileRecord.description());
 
-        return sendRequest(createFileRecord.type(), json.toString());
+        return sendRequest(createFileRecord.type(), MediaType.APPLICATION_JSON, json.toString().getBytes());
     }
 
     @Override
@@ -270,7 +272,8 @@ public class AIServiceImpl implements AIService {
         json.put(Constants.DEFAULT_PLUGIN_NAME_PROPERTY, aiMessage.plugin());
 
         JsonNode response = new ObjectMapper()
-                .readTree(sendRequest(Constants.DEFAULT_MESSAGE_PROPERTY, json.toString()));
+                .readTree(sendRequest(Constants.DEFAULT_MESSAGE_PROPERTY, MediaType.APPLICATION_JSON,
+                        json.toString().getBytes()));
 
         compressedMessage = compress(response.get(Constants.DEFAULT_MESSAGE_PROPERTY).asText());
         size += compressedMessage.length;
@@ -336,5 +339,41 @@ public class AIServiceImpl implements AIService {
                         pageable.getPageSize(),
                         pageable.getSortOr(Sort.by(Sort.Direction.DESC, Constants.DEFAULT_UPDATE_DATE_PROPERTY))
         ));
+    }
+
+    @Override
+    public void sendConfiguration(final byte[] configuration) {
+        sendRequest("configuration", MediaType.APPLICATION_OCTET_STREAM, configuration);
+    }
+
+    @Override
+    public String getConfigurationDescriptions() {
+        final var endpoint = "api/configuration/descriptions";
+        try {
+            URI uri = new URI(aiHost).resolve(endpoint);
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(uri)
+                    .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
+                    .headers(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON)
+                    .GET()
+                    .build();
+
+            HttpResponse<String> response = HttpClient
+                    .newBuilder()
+                    .build()
+                    .send(request, HttpResponse.BodyHandlers.ofString());
+
+            if (!HttpStatus.valueOf(response.statusCode()).is2xxSuccessful()) {
+                throw new ApiException(ErrorType.WRONG_VALUE, "url", uri.toString());
+            }
+
+            return response.body();
+        } catch (URISyntaxException | IOException e) {
+            throw new ApiException(ErrorType.WRONG_VALUE, "url", aiHost + endpoint);
+        } catch (InterruptedException e) {
+            log.warn("InterruptedException during requesting ai with {}", aiHost + endpoint, e);
+            Thread.currentThread().interrupt();
+            throw new ApiException(ErrorType.INTERNAL_ERROR, "url", aiHost + endpoint);
+        }
     }
 }
