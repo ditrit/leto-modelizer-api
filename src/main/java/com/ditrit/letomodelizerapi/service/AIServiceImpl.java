@@ -225,6 +225,7 @@ public class AIServiceImpl implements AIService {
             throws JsonProcessingException {
         AIConversation conversation = aiConversationRepository.findByIdAndUserId(id, user.getId())
                 .orElseThrow(() -> new ApiException(ErrorType.ENTITY_NOT_FOUND, "id", id.toString()));
+        conversation.setContext(null);
 
         String context = sendFiles(conversation, aiConversationRecord.files());
 
@@ -281,7 +282,7 @@ public class AIServiceImpl implements AIService {
         aiMessageResponse.setMessage(compressedMessage);
         aiMessageResponse = aiMessageRepository.save((aiMessageResponse));
 
-        conversation.setContext(response.get(Constants.DEFAULT_CONTEXT_PROPERTY).asText());
+        // conversation.setContext(response.get(Constants.DEFAULT_CONTEXT_PROPERTY).asText());
         conversation.setSize(size);
         aiConversationRepository.save(conversation);
 
