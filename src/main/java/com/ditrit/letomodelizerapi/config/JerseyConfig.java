@@ -1,5 +1,6 @@
 package com.ditrit.letomodelizerapi.config;
 
+import com.ditrit.letomodelizerapi.controller.AISecretController;
 import com.ditrit.letomodelizerapi.controller.CsrfController;
 import com.ditrit.letomodelizerapi.controller.CurrentUserController;
 import com.ditrit.letomodelizerapi.controller.GroupController;
@@ -43,6 +44,7 @@ public class JerseyConfig extends ResourceConfig {
         register(HomeController.class);
         register(CsrfController.class);
         register(PermissionController.class);
+        register(AISecretController.class);
 
         if (StringUtils.isNotBlank(aiHost)) {
             register(AIController.class);

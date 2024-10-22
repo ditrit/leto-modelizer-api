@@ -47,6 +47,11 @@ public final class Constants {
     public static final String DEFAULT_PLUGIN_NAME_PROPERTY = "pluginName";
 
     /**
+     * The constant representing the default AI secret value property.
+     */
+    public static final String DEFAULT_AI_SECRET_VALUE_PROPERTY = "value";
+
+    /**
      * Private constructor.
      */
     private Constants() {
