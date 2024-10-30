@@ -256,6 +256,7 @@ enabling secure and streamlined user authentication.
 | SUPER_ADMINISTRATOR_LOGIN           | No                                                         | A configuration parameter that defines the username on Github of the SUPER_ADMINISTRATOR. It will create user if it doesn't exist and associate it to the `SUPER_ADMINISTRATOR` role.                                                                                                                             |
 | AI_HOST                             | No, default: `http://localhost:8585/`                      | A configuration parameter that defines the host of the ia server, example: http://localhost:8585/api/. If it's not set, users will not be approve to use ia in application.                                                                                                                                       |
 | AI_SECRETS_ENCRYPTION_KEY           | Yes                                                        | The passphrase to encrypt AI secrets in database.                                                                                                                                                                                                                                                                 |
+| AI_CONFIGURATION_ENCRYPTION_KEY     | Yes                                                        | The passphrase to encrypt AI configuration for securely sharing it with the AI proxy.                                                                                                                                                                                                                             |
 
 > Notes: `GITHUB_ENTERPRISE_*` variables are only required on self-hosted GitHub.
 
@@ -286,7 +287,8 @@ LIBRARY_HOST_WHITELIST=https://github.com/ditrit/
 CSRF_TOKEN_TIMEOUT=3600
 USER_SESSION_TIMEOUT=3600
 AI_HOST=http://locahost:8585/
-AI_SECRETS_ENCRYPTION_KEY=THE MOST SECURE PASSPHRASE EVER
+AI_SECRETS_ENCRYPTION_KEY=the most secure key for secrets
+AI_CONFIGURATION_ENCRYPTION_KEY=the most secure key for configuration
 ```
 
 See Configuration section for more details.
