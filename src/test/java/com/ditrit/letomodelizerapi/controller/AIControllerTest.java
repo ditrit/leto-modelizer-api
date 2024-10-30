@@ -8,6 +8,7 @@ import com.ditrit.letomodelizerapi.model.ai.AIMessageRecord;
 import com.ditrit.letomodelizerapi.persistence.model.AIConversation;
 import com.ditrit.letomodelizerapi.persistence.model.AIMessage;
 import com.ditrit.letomodelizerapi.persistence.model.User;
+import com.ditrit.letomodelizerapi.service.AISecretService;
 import com.ditrit.letomodelizerapi.service.AIService;
 import com.ditrit.letomodelizerapi.service.UserPermissionService;
 import com.ditrit.letomodelizerapi.service.UserService;
@@ -30,8 +31,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.UUID;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 
 @Tag("unit")
 @ExtendWith(MockitoExtension.class)
@@ -44,6 +44,8 @@ class AIControllerTest extends MockHelper {
     UserPermissionService userPermissionService;
     @Mock
     AIService aiService;
+    @Mock
+    AISecretService aiSecretService;
 
     @InjectMocks
     AIController controller;
@@ -243,5 +245,44 @@ class AIControllerTest extends MockHelper {
         assertNotNull(response);
         assertEquals(HttpStatus.OK.value(), response.getStatus());
         assertNotNull(response.getEntity());
+    }
+
+    @Test
+    @DisplayName("Test sendConfigurationToProxy: should send configuration")
+    void testSendConfigurationToProxy() {
+        HttpSession session = Mockito.mock(HttpSession.class);
+        HttpServletRequest request = Mockito.mock(HttpServletRequest.class);
+
+        Mockito.when(request.getSession()).thenReturn(session);
+        Mockito.when(session.getAttribute(Mockito.any())).thenReturn("user");
+        Mockito.when(aiSecretService.generateConfiguration()).thenReturn(new byte[0]);
+        Mockito.doNothing().when(aiService).sendConfiguration(Mockito.any());
+
+        Response response = this.controller.sendConfigurationToProxy(request);
+
+        assertNotNull(response);
+        assertEquals(HttpStatus.NO_CONTENT.value(), response.getStatus());
+        assertNull(response.getEntity());
+    }
+
+    @Test
+    @DisplayName("Test retrieveConfigurationDescriptions: should retrieve descriptions")
+    void testRetrieveConfigurationDescriptions() {
+        User user = new User();
+        user.setLogin("login");
+        HttpSession session = Mockito.mock(HttpSession.class);
+        HttpServletRequest request = Mockito.mock(HttpServletRequest.class);
+
+        Mockito.when(request.getSession()).thenReturn(session);
+        Mockito.when(userService.getFromSession(Mockito.any())).thenReturn(user);
+        Mockito.when(aiService.getConfigurationDescriptions()).thenReturn("test");
+        Mockito.doNothing().when(userPermissionService).checkPermission(Mockito.any(), Mockito.any(), Mockito.any(),
+                Mockito.any());
+
+        Response response = this.controller.retrieveConfigurationDescriptions(request);
+
+        assertNotNull(response);
+        assertEquals(HttpStatus.OK.value(), response.getStatus());
+        assertEquals("test", response.getEntity());
     }
 }
