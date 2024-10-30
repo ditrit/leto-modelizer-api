@@ -118,4 +118,25 @@ public interface AIService {
     Page<AIConversation> findAllConversations(Map<String, String> immutableFilters,
                                               Pageable pageable);
 
+    /**
+     * Sends the encrypted configuration to the AI proxy.
+     * <p>
+     * This method accepts a byte array representing the encrypted configuration and sends it to the AI proxy for
+     * further processing or application. The configuration is assumed to have been generated and encrypted by the
+     * caller before being passed to this method.
+     *
+     * @param configuration a byte array containing the encrypted configuration data to be sent to the AI proxy.
+     */
+    void sendConfiguration(byte[] configuration);
+
+    /**
+     * Retrieves the descriptions of the configurations from the AI proxy.
+     * <p>
+     * This method communicates with the AI proxy to retrieve a list or summary of configuration descriptions that are
+     * currently available. The descriptions provide insight into the configurations being used or processed by the
+     * proxy. The result is returned as a string, typically in a JSON or plain text format.
+     *
+     * @return a string representing the configuration descriptions retrieved from the AI proxy.
+     */
+    String getConfigurationDescriptions();
 }

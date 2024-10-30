@@ -54,4 +54,11 @@ public interface AISecretService {
      * @param id   the ID of the AISecret entity to delete.
      */
     void delete(UUID id);
+
+    /**
+     * Retrieve all configurations, apply secrets in configuration values and return encrypted configuration for AI
+     * proxy.
+     * @return Encrypted configuration.
+     */
+    byte[] generateConfiguration();
 }

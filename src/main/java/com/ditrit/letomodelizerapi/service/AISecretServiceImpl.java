@@ -5,9 +5,13 @@ import com.ditrit.letomodelizerapi.model.BeanMapper;
 import com.ditrit.letomodelizerapi.model.ai.AISecretRecord;
 import com.ditrit.letomodelizerapi.model.error.ApiException;
 import com.ditrit.letomodelizerapi.model.error.ErrorType;
+import com.ditrit.letomodelizerapi.persistence.model.AIConfiguration;
 import com.ditrit.letomodelizerapi.persistence.model.AISecret;
+import com.ditrit.letomodelizerapi.persistence.repository.AIConfigurationRepository;
 import com.ditrit.letomodelizerapi.persistence.repository.AISecretRepository;
 import com.ditrit.letomodelizerapi.persistence.specification.SpecificationHelper;
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import com.hubspot.jinjava.Jinjava;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,6 +28,8 @@ import javax.crypto.spec.SecretKeySpec;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.SecureRandom;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -59,9 +65,21 @@ public class AISecretServiceImpl implements AISecretService {
     private final AISecretRepository aiSecretRepository;
 
     /**
+     * The AIConfigurationRepository instance is injected by Spring's dependency injection mechanism.
+     * This repository is used for performing database operations related to AIConfiguration entities,
+     * such as querying, saving, and updating access control data.
+     */
+    private final AIConfigurationRepository aiConfigurationRepository;
+
+    /**
      * The key to encrypt or decrypt secret value.
      */
     private final String secretEncryptionKey;
+
+    /**
+     * The key to encrypt or decrypt configuration.
+     */
+    private final String configurationEncryptionKey;
 
     /**
      * Size of IV.
@@ -81,13 +99,19 @@ public class AISecretServiceImpl implements AISecretService {
      * Constructor for AISecretServiceImpl.
      *
      * @param aiSecretRepository Repository to manage AISecret.
+     * @param aiConfigurationRepository Repository to manage AIConfiguration.
      * @param secretEncryptionKey the key to encrypt or decrypt secret value.
+     * @param configurationEncryptionKey the key to encrypt or decrypt configuration.
      */
     @Autowired
     public AISecretServiceImpl(final AISecretRepository aiSecretRepository,
-                               @Value("${ai.secrets.encryption.key}") final String secretEncryptionKey) {
+                               final AIConfigurationRepository aiConfigurationRepository,
+                               @Value("${ai.secrets.encryption.key}") final String secretEncryptionKey,
+                               @Value("${ai.configuration.encryption.key}") final String configurationEncryptionKey) {
         this.aiSecretRepository = aiSecretRepository;
+        this.aiConfigurationRepository = aiConfigurationRepository;
         this.secretEncryptionKey = secretEncryptionKey;
+        this.configurationEncryptionKey = configurationEncryptionKey;
     }
 
     /**
@@ -96,10 +120,11 @@ public class AISecretServiceImpl implements AISecretService {
      * and uses AES encryption to secure the plain text. The resulting byte array contains both the IV and the
      * encrypted text.
      *
+     * @param key key to encrypt the text.
      * @param plainText the plain text to be encrypted.
      * @return a byte array containing the IV and the encrypted text.
      */
-    private byte[] encrypt(final String plainText) {
+    public byte[] encrypt(final String key, final String plainText) {
         try {
             byte[] clean = plainText.getBytes();
 
@@ -111,7 +136,7 @@ public class AISecretServiceImpl implements AISecretService {
 
             // Hashing key
             MessageDigest digest = MessageDigest.getInstance("SHA-256");
-            digest.update(secretEncryptionKey.getBytes(StandardCharsets.UTF_8));
+            digest.update(key.getBytes(StandardCharsets.UTF_8));
             byte[] keyBytes = new byte[KEY_SIZE];
             System.arraycopy(digest.digest(), 0, keyBytes, 0, keyBytes.length);
             SecretKeySpec secretKeySpec = new SecretKeySpec(keyBytes, "AES");
@@ -137,10 +162,11 @@ public class AISecretServiceImpl implements AISecretService {
      * This method extracts the IV, hashes the provided secret key using SHA-256, and uses AES decryption
      * to convert the encrypted bytes back into plain text.
      *
+     * @param key key to decrypt the text.
      * @param encryptedIvTextBytes a byte array containing the IV and the encrypted text.
      * @return the decrypted plain text.
      */
-    private String decrypt(final byte[] encryptedIvTextBytes) {
+    public String decrypt(final String key, final byte[] encryptedIvTextBytes) {
         try {
             // Extract IV
             byte[] iv = new byte[IV_SIZE];
@@ -155,7 +181,7 @@ public class AISecretServiceImpl implements AISecretService {
             // Hash key
             byte[] keyBytes = new byte[KEY_SIZE];
             MessageDigest md = MessageDigest.getInstance("SHA-256");
-            md.update(secretEncryptionKey.getBytes(StandardCharsets.UTF_8));
+            md.update(key.getBytes(StandardCharsets.UTF_8));
             System.arraycopy(md.digest(), 0, keyBytes, 0, keyBytes.length);
             SecretKeySpec secretKeySpec = new SecretKeySpec(keyBytes, "AES");
 
@@ -227,7 +253,7 @@ public class AISecretServiceImpl implements AISecretService {
 
         var aiSecret = new AISecret();
         aiSecret.setKey(aiSecretRecord.key());
-        aiSecret.setValue(encrypt(aiSecretRecord.value()));
+        aiSecret.setValue(encrypt(secretEncryptionKey, aiSecretRecord.value()));
 
         aiSecret = aiSecretRepository.save(aiSecret);
 
@@ -241,7 +267,7 @@ public class AISecretServiceImpl implements AISecretService {
     public AISecret update(final UUID id, final AISecretRecord aiSecretRecord) {
         AISecret aiSecret = findById(id);
 
-        aiSecret.setValue(encrypt(aiSecretRecord.value()));
+        aiSecret.setValue(encrypt(secretEncryptionKey, aiSecretRecord.value()));
 
         aiSecret = aiSecretRepository.save(aiSecret);
 
@@ -256,5 +282,55 @@ public class AISecretServiceImpl implements AISecretService {
         AISecret aiSecret = findById(id);
 
         aiSecretRepository.delete(aiSecret);
+    }
+
+    @Override
+    public byte[] generateConfiguration() {
+        return generateConfiguration(aiConfigurationRepository.findAll());
+    }
+
+    /**
+     * Generates an encrypted configuration file using a list of AI configurations.
+     * <p>
+     * This method uses the Jinjava templating engine to process configuration values and replace
+     * placeholders with decrypted secret values. It collects all secrets from the {@code aiSecretRepository},
+     * decrypts them, and stores them in a context map. Then, it iterates over the provided configurations,
+     * applies the secret replacements, and constructs a JSON object containing the processed configuration values.
+     * Finally, the generated configuration is encrypted before being returned as a byte array.
+     *
+     * @param configurations a list of {@link AIConfiguration} objects that define the keys, values, and optional
+     *                       handlers for the configuration. The values may contain placeholders for secrets that will
+     *                       be replaced using Jinjava.
+     * @return a byte array representing the encrypted configuration, ready to be sent to the AI proxy.
+     * @throws ApiException if encryption fails or any other unexpected error occurs during processing.
+     */
+    public byte[] generateConfiguration(final List<AIConfiguration> configurations) {
+        var jinjava = new Jinjava();
+        var secrets = new HashMap<String, String>();
+        var context = new HashMap<String, Object>();
+        var json = JsonNodeFactory.instance.objectNode();
+
+        aiSecretRepository.findAll().forEach(secret -> secrets.put(secret.getKey(),
+                decrypt(secretEncryptionKey, secret.getValue())));
+
+        context.put("secrets", secrets);
+
+        configurations.forEach(configuration -> {
+            String key = null;
+
+            if (configuration.getHandler() == null) {
+                key = configuration.getKey();
+            } else {
+                key = String.format("%s.%s", configuration.getHandler(), configuration.getKey());
+            }
+
+            if (configuration.getValue() == null) {
+                json.put(key, "");
+            } else {
+                json.put(key, jinjava.render(configuration.getValue(), context));
+            }
+        });
+
+        return encrypt(configurationEncryptionKey, json.toString());
     }
 }
