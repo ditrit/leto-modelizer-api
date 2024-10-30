@@ -50,6 +50,7 @@ dependencies {
 	implementation 'commons-lang:commons-lang:2.6'
 	implementation 'commons-beanutils:commons-beanutils:1.9.4'
 	implementation 'com.github.erosb:json-sKema:0.18.0'
+	implementation 'com.hubspot.jinjava:jinjava:2.7.3'
 	compileOnly 'org.projectlombok:lombok'
 	runtimeOnly 'org.postgresql:postgresql:42.7.4'
 	annotationProcessor 'org.projectlombok:lombok'
