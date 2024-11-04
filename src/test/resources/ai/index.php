@@ -1,9 +1,7 @@
 <?php
-if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-    http_response_code(404);
-    exit;
-}
 
+$METHOD = $_SERVER['REQUEST_METHOD'];
+$URI = $_SERVER['REQUEST_URI'];
 $uriSegments = explode('/', trim($_SERVER['REQUEST_URI'], '/'));
 $type = isset($uriSegments[1]) ? $uriSegments[1] : null;
 $requestBody = json_decode(file_get_contents('php://input'), true);
@@ -11,7 +9,7 @@ $requestBody = json_decode(file_get_contents('php://input'), true);
 error_log($type);
 error_log(file_get_contents('php://input'));
 
-if ($type == "message") {
+if ($_SERVER['REQUEST_METHOD'] == 'POST' && $type == "message") {
     $contextValue = isset($requestBody["context"]) ? (int) $requestBody["context"] : 0;
     $data = [
         "context" =>1 + $contextValue,
@@ -21,7 +19,7 @@ if ($type == "message") {
     $json = json_encode($data);
     echo $json;
     exit;
-} else if ($type && isset($requestBody['pluginName'])) {
+} else if ($_SERVER['REQUEST_METHOD'] == 'POST' && $type && isset($requestBody['pluginName'])) {
     $fileName = $type . "_" . str_replace("@ditrit/", "", $requestBody['pluginName']) . ".json";
     error_log($fileName);
 
@@ -31,6 +29,15 @@ if ($type == "message") {
         readfile($fileName);
         exit;
     }
+} else if ($_SERVER['REQUEST_METHOD'] == 'POST' && $URI == "/api/configurations") {
+    http_response_code(204);
+    exit;
+} else if ($_SERVER['REQUEST_METHOD'] == 'GET' && $URI == "/api/configurations/descriptions") {
+    http_response_code(200);
+    readfile("ai_descriptions.json");
+    exit;
 }
 
-http_response_code(400);
+error_log($URI);
+
+http_response_code(404);

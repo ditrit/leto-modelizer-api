@@ -10,8 +10,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 * Add api endpoints:
+  * For AI configuration actions on proxy:
+    * `GET /api/ai/proxy/configuration`, to send configuration on the proxy.
+    * `GET /api/ai/proxy/descriptions`, to get all configurations descriptions on the proxy. 
+  * For AI configurations:
+    * `GET    /api/ai/configurations`, to get all AI configurations.
+    * `POST   /api/ai/configurations`, to get create an AI configuration.
+    * `PUT    /api/ai/configurations/`, to update multiple AI configurations.
+    * `GET    /api/ai/configurations/[CONFIGURATION_ID]`, to get an AI configuration.
+    * `PUT    /api/ai/configurations/[CONFIGURATION_ID]`, to update an AI configuration.
+    * `DELETE /api/ai/configurations/[CONFIGURATION_ID]`, to delete an AI configuration.
   * For AI secrets:
-    * `GET    /api/ai/secrets`, to get all AI secret keys.
+    * `GET    /api/ai/secrets`, to get all AI secret keys. 
     * `POST   /api/ai/secrets`, to create an AI secret.
     * `GET    /api/ai/secrets/[SECRET_ID]`, to get an AI secret.
     * `PUT    /api/ai/secrets/[SECRET_ID]`, to update an AI secret.

@@ -19,6 +19,14 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.github.erosb.jsonsKema.FormatValidationPolicy;
+import com.github.erosb.jsonsKema.JsonParser;
+import com.github.erosb.jsonsKema.JsonValue;
+import com.github.erosb.jsonsKema.Schema;
+import com.github.erosb.jsonsKema.SchemaLoader;
+import com.github.erosb.jsonsKema.ValidationFailure;
+import com.github.erosb.jsonsKema.Validator;
+import com.github.erosb.jsonsKema.ValidatorConfig;
 import jakarta.transaction.Transactional;
 import jakarta.ws.rs.core.HttpHeaders;
 import jakarta.ws.rs.core.MediaType;
@@ -34,6 +42,7 @@ import org.springframework.stereotype.Service;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.http.HttpClient;
@@ -75,6 +84,14 @@ public class AIServiceImpl implements AIService {
      */
     private final AIMessageRepository aiMessageRepository;
 
+
+    /**
+     * A Validator instance used for validating description of configuration entities against a JSON schema.
+     * This validator ensures that description of configuration data conforms to a specified schema, providing a way
+     * to enforce data integrity and structure.
+     */
+    private Validator configurationDescriptionSchemaValidator;
+
     /**
      * Constructor for AIServiceImpl.
      * Initializes the service with the host address of the Artificial Intelligence (AI) system. This address is used to
@@ -94,23 +111,50 @@ public class AIServiceImpl implements AIService {
         this.aiConversationRepository = aiConversationRepository;
         this.aiMessageRepository = aiMessageRepository;
         this.aiHost = aiHost;
+
+        loadSchemaValidator();
+    }
+
+    /**
+     * Loads the JSON schema validator for description of configuration entities from a JSON file.
+     * This method reads the description of configuration schema definition from a file, parses it to a JsonValue,
+     * then constructs and configures a Schema instance for validation. It sets the
+     * configurationDescriptionSchemaValidator attribute of the class for future validation operations.
+     * <p>
+     * Throws ApiException with an appropriate error message and type if there is an issue loading or parsing
+     * the schema file, such as an IOException.
+     */
+    public void loadSchemaValidator() {
+        InputStream inputStream = getClass().getResourceAsStream("/ai-configuration-description-schema.json");
+
+        try {
+            JsonValue json = new JsonParser(new String(inputStream.readAllBytes(), StandardCharsets.UTF_8)).parse();
+            Schema schema = new SchemaLoader(json).load();
+            this.configurationDescriptionSchemaValidator = Validator
+                    .create(schema, new ValidatorConfig(FormatValidationPolicy.ALWAYS));
+        } catch (IOException e) {
+            log.error("Error when retrieving ai-configuration-description-schema.json", e);
+            throw new ApiException(e, ErrorType.INTERNAL_ERROR, "ai-configuration-description-schema.json",
+                    "Error when retrieving.");
+        }
     }
 
     /**
      * Sends a request to the AI service with the specified endpoint and request body.
      *
      * @param endpoint the URL of the AI endpoint to which the request is sent.
+     * @param contentType the content type of the body.
      * @param body the content to be sent in the body of the request.
      * @return the response body returned by the AI service.
      */
-    public String sendRequest(final String endpoint, final String body) {
+    public String sendRequest(final String endpoint, final String contentType, final byte[] body) {
         try {
             URI uri = new URI(aiHost).resolve("api/").resolve(endpoint);
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(uri)
-                    .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
+                    .header(HttpHeaders.CONTENT_TYPE, contentType)
                     .headers(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON)
-                    .POST(HttpRequest.BodyPublishers.ofString(body))
+                    .POST(HttpRequest.BodyPublishers.ofByteArray(body))
                     .build();
 
             HttpResponse<String> response = HttpClient
@@ -119,7 +163,7 @@ public class AIServiceImpl implements AIService {
                     .send(request, HttpResponse.BodyHandlers.ofString());
 
             if (response.statusCode() == ErrorType.AI_GENERATION_ERROR.getCode()) {
-                throw new ApiException(ErrorType.AI_GENERATION_ERROR, "body", body);
+                throw new ApiException(ErrorType.AI_GENERATION_ERROR, "body");
             }
 
             if (!HttpStatus.valueOf(response.statusCode()).is2xxSuccessful()) {
@@ -161,7 +205,8 @@ public class AIServiceImpl implements AIService {
         json.put(Constants.DEFAULT_PLUGIN_NAME_PROPERTY, conversation.getKey().split("/")[2]);
         json.set("files", arrayNode);
 
-        JsonNode response = mapper.readTree(sendRequest(Constants.DEFAULT_MESSAGE_PROPERTY, json.toString()));
+        JsonNode response = mapper.readTree(sendRequest(Constants.DEFAULT_MESSAGE_PROPERTY, MediaType.APPLICATION_JSON,
+                json.toString().getBytes()));
         return response.get(Constants.DEFAULT_CONTEXT_PROPERTY).asText();
     }
 
@@ -187,7 +232,7 @@ public class AIServiceImpl implements AIService {
         json.put(Constants.DEFAULT_PLUGIN_NAME_PROPERTY, createFileRecord.plugin());
         json.put("description", createFileRecord.description());
 
-        return sendRequest(createFileRecord.type(), json.toString());
+        return sendRequest(createFileRecord.type(), MediaType.APPLICATION_JSON, json.toString().getBytes());
     }
 
     @Override
@@ -270,7 +315,8 @@ public class AIServiceImpl implements AIService {
         json.put(Constants.DEFAULT_PLUGIN_NAME_PROPERTY, aiMessage.plugin());
 
         JsonNode response = new ObjectMapper()
-                .readTree(sendRequest(Constants.DEFAULT_MESSAGE_PROPERTY, json.toString()));
+                .readTree(sendRequest(Constants.DEFAULT_MESSAGE_PROPERTY, MediaType.APPLICATION_JSON,
+                        json.toString().getBytes()));
 
         compressedMessage = compress(response.get(Constants.DEFAULT_MESSAGE_PROPERTY).asText());
         size += compressedMessage.length;
@@ -336,5 +382,54 @@ public class AIServiceImpl implements AIService {
                         pageable.getPageSize(),
                         pageable.getSortOr(Sort.by(Sort.Direction.DESC, Constants.DEFAULT_UPDATE_DATE_PROPERTY))
         ));
+    }
+
+    @Override
+    public void sendConfiguration(final byte[] configuration) {
+        sendRequest("configurations", MediaType.APPLICATION_OCTET_STREAM, configuration);
+    }
+
+    @Override
+    public String getConfigurationDescriptions() {
+        final var endpoint = "api/configurations/descriptions";
+        try {
+            URI uri = new URI(aiHost).resolve(endpoint);
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(uri)
+                    .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
+                    .headers(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON)
+                    .GET()
+                    .build();
+
+            HttpResponse<String> response = HttpClient
+                    .newBuilder()
+                    .build()
+                    .send(request, HttpResponse.BodyHandlers.ofString());
+
+            if (!HttpStatus.valueOf(response.statusCode()).is2xxSuccessful()) {
+                throw new ApiException(ErrorType.WRONG_VALUE, "url", uri.toString());
+            }
+            String result = response.body();
+
+            JsonNode json = new ObjectMapper().readTree(result);
+
+            json.forEach(handler -> handler.forEach(handlerDescription -> {
+                ValidationFailure failure = configurationDescriptionSchemaValidator
+                        .validate(new JsonParser(handlerDescription.toString()).parse());
+
+                if (failure != null) {
+                    throw new ApiException(ErrorType.INTERNAL_ERROR, failure.getInstance().getLocation()
+                            .getPointer().toString(), failure.getMessage());
+                }
+            }));
+
+            return response.body();
+        } catch (URISyntaxException | IOException e) {
+            throw new ApiException(ErrorType.WRONG_VALUE, "url", aiHost + endpoint);
+        } catch (InterruptedException e) {
+            log.warn("InterruptedException during requesting ai with {}", aiHost + endpoint, e);
+            Thread.currentThread().interrupt();
+            throw new ApiException(ErrorType.INTERNAL_ERROR, "url", aiHost + endpoint);
+        }
     }
 }

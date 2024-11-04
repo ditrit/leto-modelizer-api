@@ -1,6 +1,7 @@
 package com.ditrit.letomodelizerapi.controller;
 
 
+import com.ditrit.letomodelizerapi.config.Constants;
 import com.ditrit.letomodelizerapi.controller.model.QueryFilter;
 import com.ditrit.letomodelizerapi.model.BeanMapper;
 import com.ditrit.letomodelizerapi.model.ai.AIConversationDTO;
@@ -12,6 +13,7 @@ import com.ditrit.letomodelizerapi.model.mapper.ai.AIMessageToDTOMapper;
 import com.ditrit.letomodelizerapi.model.permission.ActionPermission;
 import com.ditrit.letomodelizerapi.model.permission.EntityPermission;
 import com.ditrit.letomodelizerapi.persistence.model.User;
+import com.ditrit.letomodelizerapi.service.AISecretService;
 import com.ditrit.letomodelizerapi.service.AIService;
 import com.ditrit.letomodelizerapi.service.UserPermissionService;
 import com.ditrit.letomodelizerapi.service.UserService;
@@ -68,6 +70,11 @@ public class AIController implements DefaultController {
      * Service to manage AI request.
      */
     private AIService aiService;
+
+    /**
+     * Service to manage AI request.
+     */
+    private AISecretService aiSecretService;
 
     /**
      * Handles a POST request to generate files with an Artificial Intelligence (AI) based on the provided
@@ -286,5 +293,55 @@ public class AIController implements DefaultController {
                 .map(new AIMessageToDTOMapper());
 
         return Response.status(this.getStatus(resources)).entity(resources).build();
+    }
+
+    /**
+     * Sends the generated configuration to the AI proxy.
+     * <p>
+     * This method handles GET requests to the endpoint {@code /proxy/configuration}.
+     * It uses the {@code aiSecretService} to generate a configuration that is then sent to the AI proxy.
+     *
+     * @param request the {@link HttpServletRequest} containing the current HTTP request information, used to retrieve
+     *                the session details.
+     * @return a {@link Response} with a 204 (No Content) status, indicating the configuration was successfully sent
+     *         to the AI proxy.
+     */
+    @GET
+    @Path("/proxy/configuration")
+    public Response sendConfigurationToProxy(final @Context HttpServletRequest request) {
+        HttpSession session = request.getSession();
+        log.info("[{}] Received GET request to send configuration to proxy",
+                session.getAttribute(Constants.DEFAULT_USER_PROPERTY));
+
+        var configuration = aiSecretService.generateConfiguration();
+
+        aiService.sendConfiguration(configuration);
+
+        return Response.noContent().build();
+    }
+
+    /**
+     * Retrieves configuration descriptions from the AI proxy.
+     * <p>
+     * This method handles GET requests to the endpoint {@code /proxy/descriptions}.
+     * If the user has permission, the method retrieves and returns the configuration descriptions from the AI proxy.
+     *
+     * @param request the {@link HttpServletRequest} containing the current HTTP request information, used to retrieve
+     *                the session details and user information.
+     * @return a {@link Response} containing the configuration descriptions in the response body with a 200 (OK) status.
+     *         If the user lacks permission, an appropriate error response will be returned.
+     */
+    @GET
+    @Path("/proxy/descriptions")
+    public Response retrieveConfigurationDescriptions(final @Context HttpServletRequest request) {
+        HttpSession session = request.getSession();
+        User user = userService.getFromSession(session);
+        userPermissionService.checkPermission(user, "id", EntityPermission.AI_SECRET, ActionPermission.ACCESS);
+
+        log.info("[{}] Received GET request to get configuration descriptions from proxy", user.getLogin());
+
+        var descriptions = aiService.getConfigurationDescriptions();
+
+        return Response.ok(descriptions).build();
     }
 }

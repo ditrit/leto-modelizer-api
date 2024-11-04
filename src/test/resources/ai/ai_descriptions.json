@@ -1,0 +1,147 @@
+{
+  "ollama": [{
+    "handler": "ollama",
+    "key": "base.url",
+    "type": "text",
+    "values": [],
+    "defaultValue": "http://localhost:11434/api",
+    "label": "Ollama server url",
+    "title": "Define the url of ollama server",
+    "description": "",
+    "pluginDependent": false,
+    "required": true
+  }, {
+    "handler": "ollama",
+    "key": "default.model",
+    "type": "select",
+    "values": ["mistral", "lama2"],
+    "defaultValue": "mistral",
+    "label": "Default model's name",
+    "title": "Define the name of ollama model by default.",
+    "description": "",
+    "pluginDependent": false,
+    "required": true
+  }, {
+    "handler": "ollama",
+    "key": "{{ plugin }}.model",
+    "type": "text",
+    "values": [],
+    "defaultValue": "mistral",
+    "label": "{{plugin}} model's name",
+    "title": "Define the name of model to use for {{plugin}}.",
+    "description": "",
+    "pluginDependent": true,
+    "required": true
+  }, {
+    "handler": "ollama",
+    "key": "model.files.generate.default",
+    "type": "textarea",
+    "values": [],
+    "defaultValue": "",
+    "label": "Default generation instructions",
+    "title": "Define the default instructions for ollama to generate plugin files.",
+    "description": "Default Model instructions to generate files for plugins.",
+    "pluginDependent": false,
+    "required": true
+  }, {
+    "handler": "ollama",
+    "key": "model.files.generate.{{ plugin }}",
+    "type": "textarea",
+    "values": [],
+    "defaultValue": "",
+    "label": "{{ plugin }} generate model file.",
+    "title": "Define the model instructions for ollama to generate {{ plugin }} file.",
+    "description": "Model file to generate file for {{ plugin }} plugin.",
+    "pluginDependent": true,
+    "required": false
+  }, {
+    "handler": "ollama",
+    "key": "model.files.message.default",
+    "type": "textarea",
+    "values": [],
+    "defaultValue": "",
+    "label": "Default discuss instructions.",
+    "title": "Define the model instructions for ollama to discuss about plugin.",
+    "description": "Default instructions to discuss about plugin.",
+    "pluginDependent": false,
+    "required": true
+  }, {
+    "handler": "ollama",
+    "key": "model.files.message.{{ plugin }}",
+    "type": "textarea",
+    "values": [],
+    "defaultValue": "",
+    "label": "{{ plugin }} discuss instructions.",
+    "title": "Define the model instructions for ollama to discuss about {{ plugin }} plugin.",
+    "description": "Default instructions to discuss about {{ plugin }} plugin.",
+    "pluginDependent": true,
+    "required": false
+  }],
+  "gemini": [{
+    "handler": "gemini",
+    "key": "base.url",
+    "type": "text",
+    "values": [],
+    "defaultValue": "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent",
+    "label": "Gemini server url",
+    "title": "Define the url of gemini server",
+    "description": "",
+    "pluginDependent": false,
+    "required": true
+  }, {
+    "handler": "gemini",
+    "key": "key",
+    "type": "text",
+    "values": [],
+    "defaultValue": "",
+    "label": "Secret API key of gemini",
+    "title": "Define the secret API key of gemini.",
+    "description": "Please use secret to store secret key.",
+    "pluginDependent": false,
+    "required": true
+  }, {
+    "handler": "gemini",
+    "key": "system.instruction.generate.default",
+    "type": "textarea",
+    "values": [],
+    "defaultValue": "",
+    "label": "Default Model files to generate files for plugins.",
+    "title": "Define the model instructions for gemini to generate plugin files.",
+    "description": "",
+    "pluginDependent": false,
+    "required": true
+  }, {
+    "handler": "gemini",
+    "key": "system.instruction.generate.{{ plugin }}",
+    "type": "textarea",
+    "values": [],
+    "defaultValue": "",
+    "label": "Model files to generate files for {{ plugin }} plugin.",
+    "title": "Define the model instructions for gemini to generate {{ plugin }} files.",
+    "description": "",
+    "pluginDependent": true,
+    "required": false
+  }, {
+    "handler": "gemini",
+    "key": "system.instruction.message.default",
+    "type": "textarea",
+    "values": [],
+    "defaultValue": "",
+    "label": "Default Model files to discuss about plugin.",
+    "title": "Define the model instructions for gemini to discuss about plugin.",
+    "description": "",
+    "pluginDependent": false,
+    "required": true
+  }, {
+    "handler": "gemini",
+    "key": "system.instruction.message.{{ plugin }}",
+    "type": "textarea",
+    "values": [],
+    "defaultValue": "",
+    "label": "Default Model files to discuss about {{ plugin }} plugin.",
+    "title": "Define the model instructions for gemini to discuss about {{ plugin }} plugin.",
+    "description": "",
+    "pluginDependent": true,
+    "required": false
+  }]
+}

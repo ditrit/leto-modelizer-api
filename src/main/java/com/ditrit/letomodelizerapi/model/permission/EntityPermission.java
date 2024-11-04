@@ -47,5 +47,9 @@ public enum EntityPermission {
     /**
      * Represents permissions for managing AI secrets.
      */
-    AI_SECRET;
+    AI_SECRET,
+    /**
+     * Represents permissions for managing AI configurations.
+     */
+    AI_CONFIGURATION;
 }

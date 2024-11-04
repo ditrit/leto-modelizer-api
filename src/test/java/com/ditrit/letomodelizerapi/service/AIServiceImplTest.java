@@ -11,6 +11,9 @@ import com.ditrit.letomodelizerapi.persistence.model.User;
 import com.ditrit.letomodelizerapi.persistence.repository.AIConversationRepository;
 import com.ditrit.letomodelizerapi.persistence.repository.AIMessageRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -460,5 +463,106 @@ class AIServiceImplTest {
         AIServiceImpl service = newInstance();
 
         assertEquals(Page.empty(), service.findAllConversations(Map.of(), Pageable.ofSize(10)));
+    }
+
+    @Test
+    @DisplayName("Test sendConfiguration: should send configuration")
+    void testSendConfiguration() throws IOException, InterruptedException {
+        MockedStatic<HttpClient> clientStatic = Mockito.mockStatic(HttpClient.class);
+        mockHttpCall(clientStatic,200, "{\"context\": \"[\\\"newContext\\\"]\", \"message\": \"test\"}");
+
+        AIServiceImpl service = newInstance();
+        ApiException exception = null;
+        try {
+            service.sendConfiguration(new byte[0]);
+        } catch (ApiException e) {
+            exception = e;
+        }
+        assertNull(exception);
+
+        Mockito.reset();
+        clientStatic.close();
+    }
+
+    @Test
+    @DisplayName("Test getConfigurationDescriptions: should return descriptions")
+    void testGetConfigurationDescriptions() throws IOException, InterruptedException {
+        ObjectNode ollama = JsonNodeFactory.instance.objectNode();
+        ollama.put("handler", "ollama");
+        ollama.put("key", "base.url");
+        ollama.put("type", "text");
+        ollama.set("values", JsonNodeFactory.instance.arrayNode());
+        ollama.put("defaultValue", "test");
+        ollama.put("label", "label");
+        ollama.put("title", "title");
+        ollama.put("description", "description");
+        ollama.put("pluginDependent", false);
+        ollama.put("required", true);
+
+        ArrayNode descriptions = JsonNodeFactory.instance.arrayNode();
+        descriptions.add(ollama);
+        ObjectNode json = JsonNodeFactory.instance.objectNode();
+        json.set("ollama", descriptions);
+
+        MockedStatic<HttpClient> clientStatic = Mockito.mockStatic(HttpClient.class);
+        mockHttpCall(clientStatic,200, json.toString());
+
+        AIServiceImpl service = newInstance();
+        ApiException exception = null;
+        String result = null;
+
+        try {
+            result = service.getConfigurationDescriptions();
+        } catch (ApiException e) {
+            exception = e;
+        }
+
+        assertNull(exception);
+        assertEquals(json.toString(), result);
+
+        Mockito.reset();
+        clientStatic.close();
+    }
+
+    @Test
+    @DisplayName("Test getConfigurationDescriptions: should throw exception on invalid description")
+    void testGetConfigurationDescriptionsError() throws IOException, InterruptedException {
+        ObjectNode ollama = JsonNodeFactory.instance.objectNode();
+        ollama.put("handler", "ollama");
+        ollama.put("key", "base.url");
+        ollama.put("type", "bad");
+        ollama.set("values", JsonNodeFactory.instance.arrayNode());
+        ollama.put("defaultValue", "test");
+        ollama.put("label", "label");
+        ollama.put("title", "title");
+        ollama.put("description", "description");
+        ollama.put("pluginDependent", false);
+        ollama.put("required", true);
+
+        ArrayNode descriptions = JsonNodeFactory.instance.arrayNode();
+        descriptions.add(ollama);
+        ObjectNode json = JsonNodeFactory.instance.objectNode();
+        json.set("ollama", descriptions);
+
+        MockedStatic<HttpClient> clientStatic = Mockito.mockStatic(HttpClient.class);
+        mockHttpCall(clientStatic,200, json.toString());
+
+        AIServiceImpl service = newInstance();
+        ApiException exception = null;
+
+        try {
+            service.getConfigurationDescriptions();
+        } catch (ApiException e) {
+            exception = e;
+        }
+
+        assertNotNull(exception);
+        assertEquals(ErrorType.INTERNAL_ERROR.getStatus(), exception.getStatus());
+        assertEquals(ErrorType.INTERNAL_ERROR.getMessage(), exception.getMessage());
+        assertEquals("#/type", exception.getError().getField());
+        assertEquals("the instance is not equal to any enum values", exception.getError().getValue());
+
+        Mockito.reset();
+        clientStatic.close();
     }
 }

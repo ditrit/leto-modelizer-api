@@ -1,0 +1,59 @@
+{
+  "$schema": "http://json-schema.org/draft-06/schema#",
+  "unevaluatedProperties": false,
+  "type": "object",
+  "required": [
+    "handler",
+    "key",
+    "type",
+    "values",
+    "defaultValue",
+    "label",
+    "title",
+    "description",
+    "pluginDependent",
+    "required"
+  ],
+  "properties": {
+    "handler":  {
+      "type": "string",
+      "maxLength": 255
+    },
+    "key":  {
+      "type": "string",
+      "maxLength": 255
+    },
+    "type":  {
+      "type": "string",
+      "enum": ["select", "text", "textarea"]
+    },
+    "values":  {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "defaultValue":  {
+      "type": "string",
+      "maxLength": 255
+    },
+    "label":  {
+      "type": "string",
+      "maxLength": 255
+    },
+    "title":  {
+      "type": "string",
+      "maxLength": 255
+    },
+    "description":  {
+      "type": "string",
+      "maxLength": 255
+    },
+    "pluginDependent":  {
+      "type": "boolean"
+    },
+    "required":  {
+      "type": "boolean"
+    }
+  }
+}
