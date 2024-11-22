@@ -28,15 +28,15 @@ class UserPermissionToPermissionFunctionTest {
 
         expectedPermission.setId(permissionId);
         expectedPermission.setLibraryId(libraryId);
-        expectedPermission.setEntity(EntityPermission.ADMIN.name());
-        expectedPermission.setAction(ActionPermission.ACCESS.name());
+        expectedPermission.setEntity(EntityPermission.ADMIN);
+        expectedPermission.setAction(ActionPermission.ACCESS);
 
         UserPermission userPermission = new UserPermission();
         userPermission.setId("id");
         userPermission.setPermissionId(permissionId);
         userPermission.setLibraryId(libraryId);
-        userPermission.setEntity(EntityPermission.ADMIN.name());
-        userPermission.setAction(ActionPermission.ACCESS.name());
+        userPermission.setEntity(EntityPermission.ADMIN);
+        userPermission.setAction(ActionPermission.ACCESS);
 
         assertEquals(expectedPermission, mapper.apply(userPermission));
     }
