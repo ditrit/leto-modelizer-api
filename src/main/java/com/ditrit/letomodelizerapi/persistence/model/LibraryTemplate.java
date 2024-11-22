@@ -3,7 +3,7 @@ package com.ditrit.letomodelizerapi.persistence.model;
 import com.ditrit.letomodelizerapi.model.library.LibraryTemplateType;
 import com.ditrit.letomodelizerapi.persistence.converter.LibraryTemplateTypeConverter;
 import com.ditrit.letomodelizerapi.persistence.converter.StringListConverter;
-import com.ditrit.letomodelizerapi.persistence.specification.filter.FilterType;
+import io.github.zorin95670.predicate.FilterType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
@@ -38,28 +38,28 @@ public class LibraryTemplate extends AbstractEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "lit_id")
-    @FilterType(type = FilterType.Type.UUID)
+    @FilterType(type = UUID.class)
     private UUID id;
 
     /**
      * Library ID this template belongs to.
      */
     @Column(name = "lib_id")
-    @FilterType(type = FilterType.Type.UUID)
+    @FilterType(type = UUID.class)
     private UUID libraryId;
 
     /**
      * URL for the template's documentation.
      */
     @Column(name = "documentation_url")
-    @FilterType(type = FilterType.Type.TEXT)
+    @FilterType(type = String.class)
     private String documentationUrl;
 
     /**
      * Name of the template.
      */
     @Column(name = "name")
-    @FilterType(type = FilterType.Type.TEXT)
+    @FilterType(type = String.class)
     private String name;
 
     /**
@@ -68,14 +68,14 @@ public class LibraryTemplate extends AbstractEntity {
     @Column(name = "type", nullable = false)
     @Convert(converter = LibraryTemplateTypeConverter.class)
     @ColumnTransformer(write = "?::library_template_type")
-    @FilterType(type = FilterType.Type.ENUM)
+    @FilterType(type = String.class)
     private LibraryTemplateType type;
 
     /**
      * Description of the template.
      */
     @Column(name = "description")
-    @FilterType(type = FilterType.Type.TEXT)
+    @FilterType(type = String.class)
     private String description;
 
     /**
@@ -89,7 +89,7 @@ public class LibraryTemplate extends AbstractEntity {
      */
     @Column(name = "plugins")
     @Convert(converter = StringListConverter.class)
-    @FilterType(type = FilterType.Type.TEXT)
+    @FilterType(type = String.class)
     private List<String> plugins;
 
     /**

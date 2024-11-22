@@ -1,6 +1,6 @@
 package com.ditrit.letomodelizerapi.persistence.model;
 
-import com.ditrit.letomodelizerapi.persistence.specification.filter.FilterType;
+import io.github.zorin95670.predicate.FilterType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -26,63 +26,63 @@ public class UserLibraryView {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "uli_id")
-    @FilterType(type = FilterType.Type.TEXT)
+    @FilterType(type = String.class)
     private String id;
 
     /**
      * The identifier of the user to whom this template of library is assigned.
      */
     @Column(name = "usr_id")
-    @FilterType(type = FilterType.Type.UUID)
+    @FilterType(type = UUID.class)
     private UUID userId;
 
     /**
      * Library ID associated with this library template.
      */
     @Column(name = "lib_id")
-    @FilterType(type = FilterType.Type.UUID)
+    @FilterType(type = UUID.class)
     private UUID libraryId;
 
     /**
      * URL of the library.
      */
     @Column(name = "url")
-    @FilterType(type = FilterType.Type.TEXT)
+    @FilterType(type = String.class)
     private String url;
 
     /**
      * URL for the library's documentation.
      */
     @Column(name = "documentation_url")
-    @FilterType(type = FilterType.Type.TEXT)
+    @FilterType(type = String.class)
     private String documentationUrl;
 
     /**
      * Name of the library.
      */
     @Column(name = "name")
-    @FilterType(type = FilterType.Type.TEXT)
+    @FilterType(type = String.class)
     private String name;
 
     /**
      * Version of the library.
      */
     @Column(name = "version")
-    @FilterType(type = FilterType.Type.TEXT)
+    @FilterType(type = String.class)
     private String version;
 
     /**
      * Maintainer of the library.
      */
     @Column(name = "maintainer")
-    @FilterType(type = FilterType.Type.TEXT)
+    @FilterType(type = String.class)
     private String maintainer;
 
     /**
      * Description of the library.
      */
     @Column(name = "description")
-    @FilterType(type = FilterType.Type.TEXT)
+    @FilterType(type = String.class)
     private String description;
 
     /**

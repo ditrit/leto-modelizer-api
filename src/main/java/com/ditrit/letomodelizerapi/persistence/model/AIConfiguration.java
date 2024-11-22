@@ -1,6 +1,6 @@
 package com.ditrit.letomodelizerapi.persistence.model;
 
-import com.ditrit.letomodelizerapi.persistence.specification.filter.FilterType;
+import io.github.zorin95670.predicate.FilterType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -30,28 +30,28 @@ public class AIConfiguration extends AbstractEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "acf_id")
-    @FilterType(type = FilterType.Type.UUID)
+    @FilterType(type = UUID.class)
     private UUID id;
 
     /**
      * The configuration handler.
      */
     @Column(name = "handler")
-    @FilterType(type = FilterType.Type.TEXT)
+    @FilterType(type = String.class)
     private String handler;
 
     /**
      * The configuration key.
      */
     @Column(name = "key")
-    @FilterType(type = FilterType.Type.TEXT)
+    @FilterType(type = String.class)
     private String key;
 
     /**
      * The value of the configuration.
      */
     @Column(name = "value")
-    @FilterType(type = FilterType.Type.TEXT)
+    @FilterType(type = String.class)
     private String value;
 
     /**
