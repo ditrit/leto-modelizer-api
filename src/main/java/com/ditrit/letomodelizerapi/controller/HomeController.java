@@ -5,17 +5,16 @@ import com.ditrit.letomodelizerapi.service.UserService;
 import jakarta.annotation.security.PermitAll;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
-import jakarta.ws.rs.GET;
-import jakarta.ws.rs.Path;
-import jakarta.ws.rs.Produces;
-import jakarta.ws.rs.QueryParam;
-import jakarta.ws.rs.core.Context;
-import jakarta.ws.rs.core.MediaType;
-import jakarta.ws.rs.core.Response;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Controller;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.io.InputStream;
 import java.net.URI;
@@ -24,9 +23,8 @@ import java.net.URISyntaxException;
 /**
  * Controller to manage '/' endpoint.
  */
-@Path("/")
-@Produces(MediaType.APPLICATION_JSON)
-@Controller
+@RestController
+@RequestMapping("/")
 @Slf4j
 public class HomeController {
 
@@ -75,12 +73,12 @@ public class HomeController {
      *
      * @return A static page that redirects to LetoModelizer upon successful authentication.
      */
-    @GET
+    @GetMapping
     @PermitAll
-    public Response home() {
+    public ResponseEntity<InputStream> home() {
         InputStream stream = this.getClass().getClassLoader().getResourceAsStream("index.html");
 
-        return Response.ok(stream).type("text/html").build();
+        return ResponseEntity.ok().contentType(MediaType.TEXT_HTML).body(stream);
     }
 
     /**
@@ -97,10 +95,9 @@ public class HomeController {
      *                This parameter dictates the target URL for redirection.
      * @return A Response object that redirects the user to the wanted application.
      */
-    @GET
-    @Path("/redirect")
-    public Response redirect(final @Context HttpServletRequest request,
-                             final @QueryParam("app") String app) throws URISyntaxException {
+    @GetMapping("/redirect")
+    public ResponseEntity<Object> redirect(final HttpServletRequest request,
+                                           final @RequestParam("app") String app) throws URISyntaxException {
         HttpSession session = request.getSession();
         User user = userService.getFromSession(session);
         String url = letoModelizerUrl;
@@ -111,7 +108,10 @@ public class HomeController {
 
         log.info("[{}] Received GET request to redirect to {}", user.getLogin(), url);
 
-        return Response.seeOther(new URI(url)).build();
+        return ResponseEntity
+                .status(HttpStatus.SEE_OTHER)  // Code de statut 303
+                .location(new URI(url))             // URL de redirection
+                .build();
     }
 
     /**
@@ -123,9 +123,11 @@ public class HomeController {
      *
      * @return A Response object that redirects the user to the GitHub OAuth2 authorization endpoint.
      */
-    @GET
-    @Path("/login")
-    public Response login() {
-        return Response.temporaryRedirect(URI.create("/api/oauth2/authorization/github")).build();
+    @GetMapping("/login")
+    public ResponseEntity<Object> login() {
+        return ResponseEntity
+                .status(HttpStatus.FOUND)
+                .location(URI.create("/api/oauth2/authorization/github"))
+                .build();
     }
 }

@@ -1,6 +1,5 @@
 package com.ditrit.letomodelizerapi.controller;
 
-import com.ditrit.letomodelizerapi.config.Constants;
 import com.ditrit.letomodelizerapi.controller.model.QueryFilter;
 import com.ditrit.letomodelizerapi.model.BeanMapper;
 import com.ditrit.letomodelizerapi.model.accesscontrol.AccessControlDTO;
@@ -25,27 +24,27 @@ import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import jakarta.ws.rs.BeanParam;
-import jakarta.ws.rs.Consumes;
-import jakarta.ws.rs.DELETE;
-import jakarta.ws.rs.GET;
-import jakarta.ws.rs.POST;
-import jakarta.ws.rs.PUT;
-import jakarta.ws.rs.Path;
-import jakarta.ws.rs.PathParam;
-import jakarta.ws.rs.Produces;
-import jakarta.ws.rs.core.Context;
-import jakarta.ws.rs.core.MediaType;
-import jakarta.ws.rs.core.Response;
-import jakarta.ws.rs.core.UriInfo;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
-import org.springframework.stereotype.Controller;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.util.MultiValueMap;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -56,9 +55,8 @@ import java.util.UUID;
  * Only accessible by users with administrative permissions.
  */
 @Slf4j
-@Path("/roles")
-@Produces(MediaType.APPLICATION_JSON)
-@Controller
+@RestController
+@RequestMapping("/roles")
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class RoleController implements DefaultController {
 
@@ -92,25 +90,24 @@ public class RoleController implements DefaultController {
      * Only accessible by users with administrative permissions.
      *
      * @param request     HttpServletRequest to access the HTTP session
-     * @param uriInfo     UriInfo to extract query parameters
-     * @param queryFilter BeanParam for pagination and filtering
+     * @param filters     All query parameters for filtering results.
+     * @param queryFilter the filter criteria and pagination information.
      * @return a Response containing a page of AccessControlDTO objects
      */
-    @GET
-    public Response findAll(final @Context HttpServletRequest request,
-                            final @Context UriInfo uriInfo,
-                            final @BeanParam @Valid QueryFilter queryFilter) {
+    @GetMapping
+    public ResponseEntity<Page<AccessControlDTO>> findAll(final HttpServletRequest request,
+                                                          final @RequestParam MultiValueMap<String, String> filters,
+                                                          final @ModelAttribute QueryFilter queryFilter) {
         HttpSession session = request.getSession();
         User user = userService.getFromSession(session);
         userPermissionService.checkIsAdmin(user, null);
-        Map<String, String> filters = this.getFilters(uriInfo);
 
         log.info("[{}] Received GET request to get roles with the following filters: {}", user.getLogin(), filters);
         Page<AccessControlDTO> resources = accessControlService
-                .findAll(AccessControlType.ROLE, filters, queryFilter.getPagination())
+                .findAll(AccessControlType.ROLE, filters, queryFilter)
                 .map(new BeanMapper<>(AccessControlDTO.class));
 
-        return Response.status(this.getStatus(resources)).entity(resources).build();
+        return ResponseEntity.status(this.getStatus(resources)).body(resources);
     }
 
     /**
@@ -121,10 +118,9 @@ public class RoleController implements DefaultController {
      * @param id      the ID of the role to retrieve
      * @return a Response containing the AccessControlDTO of the requested role
      */
-    @GET
-    @Path("/{id}")
-    public Response getRoleById(final @Context HttpServletRequest request,
-                                final @PathParam("id") @Valid @NotNull UUID id) {
+    @GetMapping("/{id}")
+    public ResponseEntity<AccessControlDTO> getRoleById(final HttpServletRequest request,
+                                                        final @PathVariable UUID id) {
         HttpSession session = request.getSession();
         User user = userService.getFromSession(session);
         userPermissionService.checkIsAdmin(user, null);
@@ -133,7 +129,7 @@ public class RoleController implements DefaultController {
         AccessControlDTO accessControlDTO = new BeanMapper<>(AccessControlDTO.class)
                 .apply(accessControlService.findById(AccessControlType.ROLE, id));
 
-        return Response.ok(accessControlDTO).build();
+        return ResponseEntity.ok(accessControlDTO);
     }
 
     /**
@@ -144,9 +140,10 @@ public class RoleController implements DefaultController {
      * @param accessControlRecord Data for creating the new role
      * @return a Response indicating the outcome of the creation operation
      */
-    @POST
-    public Response createRole(final @Context HttpServletRequest request,
-                               final @Valid AccessControlRecord accessControlRecord) {
+    @PostMapping
+    public ResponseEntity<AccessControlDTO> createRole(
+            final HttpServletRequest request,
+            final @RequestBody @Valid AccessControlRecord accessControlRecord) {
         HttpSession session = request.getSession();
         User user = userService.getFromSession(session);
         userPermissionService.checkIsAdmin(user, null);
@@ -155,7 +152,7 @@ public class RoleController implements DefaultController {
         AccessControlDTO accessControlDTO = new BeanMapper<>(AccessControlDTO.class)
                 .apply(accessControlService.create(AccessControlType.ROLE, accessControlRecord));
 
-        return Response.status(HttpStatus.CREATED.value()).entity(accessControlDTO).build();
+        return ResponseEntity.status(HttpStatus.CREATED.value()).body(accessControlDTO);
     }
 
     /**
@@ -167,11 +164,11 @@ public class RoleController implements DefaultController {
      * @param accessControlRecord Data for updating the role
      * @return a Response indicating the outcome of the update operation
      */
-    @PUT
-    @Path("/{id}")
-    public Response updateRole(final @Context HttpServletRequest request,
-                               final @PathParam("id") @Valid @NotNull UUID id,
-                               final @Valid AccessControlRecord accessControlRecord) {
+    @PutMapping("/{id}")
+    public ResponseEntity<AccessControlDTO> updateRole(
+            final HttpServletRequest request,
+            final @PathVariable UUID id,
+            final @RequestBody @Valid AccessControlRecord accessControlRecord) {
         HttpSession session = request.getSession();
         User user = userService.getFromSession(session);
         userPermissionService.checkIsAdmin(user, null);
@@ -187,7 +184,7 @@ public class RoleController implements DefaultController {
         AccessControlDTO accessControlDTO = new BeanMapper<>(AccessControlDTO.class)
                 .apply(accessControlService.update(AccessControlType.ROLE, id, accessControlRecord));
 
-        return Response.ok(accessControlDTO).build();
+        return ResponseEntity.ok(accessControlDTO);
     }
 
     /**
@@ -198,10 +195,9 @@ public class RoleController implements DefaultController {
      * @param id      the ID of the role to delete
      * @return a Response indicating the outcome of the delete operation
      */
-    @DELETE
-    @Path("/{id}")
-    public Response deleteRole(final @Context HttpServletRequest request,
-                               final @PathParam("id") @Valid @NotNull UUID id) {
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Object> deleteRole(final HttpServletRequest request,
+                                             final @PathVariable UUID id) {
         HttpSession session = request.getSession();
         User user = userService.getFromSession(session);
         userPermissionService.checkIsAdmin(user, null);
@@ -210,7 +206,7 @@ public class RoleController implements DefaultController {
         log.info("[{}] Received DELETE request to delete role with id {}", user.getLogin(), id);
         accessControlService.delete(AccessControlType.ROLE, id);
 
-        return Response.noContent().build();
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).contentType(MediaType.APPLICATION_JSON).build();
     }
 
     /**
@@ -220,21 +216,19 @@ public class RoleController implements DefaultController {
      *
      * @param request     HttpServletRequest to access the HTTP session for authentication and authorization.
      * @param id          the ID of the role for which users are to be retrieved.
-     * @param uriInfo     UriInfo to extract query parameters for additional filtering.
-     * @param queryFilter BeanParam object for pagination and filtering purposes.
+     * @param filters     All query parameters for filtering results.
+     * @param queryFilter the filter criteria and pagination information.
      * @return a Response containing a paginated list of UserDTO objects associated with the role.
      */
-    @GET
-    @Path("/{id}/users")
-    public Response getUsersByRole(final @Context HttpServletRequest request,
-                                   final @PathParam("id") @Valid @NotNull UUID id,
-                                   final @Context UriInfo uriInfo,
-                                   final @BeanParam @Valid QueryFilter queryFilter) {
+    @GetMapping("/{id}/users")
+    public ResponseEntity<Page<UserDTO>> getUsersByRole(
+            final HttpServletRequest request,
+            final @PathVariable UUID id,
+            final @RequestParam MultiValueMap<String, String> filters,
+            final @ModelAttribute QueryFilter queryFilter) {
         HttpSession session = request.getSession();
         User user = userService.getFromSession(session);
         userPermissionService.checkIsAdmin(user, null);
-
-        Map<String, String> filters = this.getFilters(uriInfo);
 
         log.info(
                 "[{}] Received GET request to get users of role {} with the following filters: {}",
@@ -244,10 +238,10 @@ public class RoleController implements DefaultController {
         );
 
         Page<UserDTO> resources = accessControlService
-                .findAllUsers(AccessControlType.ROLE, id, filters, queryFilter.getPagination())
+                .findAllUsers(AccessControlType.ROLE, id, filters, queryFilter)
                 .map(new BeanMapper<>(UserDTO.class));
 
-        return Response.status(this.getStatus(resources)).entity(resources).build();
+        return ResponseEntity.status(this.getStatus(resources)).body(resources);
     }
 
     /**
@@ -260,12 +254,10 @@ public class RoleController implements DefaultController {
      * @param login   the login identifier of the user to associate with the role.
      * @return a Response indicating the outcome of the association operation.
      */
-    @POST
-    @Consumes(MediaType.TEXT_PLAIN)
-    @Path("/{id}/users")
-    public Response associateUser(final @Context HttpServletRequest request,
-                                  final @PathParam("id") @Valid @NotNull UUID id,
-                                  final @Valid @NotBlank String login) {
+    @PostMapping("/{id}/users")
+    public ResponseEntity<Object> associateUser(final HttpServletRequest request,
+                                                final @PathVariable UUID id,
+                                                final @RequestBody @Valid @NotBlank String login) {
         HttpSession session = request.getSession();
         User user = userService.getFromSession(session);
         userPermissionService.checkIsAdmin(user, null);
@@ -273,7 +265,7 @@ public class RoleController implements DefaultController {
         log.info("[{}] Received POST request to associate role {} with user {}", user.getLogin(), id, login);
         accessControlService.associateUser(AccessControlType.ROLE, id, login);
 
-        return Response.status(HttpStatus.CREATED.value()).build();
+        return ResponseEntity.status(HttpStatus.CREATED.value()).contentType(MediaType.APPLICATION_JSON).build();
     }
 
     /**
@@ -286,11 +278,10 @@ public class RoleController implements DefaultController {
      * @param login   the login identifier of the user to dissociate from the role.
      * @return a Response indicating the outcome of the dissociation operation.
      */
-    @DELETE
-    @Path("/{id}/users/{login}")
-    public Response dissociateUser(final @Context HttpServletRequest request,
-                                   final @PathParam("id") @Valid @NotNull UUID id,
-                                   final @PathParam(Constants.DEFAULT_USER_PROPERTY) @Valid @NotBlank String login) {
+    @DeleteMapping("/{id}/users/{login}")
+    public ResponseEntity<Object> dissociateUser(final HttpServletRequest request,
+                                                 final @PathVariable UUID id,
+                                                 final @PathVariable String login) {
         HttpSession session = request.getSession();
         User user = userService.getFromSession(session);
         userPermissionService.checkIsAdmin(user, null);
@@ -298,7 +289,7 @@ public class RoleController implements DefaultController {
         log.info("[{}] Received DELETE request to dissociate role {} with user {}", user.getLogin(), id, login);
         accessControlService.dissociateUser(AccessControlType.ROLE, id, login);
 
-        return Response.noContent().build();
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).contentType(MediaType.APPLICATION_JSON).build();
     }
 
     /**
@@ -309,22 +300,20 @@ public class RoleController implements DefaultController {
      *
      * @param request     the HttpServletRequest from which to obtain the HttpSession for user validation.
      * @param id          the ID of the role for which to retrieve sub-roles. Must be a valid and non-null Long value.
-     * @param uriInfo     UriInfo context to extract query parameters for filtering results.
-     * @param queryFilter bean parameter encapsulating filtering and pagination criteria.
+     * @param filters     All query parameters for filtering results.
+     * @param queryFilter the filter criteria and pagination information.
      * @return a Response object containing the requested page of AccessControlDirectDTO objects representing the
      * sub-roles of the specified role. The status of the response can vary based on the outcome of the request.
      */
-    @GET
-    @Path("/{id}/roles")
-    public Response getSubRolesOfRole(final @Context HttpServletRequest request,
-                                      final @PathParam("id") @Valid @NotNull UUID id,
-                                      final @Context UriInfo uriInfo,
-                                      final @BeanParam @Valid QueryFilter queryFilter) {
+    @GetMapping("/{id}/roles")
+    public ResponseEntity<Page<AccessControlDirectDTO>> getSubRolesOfRole(
+            final HttpServletRequest request,
+            final @PathVariable UUID id,
+            final @RequestParam MultiValueMap<String, String> filters,
+            final @ModelAttribute QueryFilter queryFilter) {
         HttpSession session = request.getSession();
         User user = userService.getFromSession(session);
         userPermissionService.checkIsAdmin(user, null);
-
-        Map<String, String> filters = this.getFilters(uriInfo);
 
         log.info(
                 "[{}] Received GET request to get sub roles of role {} with the following filters: {}",
@@ -339,10 +328,10 @@ public class RoleController implements DefaultController {
                         id,
                         AccessControlType.ROLE,
                         filters,
-                        queryFilter.getPagination()
+                        queryFilter
                 );
 
-        return Response.status(this.getStatus(resources)).entity(resources).build();
+        return ResponseEntity.status(this.getStatus(resources)).body(resources);
     }
 
     /**
@@ -360,12 +349,10 @@ public class RoleController implements DefaultController {
      * @return a Response object indicating the outcome of the association operation. A successful operation returns
      * a status of CREATED.
      */
-    @POST
-    @Consumes(MediaType.TEXT_PLAIN)
-    @Path("/{id}/roles")
-    public Response associate(final @Context HttpServletRequest request,
-                              final @PathParam("id") @Valid @NotNull UUID id,
-                              final @Valid @NotNull String roleId) {
+    @PostMapping("/{id}/roles")
+    public ResponseEntity<Object> associate(final HttpServletRequest request,
+                                            final @PathVariable UUID id,
+                                            final @RequestBody @NotNull String roleId) {
         HttpSession session = request.getSession();
         User user = userService.getFromSession(session);
         userPermissionService.checkIsAdmin(user, null);
@@ -374,7 +361,7 @@ public class RoleController implements DefaultController {
         log.info("[{}] Received POST request to associate role {} with role {}", user.getLogin(), id, roleId);
         accessControlService.associate(AccessControlType.ROLE, id, AccessControlType.ROLE, UUID.fromString(roleId));
 
-        return Response.status(HttpStatus.CREATED.value()).build();
+        return ResponseEntity.status(HttpStatus.CREATED.value()).contentType(MediaType.APPLICATION_JSON).build();
     }
 
     /**
@@ -392,11 +379,10 @@ public class RoleController implements DefaultController {
      * @return a Response object with a status indicating the outcome of the dissociation operation. A successful
      * operation returns a status of NO_CONTENT.
      */
-    @DELETE
-    @Path("/{id}/roles/{roleId}")
-    public Response dissociate(final @Context HttpServletRequest request,
-                               final @PathParam("id") @Valid @NotNull UUID id,
-                               final @PathParam("roleId") @Valid @NotNull UUID roleId) {
+    @DeleteMapping("/{id}/roles/{roleId}")
+    public ResponseEntity<Object> dissociate(final HttpServletRequest request,
+                                             final @PathVariable UUID id,
+                                             final @PathVariable UUID roleId) {
         HttpSession session = request.getSession();
         User user = userService.getFromSession(session);
         userPermissionService.checkIsAdmin(user, null);
@@ -405,7 +391,7 @@ public class RoleController implements DefaultController {
         log.info("[{}] Received DELETE request to dissociate role {} with role {}", user.getLogin(), id, roleId);
         accessControlService.dissociate(AccessControlType.ROLE, id, AccessControlType.ROLE, roleId);
 
-        return Response.noContent().build();
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).contentType(MediaType.APPLICATION_JSON).build();
     }
 
     /**
@@ -416,24 +402,23 @@ public class RoleController implements DefaultController {
      *
      * @param request     the HttpServletRequest from which to obtain the HttpSession for user validation.
      * @param id          the ID of the role for which to retrieve sub-roles. Must be a valid and non-null Long value.
-     * @param uriInfo     UriInfo context to extract query parameters for filtering results.
-     * @param queryFilter bean parameter encapsulating filtering and pagination criteria.
+     * @param immutableFilters All query parameters for filtering results.
+     * @param queryFilter the filter criteria and pagination information.
      * @return a Response object containing the requested page of AccessControlDirectDTO objects representing the
      * groups of the specified role. The status of the response can vary based on the outcome of the request.
      */
-    @GET
-    @Path("/{id}/groups")
-    public Response getGroupsOfRole(final @Context HttpServletRequest request,
-                                    final @PathParam("id") @Valid @NotNull UUID id,
-                                    final @Context UriInfo uriInfo,
-                                    final @BeanParam @Valid QueryFilter queryFilter) {
+    @GetMapping("/{id}/groups")
+    public ResponseEntity<Page<AccessControlDirectDTO>> getGroupsOfRole(
+            final HttpServletRequest request,
+            final @PathVariable UUID id,
+            final @RequestParam Map<String, List<String>> immutableFilters,
+            final @ModelAttribute QueryFilter queryFilter) {
         HttpSession session = request.getSession();
         User user = userService.getFromSession(session);
         userPermissionService.checkIsAdmin(user, null);
-
-        Map<String, String> filters = new HashMap<>(this.getFilters(uriInfo));
-        filters.put("parentId", id.toString());
-        filters.put("parentType", AccessControlType.ROLE.name());
+        var filters = new HashMap<>(immutableFilters);
+        filters.put("parentId", List.of(id.toString()));
+        filters.put("parentType", List.of(AccessControlType.ROLE.name()));
 
         log.info(
                 "[{}] Received GET request to get groups of role {} with the following filters: {}",
@@ -448,10 +433,10 @@ public class RoleController implements DefaultController {
                         id,
                         AccessControlType.GROUP,
                         filters,
-                        queryFilter.getPagination()
+                        queryFilter
                 );
 
-        return Response.status(this.getStatus(resources)).entity(resources).build();
+        return ResponseEntity.status(this.getStatus(resources)).body(resources);
     }
 
     /**
@@ -467,12 +452,10 @@ public class RoleController implements DefaultController {
      * @return a Response object indicating the outcome of the association operation. A successful operation returns
      * a status of CREATED.
      */
-    @POST
-    @Consumes(MediaType.TEXT_PLAIN)
-    @Path("/{id}/groups")
-    public Response associateGroup(final @Context HttpServletRequest request,
-                                   final @PathParam("id") @Valid @NotNull UUID id,
-                                   final @Valid @NotNull String groupId) {
+    @PostMapping("/{id}/groups")
+    public ResponseEntity<Object> associateGroup(final HttpServletRequest request,
+                                                 final @PathVariable UUID id,
+                                                 final @RequestBody @NotNull String groupId) {
         HttpSession session = request.getSession();
         User user = userService.getFromSession(session);
         userPermissionService.checkIsAdmin(user, null);
@@ -481,7 +464,7 @@ public class RoleController implements DefaultController {
         log.info("[{}] Received POST request to associate role {} with group {}", user.getLogin(), id, groupId);
         accessControlService.associate(AccessControlType.ROLE, id, AccessControlType.GROUP, UUID.fromString(groupId));
 
-        return Response.status(HttpStatus.CREATED.value()).build();
+        return ResponseEntity.status(HttpStatus.CREATED.value()).contentType(MediaType.APPLICATION_JSON).build();
     }
 
     /**
@@ -498,11 +481,10 @@ public class RoleController implements DefaultController {
      * @return a Response object with a status indicating the outcome of the dissociation operation. A successful
      * operation returns a status of NO_CONTENT.
      */
-    @DELETE
-    @Path("/{id}/groups/{groupId}")
-    public Response dissociateGroup(final @Context HttpServletRequest request,
-                                    final @PathParam("id") @Valid @NotNull UUID id,
-                                    final @PathParam("groupId") @Valid @NotNull UUID groupId) {
+    @DeleteMapping("/{id}/groups/{groupId}")
+    public ResponseEntity<Object> dissociateGroup(final HttpServletRequest request,
+                                                  final @PathVariable UUID id,
+                                                  final @PathVariable UUID groupId) {
         HttpSession session = request.getSession();
         User user = userService.getFromSession(session);
         userPermissionService.checkIsAdmin(user, null);
@@ -511,7 +493,7 @@ public class RoleController implements DefaultController {
         log.info("[{}] Received DELETE request to dissociate role {} with group {}", user.getLogin(), id, groupId);
         accessControlService.dissociate(AccessControlType.ROLE, id, AccessControlType.GROUP, groupId);
 
-        return Response.noContent().build();
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).contentType(MediaType.APPLICATION_JSON).build();
     }
 
     /**
@@ -522,22 +504,20 @@ public class RoleController implements DefaultController {
      *
      * @param request     the HttpServletRequest from which to obtain the HttpSession for user validation.
      * @param id          the ID of the role for which to retrieve sub-roles. Must be a valid and non-null Long value.
-     * @param uriInfo     UriInfo context to extract query parameters for filtering results.
-     * @param queryFilter bean parameter encapsulating filtering and pagination criteria.
+     * @param filters     All query parameters for filtering results.
+     * @param queryFilter the filter criteria and pagination information.
      * @return a Response object containing the requested page of AccessControlDirectDTO objects representing the
      * permissions of the specified role. The status of the response can vary based on the outcome of the request.
      */
-    @GET
-    @Path("/{id}/permissions")
-    public Response getPermissionsOfRole(final @Context HttpServletRequest request,
-                                         final @PathParam("id") @Valid @NotNull UUID id,
-                                         final @Context UriInfo uriInfo,
-                                         final @BeanParam @Valid QueryFilter queryFilter) {
+    @GetMapping("/{id}/permissions")
+    public ResponseEntity<Page<PermissionDirectDTO>> getPermissionsOfRole(
+            final HttpServletRequest request,
+            final @PathVariable UUID id,
+            final @RequestParam MultiValueMap<String, String> filters,
+            final @ModelAttribute QueryFilter queryFilter) {
         HttpSession session = request.getSession();
         User user = userService.getFromSession(session);
         userPermissionService.checkIsAdmin(user, null);
-
-        Map<String, String> filters = this.getFilters(uriInfo);
 
         log.info(
                 "[{}] Received GET request to get permissions of role {} with the following filters: {}",
@@ -548,10 +528,10 @@ public class RoleController implements DefaultController {
 
         AccessControl accessControl = accessControlService.findById(AccessControlType.ROLE, id);
         Page<PermissionDirectDTO> resources = accessControlPermissionService
-                .findAll(accessControl.getId(), filters, queryFilter.getPagination())
+                .findAll(accessControl.getId(), filters, queryFilter)
                 .map(new AccessControlPermissionViewToPermissionDirectDTOFunction());
 
-        return Response.status(this.getStatus(resources)).entity(resources).build();
+        return ResponseEntity.status(this.getStatus(resources)).body(resources);
     }
 
     /**
@@ -570,12 +550,10 @@ public class RoleController implements DefaultController {
      * @return a Response object indicating the outcome of the association operation. A successful operation returns
      * a status of CREATED.
      */
-    @POST
-    @Consumes(MediaType.TEXT_PLAIN)
-    @Path("/{id}/permissions")
-    public Response associatePermission(final @Context HttpServletRequest request,
-                                        final @PathParam("id") @Valid @NotNull UUID id,
-                                        final @Valid @NotNull String permissionId) {
+    @PostMapping("/{id}/permissions")
+    public ResponseEntity<Object> associatePermission(final HttpServletRequest request,
+                                                      final @PathVariable UUID id,
+                                                      final @RequestBody @NotNull String permissionId) {
         HttpSession session = request.getSession();
         User user = userService.getFromSession(session);
         userPermissionService.checkIsAdmin(user, null);
@@ -592,7 +570,7 @@ public class RoleController implements DefaultController {
         Permission permission = permissionService.findById(UUID.fromString(permissionId));
         accessControlPermissionService.associate(accessControl.getId(), permission.getId());
 
-        return Response.status(HttpStatus.CREATED.value()).build();
+        return ResponseEntity.status(HttpStatus.CREATED.value()).contentType(MediaType.APPLICATION_JSON).build();
     }
 
     /**
@@ -610,11 +588,10 @@ public class RoleController implements DefaultController {
      * @return a Response object with a status indicating the outcome of the dissociation operation. A successful
      * operation returns a status of NO_CONTENT.
      */
-    @DELETE
-    @Path("/{id}/permissions/{permissionId}")
-    public Response dissociatePermission(final @Context HttpServletRequest request,
-                                         final @PathParam("id") @Valid @NotNull UUID id,
-                                         final @PathParam("permissionId") @Valid @NotNull UUID permissionId) {
+    @DeleteMapping("/{id}/permissions/{permissionId}")
+    public ResponseEntity<Object> dissociatePermission(final HttpServletRequest request,
+                                                       final @PathVariable UUID id,
+                                                       final @PathVariable UUID permissionId) {
         HttpSession session = request.getSession();
         User user = userService.getFromSession(session);
         userPermissionService.checkIsAdmin(user, null);
@@ -631,7 +608,7 @@ public class RoleController implements DefaultController {
         Permission permission = permissionService.findById(permissionId);
         accessControlPermissionService.dissociate(accessControl.getId(), permission.getId());
 
-        return Response.noContent().build();
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).contentType(MediaType.APPLICATION_JSON).build();
     }
 
     /**
@@ -642,24 +619,24 @@ public class RoleController implements DefaultController {
      *
      * @param request     the HttpServletRequest from which to obtain the HttpSession for user validation.
      * @param id          the ID of the role for which to retrieve scopes. Must be a valid and non-null Long value.
-     * @param uriInfo     UriInfo context to extract query parameters for filtering results.
-     * @param queryFilter bean parameter encapsulating filtering and pagination criteria.
+     * @param immutableFilters     All query parameters for filtering results.
+     * @param queryFilter the filter criteria and pagination information.
      * @return a Response object containing the requested page of AccessControlDirectDTO objects representing the
      * scopes of the specified role. The status of the response can vary based on the outcome of the request.
      */
-    @GET
-    @Path("/{id}/scopes")
-    public Response getScopesOfRole(final @Context HttpServletRequest request,
-                                    final @PathParam("id") @Valid @NotNull UUID id,
-                                    final @Context UriInfo uriInfo,
-                                    final @BeanParam @Valid QueryFilter queryFilter) {
+    @GetMapping("/{id}/scopes")
+    public ResponseEntity<Page<AccessControlDirectDTO>> getScopesOfRole(
+            final HttpServletRequest request,
+            final @PathVariable UUID id,
+            final @RequestParam Map<String, List<String>> immutableFilters,
+            final @ModelAttribute QueryFilter queryFilter) {
         HttpSession session = request.getSession();
         User user = userService.getFromSession(session);
         userPermissionService.checkIsAdmin(user, null);
 
-        Map<String, String> filters = new HashMap<>(this.getFilters(uriInfo));
-        filters.put("parentId", id.toString());
-        filters.put("parentType", AccessControlType.ROLE.name());
+        var filters = new HashMap<>(immutableFilters);
+        filters.put("parentId", List.of(id.toString()));
+        filters.put("parentType", List.of(AccessControlType.ROLE.name()));
 
         log.info(
                 "[{}] Received GET request to get scopes of role {} with the following filters: {}",
@@ -674,10 +651,10 @@ public class RoleController implements DefaultController {
                         id,
                         AccessControlType.SCOPE,
                         filters,
-                        queryFilter.getPagination()
+                        queryFilter
                 );
 
-        return Response.status(this.getStatus(resources)).entity(resources).build();
+        return ResponseEntity.status(this.getStatus(resources)).body(resources);
     }
 
     /**
@@ -693,12 +670,10 @@ public class RoleController implements DefaultController {
      * @return a Response object indicating the outcome of the association operation. A successful operation returns
      * a status of CREATED.
      */
-    @POST
-    @Consumes(MediaType.TEXT_PLAIN)
-    @Path("/{id}/scopes")
-    public Response associateScope(final @Context HttpServletRequest request,
-                                   final @PathParam("id") @Valid @NotNull UUID id,
-                                   final @Valid @NotNull String scopeId) {
+    @PostMapping("/{id}/scopes")
+    public ResponseEntity<Object> associateScope(final HttpServletRequest request,
+                                                 final @PathVariable UUID id,
+                                                 final @RequestBody @NotNull String scopeId) {
         HttpSession session = request.getSession();
         User user = userService.getFromSession(session);
         userPermissionService.checkIsAdmin(user, null);
@@ -707,7 +682,7 @@ public class RoleController implements DefaultController {
         log.info("[{}] Received POST request to associate role {} with scope {}", user.getLogin(), id, scopeId);
         accessControlService.associate(AccessControlType.ROLE, id, AccessControlType.SCOPE, UUID.fromString(scopeId));
 
-        return Response.status(HttpStatus.CREATED.value()).build();
+        return ResponseEntity.status(HttpStatus.CREATED.value()).contentType(MediaType.APPLICATION_JSON).build();
     }
 
     /**
@@ -724,11 +699,10 @@ public class RoleController implements DefaultController {
      * @return a Response object with a status indicating the outcome of the dissociation operation. A successful
      * operation returns a status of NO_CONTENT.
      */
-    @DELETE
-    @Path("/{id}/scopes/{scopeId}")
-    public Response dissociateScope(final @Context HttpServletRequest request,
-                                    final @PathParam("id") @Valid @NotNull UUID id,
-                                    final @PathParam("scopeId") @Valid @NotNull UUID scopeId) {
+    @DeleteMapping("/{id}/scopes/{scopeId}")
+    public ResponseEntity<Object> dissociateScope(final HttpServletRequest request,
+                                                  final @PathVariable UUID id,
+                                                  final @PathVariable UUID scopeId) {
         HttpSession session = request.getSession();
         User user = userService.getFromSession(session);
         userPermissionService.checkIsAdmin(user, null);
@@ -737,7 +711,7 @@ public class RoleController implements DefaultController {
         log.info("[{}] Received DELETE request to dissociate role {} with scope {}", user.getLogin(), id, scopeId);
         accessControlService.dissociate(AccessControlType.ROLE, id, AccessControlType.SCOPE, scopeId);
 
-        return Response.noContent().build();
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).contentType(MediaType.APPLICATION_JSON).build();
     }
 
     /**

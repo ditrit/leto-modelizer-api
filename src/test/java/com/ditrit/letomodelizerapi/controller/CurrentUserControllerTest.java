@@ -2,6 +2,8 @@ package com.ditrit.letomodelizerapi.controller;
 
 import com.ditrit.letomodelizerapi.controller.model.QueryFilter;
 import com.ditrit.letomodelizerapi.helper.MockHelper;
+import com.ditrit.letomodelizerapi.model.accesscontrol.AccessControlDTO;
+import com.ditrit.letomodelizerapi.model.ai.AIConversationDTO;
 import com.ditrit.letomodelizerapi.model.permission.ActionPermission;
 import com.ditrit.letomodelizerapi.model.permission.EntityPermission;
 import com.ditrit.letomodelizerapi.model.permission.PermissionDTO;
@@ -14,7 +16,6 @@ import com.ditrit.letomodelizerapi.service.UserPermissionService;
 import com.ditrit.letomodelizerapi.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
-import jakarta.ws.rs.core.Response;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -25,6 +26,8 @@ import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.util.LinkedMultiValueMap;
 
 import java.net.http.HttpHeaders;
 import java.net.http.HttpResponse;
@@ -80,11 +83,11 @@ class CurrentUserControllerTest extends MockHelper {
                 .when(userService.getFromSession(Mockito.any()))
                 .thenReturn(user);
 
-        Response response = currentUserController.getMyInformation(request);
+        ResponseEntity<UserDTO> response = currentUserController.getMyInformation(request);
 
         assertNotNull(response);
-        assertEquals(HttpStatus.OK.value(), response.getStatus());
-        assertEquals(expectedUser, response.getEntity());
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertEquals(expectedUser, response.getBody());
     }
 
     @Test
@@ -121,10 +124,10 @@ class CurrentUserControllerTest extends MockHelper {
                 .when(userService.getPicture(Mockito.any()))
                 .thenReturn(picture);
 
-        Response response = controller.getMyPicture(request);
+        ResponseEntity<byte[]> response = controller.getMyPicture(request);
 
         assertNotNull(response);
-        assertEquals(HttpStatus.OK.value(), response.getStatus());
+        assertEquals(HttpStatus.OK, response.getStatusCode());
     }
 
     @Test
@@ -136,8 +139,8 @@ class CurrentUserControllerTest extends MockHelper {
         Permission permission = new Permission();
         permission.setId(UUID.randomUUID());
         permission.setLibraryId(UUID.randomUUID());
-        permission.setEntity(EntityPermission.ADMIN.name());
-        permission.setAction(ActionPermission.ACCESS.name());
+        permission.setEntity(EntityPermission.ADMIN);
+        permission.setAction(ActionPermission.ACCESS);
 
         List<Permission> permissions = List.of(permission);
 
@@ -161,11 +164,11 @@ class CurrentUserControllerTest extends MockHelper {
         expectedPermission.setLibraryId(permission.getLibraryId());
         List<PermissionDTO> expectedPermissions = List.of(expectedPermission);
 
-        Response response = currentUserController.getMyPermissions(request);
+        ResponseEntity<List<PermissionDTO>> response = currentUserController.getMyPermissions(request);
 
         assertNotNull(response);
-        assertEquals(HttpStatus.OK.value(), response.getStatus());
-        assertEquals(expectedPermissions, response.getEntity());
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertEquals(expectedPermissions, response.getBody());
     }
 
     @Test
@@ -187,11 +190,11 @@ class CurrentUserControllerTest extends MockHelper {
                 .when(accessControlService.findAll(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any()))
                 .thenReturn(Page.empty());
 
-        Response response = currentUserController.getMyRoles(request, mockUriInfo(), new QueryFilter());
+        ResponseEntity<Page<AccessControlDTO>> response = currentUserController.getMyRoles(request, new LinkedMultiValueMap<>(), new QueryFilter());
 
         assertNotNull(response);
-        assertEquals(HttpStatus.OK.value(), response.getStatus());
-        assertNotNull(response.getEntity());
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertNotNull(response.getBody());
     }
 
     @Test
@@ -213,11 +216,11 @@ class CurrentUserControllerTest extends MockHelper {
                 .when(accessControlService.findAll(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any()))
                 .thenReturn(Page.empty());
 
-        Response response = currentUserController.getMyGroups(request, mockUriInfo(), new QueryFilter());
+        ResponseEntity<Page<AccessControlDTO>> response = currentUserController.getMyGroups(request, new LinkedMultiValueMap<>(), new QueryFilter());
 
         assertNotNull(response);
-        assertEquals(HttpStatus.OK.value(), response.getStatus());
-        assertNotNull(response.getEntity());
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertNotNull(response.getBody());
     }
 
     @Test
@@ -239,11 +242,11 @@ class CurrentUserControllerTest extends MockHelper {
                 .when(accessControlService.findAll(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any()))
                 .thenReturn(Page.empty());
 
-        Response response = currentUserController.getMyScopes(request, mockUriInfo(), new QueryFilter());
+        ResponseEntity<Page<AccessControlDTO>> response = currentUserController.getMyScopes(request, new LinkedMultiValueMap<>(), new QueryFilter());
 
         assertNotNull(response);
-        assertEquals(HttpStatus.OK.value(), response.getStatus());
-        assertNotNull(response.getEntity());
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertNotNull(response.getBody());
     }
 
     @Test
@@ -265,10 +268,10 @@ class CurrentUserControllerTest extends MockHelper {
                 .when(aiService.findAll(Mockito.any(), Mockito.any(), Mockito.any()))
                 .thenReturn(Page.empty());
 
-        Response response = currentUserController.getMyAIConversations(request, mockUriInfo(), new QueryFilter());
+        ResponseEntity<Page<AIConversationDTO>> response = currentUserController.getMyAIConversations(request, new LinkedMultiValueMap<>(), new QueryFilter());
 
         assertNotNull(response);
-        assertEquals(HttpStatus.OK.value(), response.getStatus());
-        assertNotNull(response.getEntity());
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertNotNull(response.getBody());
     }
 }

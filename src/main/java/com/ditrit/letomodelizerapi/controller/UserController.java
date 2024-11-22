@@ -1,6 +1,5 @@
 package com.ditrit.letomodelizerapi.controller;
 
-import com.ditrit.letomodelizerapi.config.Constants;
 import com.ditrit.letomodelizerapi.controller.model.QueryFilter;
 import com.ditrit.letomodelizerapi.model.BeanMapper;
 import com.ditrit.letomodelizerapi.model.accesscontrol.AccessControlDTO;
@@ -16,34 +15,31 @@ import com.ditrit.letomodelizerapi.service.UserPermissionService;
 import com.ditrit.letomodelizerapi.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
-import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.ws.rs.BeanParam;
-import jakarta.ws.rs.DELETE;
-import jakarta.ws.rs.GET;
-import jakarta.ws.rs.Path;
-import jakarta.ws.rs.PathParam;
-import jakarta.ws.rs.Produces;
-import jakarta.ws.rs.core.Context;
-import jakarta.ws.rs.core.MediaType;
-import jakarta.ws.rs.core.Response;
-import jakarta.ws.rs.core.UriInfo;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
-import org.springframework.stereotype.Controller;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.util.MultiValueMap;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.net.http.HttpResponse;
-import java.util.Map;
 
 /**
  * Controller to manage all users endpoints.
  */
 @Slf4j
-@Path("/users")
-@Produces(MediaType.APPLICATION_JSON)
-@Controller
+@RestController
+@RequestMapping("/users")
 public class UserController implements DefaultController {
 
     /**
@@ -102,24 +98,23 @@ public class UserController implements DefaultController {
      * This endpoint requires the requesting user to have admin privileges.
      *
      * @param request The HTTP request containing the user's session.
-     * @param uriInfo URI information containing query parameters for filtering.
-     * @param queryFilter Bean parameter for valid query filters including pagination.
-     * @return A {@link Response} containing a paginated list of {@link UserDTO}.
+     * @param filters All query parameters for filtering results.
+     * @param queryFilter the filter criteria and pagination information.
+     * @return A {@link ResponseEntity} containing a paginated list of {@link UserDTO}.
      */
-    @GET
-    public Response getUsers(final @Context HttpServletRequest request,
-                             final @Context UriInfo uriInfo,
-                             final @BeanParam @Valid QueryFilter queryFilter) {
+    @GetMapping
+    public ResponseEntity<Page<UserDTO>> getUsers(final HttpServletRequest request,
+                                                  final @RequestParam MultiValueMap<String, String> filters,
+                                                  final @ModelAttribute QueryFilter queryFilter) {
         HttpSession session = request.getSession();
         User user = userService.getFromSession(session);
         userPermissionService.checkIsAdmin(user, null);
-        Map<String, String> filters = this.getFilters(uriInfo);
 
         log.info("[{}] Received GET request to get users with the following filters: {}", user.getLogin(), filters);
-        Page<UserDTO> resources = userService.findAll(filters, queryFilter.getPagination())
+        Page<UserDTO> resources = userService.findAll(filters, queryFilter)
                 .map(new BeanMapper<>(UserDTO.class));
 
-        return Response.status(this.getStatus(resources)).entity(resources).build();
+        return ResponseEntity.status(this.getStatus(resources)).body(resources);
     }
 
     /**
@@ -128,12 +123,11 @@ public class UserController implements DefaultController {
      *
      * @param request The HTTP request containing the user's session.
      * @param login The login identifier of the user to retrieve.
-     * @return A {@link Response} containing the {@link UserDTO} of the requested user.
+     * @return A {@link ResponseEntity} containing the {@link UserDTO} of the requested user.
      */
-    @GET
-    @Path("/{login}")
-    public Response getUserByLogin(final @Context HttpServletRequest request,
-                                   final @PathParam(Constants.DEFAULT_USER_PROPERTY) @Valid @NotBlank String login) {
+    @GetMapping("/{login}")
+    public ResponseEntity<UserDTO> getUserByLogin(final HttpServletRequest request,
+                                   final @PathVariable String login) {
         HttpSession session = request.getSession();
         User user = userService.getFromSession(session);
         userPermissionService.checkIsAdmin(user, null);
@@ -141,7 +135,7 @@ public class UserController implements DefaultController {
         log.info("[{}] Received GET request to get user with login {}", user.getLogin(), login);
         UserDTO userDTO = new BeanMapper<>(UserDTO.class).apply(userService.findByLogin(login));
 
-        return Response.ok(userDTO).build();
+        return ResponseEntity.ok(userDTO);
     }
 
     /**
@@ -151,12 +145,11 @@ public class UserController implements DefaultController {
      *
      * @param request The HTTP request containing the user's session, used to verify administrative privileges.
      * @param login The login identifier of the user to be deleted.
-     * @return A {@link Response} with a status of 204 No Content on successful deletion of the user.
+     * @return A {@link ResponseEntity} with a status of 204 No Content on successful deletion of the user.
      */
-    @DELETE
-    @Path("/{login}")
-    public Response deleteUserByLogin(final @Context HttpServletRequest request,
-                                      final @PathParam(Constants.DEFAULT_USER_PROPERTY) @Valid @NotBlank String login) {
+    @DeleteMapping("/{login}")
+    public ResponseEntity<Object> deleteUserByLogin(final HttpServletRequest request,
+                                               final @PathVariable String login) {
         HttpSession session = request.getSession();
         User user = userService.getFromSession(session);
         userPermissionService.checkIsAdmin(user, null);
@@ -164,7 +157,7 @@ public class UserController implements DefaultController {
         log.info("[{}] Received DELETE request to delete user with login {}", user.getLogin(), login);
         userService.deleteByLogin(login);
 
-        return Response.noContent().build();
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).contentType(MediaType.APPLICATION_JSON).build();
     }
 
     /**
@@ -176,22 +169,21 @@ public class UserController implements DefaultController {
      *
      * @param request the HttpServletRequest from which to obtain the HttpSession for user validation.
      * @param login the login identifier of the user whose roles are being requested. Must be a valid, non-blank String.
-     * @param uriInfo UriInfo context to extract query parameters for filtering results.
-     * @param queryFilter bean parameter encapsulating filtering and pagination criteria.
+     * @param filters All query parameters for filtering results.
+     * @param queryFilter the filter criteria and pagination information.
      * @return a Response object containing the requested page of AccessControlDTO objects representing the roles
      * associated with the specified user. The response status varies based on the outcome of the request.
      */
-    @GET
-    @Path("/{login}/roles")
-    public Response getRolesOfUser(final @Context HttpServletRequest request,
-                                   final @PathParam(Constants.DEFAULT_USER_PROPERTY) @Valid @NotBlank String login,
-                                   final @Context UriInfo uriInfo,
-                                   final @BeanParam @Valid QueryFilter queryFilter) {
+    @GetMapping("/{login}/roles")
+    public ResponseEntity<Page<AccessControlDirectDTO>> getRolesOfUser(
+            final HttpServletRequest request,
+            final @PathVariable String login,
+            final @RequestParam MultiValueMap<String, String> filters,
+            final @ModelAttribute QueryFilter queryFilter) {
         HttpSession session = request.getSession();
         User me = userService.getFromSession(session);
         userPermissionService.checkIsAdmin(me, null);
 
-        Map<String, String> filters = this.getFilters(uriInfo);
         log.info(
                 "[{}] Received GET request to get roles of user {} with the following filters: {}",
                 me.getLogin(),
@@ -201,9 +193,9 @@ public class UserController implements DefaultController {
 
         User user = userService.findByLogin(login);
         Page<AccessControlDirectDTO> resources = accessControlService
-                .findAll(AccessControlType.ROLE, user, filters, queryFilter.getPagination());
+                .findAll(AccessControlType.ROLE, user, filters, queryFilter);
 
-        return Response.status(this.getStatus(resources)).entity(resources).build();
+        return ResponseEntity.status(this.getStatus(resources)).body(resources);
     }
 
     /**
@@ -216,22 +208,21 @@ public class UserController implements DefaultController {
      * @param request the HttpServletRequest from which to obtain the HttpSession for user validation.
      * @param login the login identifier of the user whose groups are being requested. Must be a valid, non-blank
      *              String.
-     * @param uriInfo UriInfo context to extract query parameters for filtering results.
-     * @param queryFilter bean parameter encapsulating filtering and pagination criteria.
+     * @param filters All query parameters for filtering results.
+     * @param queryFilter the filter criteria and pagination information.
      * @return a Response object containing the requested page of AccessControlDTO objects representing the groups
      * associated with the specified user. The response status varies based on the outcome of the request.
      */
-    @GET
-    @Path("/{login}/groups")
-    public Response getGroupsOfUser(final @Context HttpServletRequest request,
-                                    final @PathParam(Constants.DEFAULT_USER_PROPERTY) @Valid @NotBlank String login,
-                                    final @Context UriInfo uriInfo,
-                                    final @BeanParam @Valid QueryFilter queryFilter) {
+    @GetMapping("/{login}/groups")
+    public ResponseEntity<Page<AccessControlDTO>> getGroupsOfUser(
+            final HttpServletRequest request,
+            final @PathVariable String login,
+            final @RequestParam MultiValueMap<String, String> filters,
+            final @ModelAttribute QueryFilter queryFilter) {
         HttpSession session = request.getSession();
         User me = userService.getFromSession(session);
         userPermissionService.checkIsAdmin(me, null);
 
-        Map<String, String> filters = this.getFilters(uriInfo);
         log.info(
                 "[{}] Received GET request to get groups of user {} with the following filters: {}",
                 me.getLogin(),
@@ -241,10 +232,10 @@ public class UserController implements DefaultController {
 
         User user = userService.findByLogin(login);
         Page<AccessControlDTO> resources = accessControlService
-                .findAll(AccessControlType.GROUP, user, filters, queryFilter.getPagination())
+                .findAll(AccessControlType.GROUP, user, filters, queryFilter)
                 .map(new BeanMapper<>(AccessControlDTO.class));
 
-        return Response.status(this.getStatus(resources)).entity(resources).build();
+        return ResponseEntity.status(this.getStatus(resources)).body(resources);
     }
 
     /**
@@ -257,20 +248,18 @@ public class UserController implements DefaultController {
      * @param request the HttpServletRequest from which to obtain the HttpSession for user validation.
      * @param login the login identifier of the user whose groups are being requested. Must be a valid, non-blank
      *              String.
-     * @param uriInfo UriInfo context to extract query parameters for filtering results.
-     * @param queryFilter bean parameter encapsulating filtering and pagination criteria.
+     * @param filters All query parameters for filtering results.
+     * @param queryFilter the filter criteria and pagination information.
      * @return a Response object containing the requested page of AccessControlDTO objects representing the groups
      * associated with the specified user. The response status varies based on the outcome of the request.
      */
-    @GET
-    @Path("/{login}/permissions")
-    public Response getPermissionsOfUser(final @Context HttpServletRequest request,
-                                         final @PathParam(Constants.DEFAULT_USER_PROPERTY) @Valid @NotBlank
-                                         String login,
-                                         final @Context UriInfo uriInfo,
-                                         final @BeanParam @Valid QueryFilter queryFilter) {
+    @GetMapping("/{login}/permissions")
+    public ResponseEntity<Page<PermissionDTO>> getPermissionsOfUser(
+            final HttpServletRequest request,
+            final @PathVariable String login,
+            final @RequestParam MultiValueMap<String, String> filters,
+            final @ModelAttribute QueryFilter queryFilter) {
         HttpSession session = request.getSession();
-        Map<String, String> filters = this.getFilters(uriInfo);
         User me = userService.getFromSession(session);
 
         log.info(
@@ -286,10 +275,10 @@ public class UserController implements DefaultController {
         }
 
         Page<PermissionDTO> resources = userPermissionService
-                .findAll(user, filters, queryFilter.getPagination())
+                .findAll(user, filters, queryFilter)
                 .map(new BeanMapper<>(PermissionDTO.class));
 
-        return Response.status(this.getStatus(resources)).entity(resources).build();
+        return ResponseEntity.status(this.getStatus(resources)).body(resources);
     }
 
     /**
@@ -302,22 +291,21 @@ public class UserController implements DefaultController {
      * @param request the HttpServletRequest from which to obtain the HttpSession for user validation.
      * @param login the login identifier of the user whose scopes are being requested. Must be a valid, non-blank
      *              String.
-     * @param uriInfo UriInfo context to extract query parameters for filtering results.
-     * @param queryFilter bean parameter encapsulating filtering and pagination criteria.
+     * @param filters All query parameters for filtering results.
+     * @param queryFilter the filter criteria and pagination information.
      * @return a Response object containing the requested page of AccessControlDTO objects representing the scopes
      * associated with the specified user. The response status varies based on the outcome of the request.
      */
-    @GET
-    @Path("/{login}/scopes")
-    public Response getScopesOfUser(final @Context HttpServletRequest request,
-                                    final @PathParam(Constants.DEFAULT_USER_PROPERTY) @Valid @NotBlank String login,
-                                    final @Context UriInfo uriInfo,
-                                    final @BeanParam @Valid QueryFilter queryFilter) {
+    @GetMapping("/{login}/scopes")
+    public ResponseEntity<Page<AccessControlDTO>> getScopesOfUser(
+            final HttpServletRequest request,
+            final @PathVariable String login,
+            final @RequestParam MultiValueMap<String, String> filters,
+            final @ModelAttribute QueryFilter queryFilter) {
         HttpSession session = request.getSession();
         User me = userService.getFromSession(session);
         userPermissionService.checkIsAdmin(me, null);
 
-        Map<String, String> filters = this.getFilters(uriInfo);
         log.info(
                 "[{}] Received GET request to get scopes of user {} with the following filters: {}",
                 me.getLogin(),
@@ -327,10 +315,10 @@ public class UserController implements DefaultController {
 
         User user = userService.findByLogin(login);
         Page<AccessControlDTO> resources = accessControlService
-                .findAll(AccessControlType.SCOPE, user, filters, queryFilter.getPagination())
+                .findAll(AccessControlType.SCOPE, user, filters, queryFilter)
                 .map(new BeanMapper<>(AccessControlDTO.class));
 
-        return Response.status(this.getStatus(resources)).entity(resources).build();
+        return ResponseEntity.status(this.getStatus(resources)).body(resources);
     }
 
     /**
@@ -343,21 +331,20 @@ public class UserController implements DefaultController {
      * @param request the HttpServletRequest from which to obtain the HttpSession for user validation.
      * @param login the login identifier of the user whose scopes are being requested. Must be a valid, non-blank
      *              String.
-     * @param uriInfo UriInfo context to extract query parameters for filtering results.
-     * @param queryFilter bean parameter encapsulating filtering and pagination criteria.
+     * @param filters All query parameters for filtering results.
+     * @param queryFilter the filter criteria and pagination information.
      * @return a Response object containing the requested page of AccessControlDTO objects representing the scopes
      * associated with the specified user. The response status varies based on the outcome of the request.
      */
-    @GET
-    @Path("/{login}/ai/conversations")
-    public Response getAIConversationsOfUser(final @Context HttpServletRequest request,
-                                    final @PathParam(Constants.DEFAULT_USER_PROPERTY) @Valid @NotBlank String login,
-                                    final @Context UriInfo uriInfo,
-                                    final @BeanParam @Valid QueryFilter queryFilter) {
+    @GetMapping("/{login}/ai/conversations")
+    public ResponseEntity<Page<AIConversationDTO>> getAIConversationsOfUser(
+            final HttpServletRequest request,
+            final @PathVariable String login,
+            final @RequestParam MultiValueMap<String, String> filters,
+            final @ModelAttribute QueryFilter queryFilter) {
         HttpSession session = request.getSession();
         User me = userService.getFromSession(session);
 
-        Map<String, String> filters = this.getFilters(uriInfo);
         log.info(
                 "[{}] Received GET request to get AI conversations of user {} with the following filters: {}",
                 me.getLogin(),
@@ -371,10 +358,10 @@ public class UserController implements DefaultController {
             userPermissionService.checkIsAdmin(me, null);
         }
 
-        Page<AIConversationDTO> resources = aiService.findAll(user, filters, queryFilter.getPagination())
+        Page<AIConversationDTO> resources = aiService.findAll(user, filters, queryFilter)
                     .map(new BeanMapper<>(AIConversationDTO.class));
 
-        return Response.status(this.getStatus(resources)).entity(resources).build();
+        return ResponseEntity.status(this.getStatus(resources)).body(resources);
     }
 
     /**
@@ -385,13 +372,12 @@ public class UserController implements DefaultController {
      *
      * @param request The HTTP request containing the user's session, used to check for administrative privileges.
      * @param login The login identifier of the user whose picture is being requested.
-     * @return A {@link Response} containing the user's profile picture as a byte array and the content type of the
-     *         image. The response status and content type may vary based on the outcome of the request.
+     * @return A {@link ResponseEntity} containing the user's profile picture as a byte array and the content type of
+     * the image. The response status and content type may vary based on the outcome of the request.
      */
-    @GET
-    @Path("/{login}/picture")
-    public Response getPictureOfUser(final @Context HttpServletRequest request,
-                                     final @PathParam(Constants.DEFAULT_USER_PROPERTY) @Valid @NotBlank String login) {
+    @GetMapping("/{login}/picture")
+    public ResponseEntity<byte[]> getPictureOfUser(final HttpServletRequest request,
+                                     final @PathVariable String login) {
         HttpSession session = request.getSession();
         User me = userService.getFromSession(session);
         userPermissionService.checkIsAdmin(me, null);
@@ -405,6 +391,13 @@ public class UserController implements DefaultController {
                 .firstValue("Content-Type")
                 .orElse("application/octet-stream");
 
-        return Response.ok(response.body(), contentType).cacheControl(getCacheControl(userPictureCacheMaxAge)).build();
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.parseMediaType(contentType));
+        headers.setCacheControl(getCacheControl(userPictureCacheMaxAge));
+
+        return ResponseEntity
+                .ok()
+                .headers(headers)
+                .body(response.body());
     }
 }

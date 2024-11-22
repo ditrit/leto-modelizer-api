@@ -16,29 +16,27 @@ import com.ditrit.letomodelizerapi.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotNull;
-import jakarta.ws.rs.BeanParam;
-import jakarta.ws.rs.DELETE;
-import jakarta.ws.rs.GET;
-import jakarta.ws.rs.POST;
-import jakarta.ws.rs.PUT;
-import jakarta.ws.rs.Path;
-import jakarta.ws.rs.PathParam;
-import jakarta.ws.rs.Produces;
-import jakarta.ws.rs.core.Context;
-import jakarta.ws.rs.core.MediaType;
-import jakarta.ws.rs.core.Response;
-import jakarta.ws.rs.core.UriInfo;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
-import org.springframework.stereotype.Controller;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.util.MultiValueMap;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -49,9 +47,8 @@ import java.util.stream.Collectors;
  * Only accessible by users with administrative permissions.
  */
 @Slf4j
-@Path("/ai/configurations")
-@Produces(MediaType.APPLICATION_JSON)
-@Controller
+@RestController
+@RequestMapping("/ai/configurations")
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class AIConfigurationController implements DefaultController {
 
@@ -87,28 +84,27 @@ public class AIConfigurationController implements DefaultController {
      * based on the provided query parameters and pagination settings.
      *
      * @param request     the HttpServletRequest from which to obtain the HttpSession for user validation.
-     * @param uriInfo     UriInfo context to extract query parameters for filtering results.
+     * @param filters     All query parameters for filtering results.
      * @param queryFilter bean parameter encapsulating filtering and pagination criteria.
      * @return a Response object containing the requested page of AIConfigurationDTO objects representing the
      * configurations. The status of the response can vary based on the outcome of the request.
      */
-    @GET
-    public Response getAllConfigurations(final @Context HttpServletRequest request,
-                                  final @Context UriInfo uriInfo,
-                                  final @BeanParam @Valid QueryFilter queryFilter) {
+    @GetMapping
+    public ResponseEntity<Page<AIConfigurationDTO>> getAllConfigurations(
+            final HttpServletRequest request,
+            final @RequestParam MultiValueMap<String, String> filters,
+            final @ModelAttribute QueryFilter queryFilter) {
         HttpSession session = request.getSession();
         User user = userService.getFromSession(session);
         userPermissionService.checkPermission(user, "id", EntityPermission.AI_CONFIGURATION, ActionPermission.ACCESS);
 
-        Map<String, String> filters = new HashMap<>(this.getFilters(uriInfo));
-
         log.info("[{}] Received GET request to get configurations with the following filters: {}", user.getLogin(),
                 filters);
 
-        var resources = aiConfigurationService.findAll(filters, queryFilter.getPagination())
+        var resources = aiConfigurationService.findAll(filters, queryFilter)
                 .map(new BeanMapper<>(AIConfigurationDTO.class));
 
-        return Response.status(this.getStatus(resources)).entity(resources).build();
+        return ResponseEntity.status(this.getStatus(resources)).body(resources);
     }
 
     /**
@@ -119,10 +115,9 @@ public class AIConfigurationController implements DefaultController {
      * @return a Response object containing theAIConfigurationDTO object representing the configuration.
      * The status of the response can vary based on the outcome of the request.
      */
-    @GET
-    @Path("/{id}")
-    public Response getConfigurationById(final @Context HttpServletRequest request,
-                                  final @PathParam("id") @Valid @NotNull UUID id) {
+    @GetMapping("/{id}")
+    public ResponseEntity<AIConfigurationDTO> getConfigurationById(final HttpServletRequest request,
+                                                                   final @PathVariable UUID id) {
         HttpSession session = request.getSession();
         User user = userService.getFromSession(session);
         userPermissionService.checkPermission(user, "id", EntityPermission.AI_CONFIGURATION, ActionPermission.ACCESS);
@@ -131,9 +126,7 @@ public class AIConfigurationController implements DefaultController {
 
         var aiConfiguration = aiConfigurationService.findById(id);
 
-        return Response.status(HttpStatus.OK.value())
-                .entity(new BeanMapper<>(AIConfigurationDTO.class).apply(aiConfiguration))
-                .build();
+        return ResponseEntity.ok(new BeanMapper<>(AIConfigurationDTO.class).apply(aiConfiguration));
     }
 
     /**
@@ -149,9 +142,10 @@ public class AIConfigurationController implements DefaultController {
      * @return a Response object indicating the outcome of the configuration creation. A successful operation returns
      * a status of CREATED.
      */
-    @POST
-    public Response createConfiguration(final @Context HttpServletRequest request,
-                                 final @Valid AIConfigurationRecord aiConfigurationRecord) {
+    @PostMapping
+    public ResponseEntity<AIConfigurationDTO> createConfiguration(
+            final HttpServletRequest request,
+            final @RequestBody @Valid AIConfigurationRecord aiConfigurationRecord) {
         HttpSession session = request.getSession();
         User user = userService.getFromSession(session);
         userPermissionService.checkPermission(user, null, EntityPermission.AI_CONFIGURATION, ActionPermission.CREATE);
@@ -164,9 +158,8 @@ public class AIConfigurationController implements DefaultController {
 
         aiService.sendConfiguration(configuration);
 
-        return Response.status(HttpStatus.CREATED.value())
-                .entity(new BeanMapper<>(AIConfigurationDTO.class).apply(aiConfiguration))
-                .build();
+        return ResponseEntity.status(HttpStatus.CREATED.value())
+                .body(new BeanMapper<>(AIConfigurationDTO.class).apply(aiConfiguration));
     }
 
     /**
@@ -182,9 +175,10 @@ public class AIConfigurationController implements DefaultController {
      * @return a Response object indicating the outcome of configurations update. A successful operation returns
      * a status of OK.
      */
-    @PUT
-    public Response updateConfiguration(final @Context HttpServletRequest request,
-                                        final @Valid List<UpdateMultipleAIConfigurationRecord> aiConfigurationRecords) {
+    @PutMapping
+    public ResponseEntity<List<AIConfigurationDTO>> updateConfiguration(
+            final HttpServletRequest request,
+            final @RequestBody @Valid List<UpdateMultipleAIConfigurationRecord> aiConfigurationRecords) {
         HttpSession session = request.getSession();
         User user = userService.getFromSession(session);
         userPermissionService.checkPermission(user, "id", EntityPermission.AI_CONFIGURATION, ActionPermission.UPDATE);
@@ -212,9 +206,7 @@ public class AIConfigurationController implements DefaultController {
 
         aiService.sendConfiguration(configuration);
 
-        return Response.status(HttpStatus.OK.value())
-                .entity(configurations)
-                .build();
+        return ResponseEntity.ok(configurations);
     }
 
     /**
@@ -231,11 +223,11 @@ public class AIConfigurationController implements DefaultController {
      * @return a Response object indicating the outcome of the configuration update. A successful operation returns
      * a status of OK.
      */
-    @PUT
-    @Path("/{id}")
-    public Response updateConfiguration(final @Context HttpServletRequest request,
-                                 final @PathParam("id") @Valid @NotNull UUID id,
-                                 final @Valid AIConfigurationRecord aiConfigurationRecord) {
+    @PutMapping("/{id}")
+    public ResponseEntity<AIConfigurationDTO> updateConfiguration(
+            final HttpServletRequest request,
+            final @PathVariable UUID id,
+            final @RequestBody @Valid AIConfigurationRecord aiConfigurationRecord) {
         HttpSession session = request.getSession();
         User user = userService.getFromSession(session);
         userPermissionService.checkPermission(user, "id", EntityPermission.AI_CONFIGURATION, ActionPermission.UPDATE);
@@ -247,9 +239,7 @@ public class AIConfigurationController implements DefaultController {
 
         aiService.sendConfiguration(configuration);
 
-        return Response.status(HttpStatus.OK.value())
-                .entity(new BeanMapper<>(AIConfigurationDTO.class).apply(aiConfiguration))
-                .build();
+        return ResponseEntity.ok(new BeanMapper<>(AIConfigurationDTO.class).apply(aiConfiguration));
     }
 
     /**
@@ -264,25 +254,21 @@ public class AIConfigurationController implements DefaultController {
      * @return a Response object with a status indicating the outcome of the deletion operation. A successful operation
      * returns a status of NO_CONTENT.
      */
-    @DELETE
-    @Path("/{id}")
-    public Response deleteConfiguration(final @Context HttpServletRequest request,
-                                 final @PathParam("id") @Valid @NotNull UUID id) {
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Object> deleteConfiguration(final HttpServletRequest request,
+                                                      final @PathVariable UUID id) {
         HttpSession session = request.getSession();
         User user = userService.getFromSession(session);
         userPermissionService.checkPermission(user, "id", EntityPermission.AI_CONFIGURATION, ActionPermission.DELETE);
 
         log.info("[{}] Received DELETE request to delete configuration {}", user.getLogin(), id);
-        var aiConfiguration = aiConfigurationService.findById(id);
-
-        aiConfiguration.setValue(null);
-
+        aiConfigurationService.findById(id);
         var configuration = aiSecretService.generateConfiguration();
 
         aiService.sendConfiguration(configuration);
 
         aiConfigurationService.delete(id);
 
-        return Response.noContent().build();
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).contentType(MediaType.APPLICATION_JSON).build();
     }
 }

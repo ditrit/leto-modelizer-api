@@ -1,12 +1,10 @@
 package com.ditrit.letomodelizerapi.controller;
 
-import jakarta.ws.rs.core.CacheControl;
-import jakarta.ws.rs.core.UriInfo;
 import org.springframework.data.domain.Page;
+import org.springframework.http.CacheControl;
 import org.springframework.http.HttpStatus;
 
-import java.util.Map;
-import java.util.stream.Collectors;
+import java.time.Duration;
 
 /**
  * Interface defining default controller behaviors. This interface provides common utility
@@ -15,20 +13,6 @@ import java.util.stream.Collectors;
  * the pagination details of a resource.
  */
 public interface DefaultController {
-    /**
-     * Extracts filter parameters from the URI query parameters.
-     * This method is useful for parsing query parameters into a map, where each
-     * parameter name is mapped to its corresponding value.
-     *
-     * @param uriInfo URI information containing the query parameters.
-     * @return A map of query parameter names to their respective single value,
-     *         extracted from the provided {@link UriInfo}.
-     */
-    default Map<String, String> getFilters(final UriInfo uriInfo) {
-        return uriInfo.getQueryParameters().entrySet().stream()
-                .map(entry -> Map.entry(entry.getKey(), entry.getValue().get(0)))
-                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
-    }
 
     /**
      * Determines the appropriate HTTP status code based on the pagination details
@@ -60,13 +44,11 @@ public interface DefaultController {
      *         no-store.
      */
     default CacheControl getCacheControl(String maxAge) {
-        CacheControl cacheControl = new CacheControl();
-        cacheControl.setNoCache(false);
-        cacheControl.setNoStore(false);
-        cacheControl.setPrivate(true);
-        cacheControl.setMustRevalidate(true);
-        cacheControl.setMaxAge(Integer.valueOf(maxAge));
+        int maxAgeInSeconds = Integer.parseInt(maxAge);
 
-        return cacheControl;
+        return CacheControl
+                .maxAge(Duration.ofSeconds(maxAgeInSeconds))
+                .cachePrivate()
+                .mustRevalidate();
     }
 }

@@ -4,7 +4,6 @@ import com.ditrit.letomodelizerapi.persistence.model.User;
 import com.ditrit.letomodelizerapi.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
-import jakarta.ws.rs.core.Response;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -13,8 +12,10 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.test.util.ReflectionTestUtils;
 
+import java.io.InputStream;
 import java.net.URISyntaxException;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -36,11 +37,11 @@ class HomeControllerTest {
     @DisplayName("Test home: should return valid response")
     void testHome() {
         HomeController controller = newInstance();
-        Response response = controller.home();
+        ResponseEntity<InputStream> response = controller.home();
 
         assertNotNull(response);
-        assertNotNull(response.getEntity());
-        assertEquals(HttpStatus.OK.value(), response.getStatus());
+        assertNotNull(response.getBody());
+        assertEquals(HttpStatus.OK, response.getStatusCode());
     }
 
     @Test
@@ -58,10 +59,10 @@ class HomeControllerTest {
                 .thenReturn(session);
         HomeController controller = newInstance();
         ReflectionTestUtils.setField(controller, "letoModelizerUrl", "http://localhost:8080/");
-        Response response = controller.redirect(request, null);
+        ResponseEntity<Object> response = controller.redirect(request, null);
 
         assertNotNull(response);
-        assertEquals("http://localhost:8080/", response.getLocation().toString());
+        assertEquals("http://localhost:8080/", response.getHeaders().getLocation().toString());
     }
 
     @Test
@@ -80,10 +81,10 @@ class HomeControllerTest {
         HomeController controller = newInstance();
         ReflectionTestUtils.setField(controller, "letoModelizerUrl", "http://localhost:8080/");
         ReflectionTestUtils.setField(controller, "letoAdminUrl", "http://localhost:9000/");
-        Response response = controller.redirect(request, "admin");
+        ResponseEntity<Object> response = controller.redirect(request, "admin");
 
         assertNotNull(response);
-        assertEquals("http://localhost:9000/", response.getLocation().toString());
+        assertEquals("http://localhost:9000/", response.getHeaders().getLocation().toString());
 
     }
 
@@ -91,9 +92,9 @@ class HomeControllerTest {
     @DisplayName("Test redirect: should redirect to github oauth endpoint.")
     void testLogin() {
         HomeController controller = newInstance();
-        Response response = controller.login();
+        ResponseEntity<Object> response = controller.login();
 
         assertNotNull(response);
-        assertEquals("/api/oauth2/authorization/github", response.getLocation().toString());
+        assertEquals("/api/oauth2/authorization/github", response.getHeaders().getLocation().toString());
     }
 }

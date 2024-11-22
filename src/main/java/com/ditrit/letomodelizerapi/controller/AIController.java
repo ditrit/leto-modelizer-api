@@ -21,38 +21,36 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotNull;
-import jakarta.ws.rs.BeanParam;
-import jakarta.ws.rs.DELETE;
-import jakarta.ws.rs.GET;
-import jakarta.ws.rs.POST;
-import jakarta.ws.rs.PUT;
-import jakarta.ws.rs.Path;
-import jakarta.ws.rs.PathParam;
-import jakarta.ws.rs.Produces;
-import jakarta.ws.rs.core.Context;
-import jakarta.ws.rs.core.HttpHeaders;
-import jakarta.ws.rs.core.MediaType;
-import jakarta.ws.rs.core.Response;
-import jakarta.ws.rs.core.UriInfo;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
-import org.springframework.stereotype.Controller;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.util.MultiValueMap;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.io.IOException;
-import java.util.Map;
 import java.util.UUID;
 
 /**
  * Controller to manage ai endpoint.
  */
-@Path("/ai")
-@Produces(MediaType.APPLICATION_JSON)
-@Controller
 @Slf4j
+@RestController
+@RequestMapping("/ai")
+@ConditionalOnProperty(name = "ai.host", havingValue = "", matchIfMissing = false)
 @AllArgsConstructor(onConstructor = @__(@Autowired))
 public class AIController implements DefaultController {
 
@@ -90,10 +88,9 @@ public class AIController implements DefaultController {
      * @param aiCreateFileRecord the request details for the AI, validated to ensure it meets the expected format.
      * @return a Response object containing the AI's response in JSON format, with a status of CREATED (201).
      */
-    @POST
-    @Path("/generate")
-    public Response generateFiles(final @Context HttpServletRequest request,
-                                  final @Valid AICreateFileRecord aiCreateFileRecord) {
+    @PostMapping("/generate")
+    public ResponseEntity<String> generateFiles(final HttpServletRequest request,
+                                                final @RequestBody @Valid AICreateFileRecord aiCreateFileRecord) {
         HttpSession session = request.getSession();
         User user = userService.getFromSession(session);
 
@@ -102,10 +99,10 @@ public class AIController implements DefaultController {
 
         String json = aiService.createFile(aiCreateFileRecord);
 
-        return Response.status(HttpStatus.CREATED.value())
-                .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
-                .entity(json)
-                .build();
+        return ResponseEntity
+                .status(HttpStatus.CREATED.value())
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(json);
     }
 
     /**
@@ -117,10 +114,10 @@ public class AIController implements DefaultController {
      * @return a Response object containing the created AI conversation DTO with a status of CREATED (201).
      * @throws JsonProcessingException if there is an error processing the request data.
      */
-    @POST
-    @Path("/conversations")
-    public Response createConversations(final @Context HttpServletRequest request,
-                                        final @Valid AIConversationRecord aiConversationRecord)
+    @PostMapping("/conversations")
+    public ResponseEntity<AIConversationDTO> createConversations(
+            final HttpServletRequest request,
+            final @RequestBody @Valid AIConversationRecord aiConversationRecord)
             throws JsonProcessingException {
         HttpSession session = request.getSession();
         User user = userService.getFromSession(session);
@@ -131,35 +128,34 @@ public class AIController implements DefaultController {
         AIConversationDTO dto = new BeanMapper<>(AIConversationDTO.class)
                 .apply(aiService.createConversation(user, aiConversationRecord));
 
-        return Response.status(HttpStatus.CREATED.value()).entity(dto).build();
+        return ResponseEntity.status(HttpStatus.CREATED.value()).body(dto);
     }
 
     /**
      * Handles a GET request to retrieve all AI conversations with optional filtering and pagination.
      * This endpoint allows administrators to view all AI conversations.
      *
-     * @param request the HttpServletRequest used to access the user's session.
-     * @param uriInfo UriInfo object to retrieve query parameters.
+     * @param request     the HttpServletRequest used to access the user's session.
+     * @param filters     All query parameters for filtering results.
      * @param queryFilter the filter criteria and pagination information.
      * @return a Response object containing a paginated list of AIConversationDTOs.
      */
-    @GET
-    @Path("/conversations")
-    public Response findAllConversations(final @Context HttpServletRequest request,
-                                         final @Context UriInfo uriInfo,
-                                         final @BeanParam @Valid QueryFilter queryFilter) {
+    @GetMapping("/conversations")
+    public ResponseEntity<Page<AIConversationDTO>> findAllConversations(
+            final HttpServletRequest request,
+            final @RequestParam MultiValueMap<String, String> filters,
+            final @ModelAttribute QueryFilter queryFilter) {
         HttpSession session = request.getSession();
         User user = userService.getFromSession(session);
         userPermissionService.checkIsAdmin(user, null);
-        Map<String, String> filters = this.getFilters(uriInfo);
 
         log.info("[{}] Received GET request to get AI conversations with the following filters: {}",
                 user.getLogin(), filters);
 
-        Page<AIConversationDTO> resources = aiService.findAllConversations(filters, queryFilter.getPagination())
+        Page<AIConversationDTO> resources = aiService.findAllConversations(filters, queryFilter)
                 .map(new BeanMapper<>(AIConversationDTO.class));
 
-        return Response.status(getStatus(resources)).entity(resources).build();
+        return ResponseEntity.status(this.getStatus(resources)).body(resources);
     }
 
     /**
@@ -170,10 +166,9 @@ public class AIController implements DefaultController {
      * @param id the ID of the AI conversation to retrieve.
      * @return a Response object containing the AIConversationDTO with a status of OK (200).
      */
-    @GET
-    @Path("/conversations/{id}")
-    public Response getConversationById(final @Context HttpServletRequest request,
-                                         final @PathParam("id") @Valid @NotNull UUID id) {
+    @GetMapping("/conversations/{id}")
+    public ResponseEntity<AIConversationDTO> getConversationById(final HttpServletRequest request,
+                                                                 final @PathVariable UUID id) {
         HttpSession session = request.getSession();
         User user = userService.getFromSession(session);
 
@@ -182,7 +177,7 @@ public class AIController implements DefaultController {
         AIConversationDTO dto = new BeanMapper<>(AIConversationDTO.class)
                 .apply(aiService.getConversationById(user, id));
 
-        return Response.status(HttpStatus.OK.value()).entity(dto).build();
+        return ResponseEntity.ok(dto);
     }
 
     /**
@@ -195,11 +190,11 @@ public class AIController implements DefaultController {
      * @return a Response object containing the updated AIConversationDTO with a status of OK (200).
      * @throws JsonProcessingException if there is an error processing the request data.
      */
-    @PUT
-    @Path("/conversations/{id}")
-    public Response updateConversationById(final @Context HttpServletRequest request,
-                                         final @PathParam("id") @Valid @NotNull UUID id,
-                                         final @Valid AIConversationRecord aiConversationRecord)
+    @PutMapping("/conversations/{id}")
+    public ResponseEntity<AIConversationDTO> updateConversationById(
+            final HttpServletRequest request,
+            final @PathVariable UUID id,
+            final @RequestBody @Valid AIConversationRecord aiConversationRecord)
             throws JsonProcessingException {
         HttpSession session = request.getSession();
         User user = userService.getFromSession(session);
@@ -210,7 +205,7 @@ public class AIController implements DefaultController {
         AIConversationDTO dto = new BeanMapper<>(AIConversationDTO.class)
                 .apply(aiService.updateConversationById(user, id, aiConversationRecord));
 
-        return Response.status(HttpStatus.OK.value()).entity(dto).build();
+        return ResponseEntity.ok(dto);
     }
 
     /**
@@ -221,10 +216,9 @@ public class AIController implements DefaultController {
      * @param id the ID of the AI conversation to delete.
      * @return a Response object with a status of NO CONTENT (204) upon successful deletion.
      */
-    @DELETE
-    @Path("/conversations/{id}")
-    public Response deleteConversationById(final @Context HttpServletRequest request,
-                                         final @PathParam("id") @Valid @NotNull UUID id) {
+    @DeleteMapping("/conversations/{id}")
+    public ResponseEntity<Object> deleteConversationById(final HttpServletRequest request,
+                                                         final @PathVariable UUID id) {
         HttpSession session = request.getSession();
         User user = userService.getFromSession(session);
 
@@ -236,7 +230,7 @@ public class AIController implements DefaultController {
             aiService.deleteConversationById(user, id);
         }
 
-        return Response.noContent().build();
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).contentType(MediaType.APPLICATION_JSON).build();
     }
 
     /**
@@ -249,11 +243,11 @@ public class AIController implements DefaultController {
      * @return a Response object containing the AI's reply in plain text with a status of CREATED (201).
      * @throws JsonProcessingException if there is an error processing the request data.
      */
-    @POST
-    @Path("/conversations/{id}/messages")
-    public Response createConversationMessage(final @Context HttpServletRequest request,
-                                              final @PathParam("id") @Valid @NotNull UUID id,
-                                              final @Valid AIMessageRecord aiMessage) throws IOException {
+    @PostMapping("/conversations/{id}/messages")
+    public ResponseEntity<AIMessageDTO> createConversationMessage(final HttpServletRequest request,
+                                                                  final @PathVariable UUID id,
+                                                                  final @RequestBody @Valid AIMessageRecord aiMessage)
+            throws IOException {
         HttpSession session = request.getSession();
         User user = userService.getFromSession(session);
 
@@ -262,7 +256,7 @@ public class AIController implements DefaultController {
 
         AIMessageDTO aiMessageDTO = new AIMessageToDTOMapper().apply(aiService.sendMessage(user, id, aiMessage));
 
-        return Response.status(HttpStatus.CREATED.value()).entity(aiMessageDTO).build();
+        return ResponseEntity.status(HttpStatus.CREATED.value()).body(aiMessageDTO);
     }
 
     /**
@@ -270,29 +264,27 @@ public class AIController implements DefaultController {
      * pagination.
      * This endpoint allows users to view the conversation history with AI.
      *
-     * @param request the HttpServletRequest used to access the user's session.
-     * @param id the ID of the AI conversation from which to retrieve messages.
-     * @param uriInfo UriInfo object to retrieve query parameters.
+     * @param request     the HttpServletRequest used to access the user's session.
+     * @param id          the ID of the AI conversation from which to retrieve messages.
+     * @param filters     All query parameters for filtering results.
      * @param queryFilter the filter criteria and pagination information.
      * @return a Response object containing a paginated list of AIMessageDTOs.
      */
-    @GET
-    @Path("/conversations/{id}/messages")
-    public Response findAllMessages(final @Context HttpServletRequest request,
-                                    final @PathParam("id") @Valid @NotNull UUID id,
-                                    final @Context UriInfo uriInfo,
-                                    final @BeanParam @Valid QueryFilter queryFilter) {
+    @GetMapping("/conversations/{id}/messages")
+    public ResponseEntity<Page<AIMessageDTO>> findAllMessages(final HttpServletRequest request,
+                                                              final @PathVariable UUID id,
+                                                              final @RequestParam MultiValueMap<String, String> filters,
+                                                              final @ModelAttribute QueryFilter queryFilter) {
         HttpSession session = request.getSession();
         User user = userService.getFromSession(session);
-        Map<String, String> filters = this.getFilters(uriInfo);
 
         log.info("[{}] Received GET request to get AI messages with conversation id {} with the following filters: {}",
                 user.getLogin(), id.toString(), filters);
 
-        Page<AIMessageDTO> resources = aiService.findAllMessages(user, id, filters, queryFilter.getPagination())
+        Page<AIMessageDTO> resources = aiService.findAllMessages(user, id, filters, queryFilter)
                 .map(new AIMessageToDTOMapper());
 
-        return Response.status(this.getStatus(resources)).entity(resources).build();
+        return ResponseEntity.status(this.getStatus(resources)).body(resources);
     }
 
     /**
@@ -303,12 +295,11 @@ public class AIController implements DefaultController {
      *
      * @param request the {@link HttpServletRequest} containing the current HTTP request information, used to retrieve
      *                the session details.
-     * @return a {@link Response} with a 204 (No Content) status, indicating the configuration was successfully sent
-     *         to the AI proxy.
+     * @return a {@link ResponseEntity} with a 204 (No Content) status, indicating the configuration was successfully
+     * sent to the AI proxy.
      */
-    @GET
-    @Path("/proxy/configuration")
-    public Response sendConfigurationToProxy(final @Context HttpServletRequest request) {
+    @GetMapping("/proxy/configuration")
+    public ResponseEntity<Object> sendConfigurationToProxy(final HttpServletRequest request) {
         HttpSession session = request.getSession();
         log.info("[{}] Received GET request to send configuration to proxy",
                 session.getAttribute(Constants.DEFAULT_USER_PROPERTY));
@@ -317,7 +308,7 @@ public class AIController implements DefaultController {
 
         aiService.sendConfiguration(configuration);
 
-        return Response.noContent().build();
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).contentType(MediaType.APPLICATION_JSON).build();
     }
 
     /**
@@ -328,12 +319,11 @@ public class AIController implements DefaultController {
      *
      * @param request the {@link HttpServletRequest} containing the current HTTP request information, used to retrieve
      *                the session details and user information.
-     * @return a {@link Response} containing the configuration descriptions in the response body with a 200 (OK) status.
-     *         If the user lacks permission, an appropriate error response will be returned.
+     * @return a {@link ResponseEntity} containing the configuration descriptions in the response body with a 200 (OK)
+     * status. If the user lacks permission, an appropriate error response will be returned.
      */
-    @GET
-    @Path("/proxy/descriptions")
-    public Response retrieveConfigurationDescriptions(final @Context HttpServletRequest request) {
+    @GetMapping("/proxy/descriptions")
+    public ResponseEntity<String> retrieveConfigurationDescriptions(final HttpServletRequest request) {
         HttpSession session = request.getSession();
         User user = userService.getFromSession(session);
         userPermissionService.checkPermission(user, "id", EntityPermission.AI_SECRET, ActionPermission.ACCESS);
@@ -342,6 +332,9 @@ public class AIController implements DefaultController {
 
         var descriptions = aiService.getConfigurationDescriptions();
 
-        return Response.ok(descriptions).build();
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(descriptions);
     }
 }

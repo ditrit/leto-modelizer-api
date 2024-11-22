@@ -14,32 +14,28 @@ import com.ditrit.letomodelizerapi.service.UserPermissionService;
 import com.ditrit.letomodelizerapi.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
-import jakarta.validation.Valid;
-import jakarta.ws.rs.BeanParam;
-import jakarta.ws.rs.GET;
-import jakarta.ws.rs.Path;
-import jakarta.ws.rs.Produces;
-import jakarta.ws.rs.core.Context;
-import jakarta.ws.rs.core.MediaType;
-import jakarta.ws.rs.core.Response;
-import jakarta.ws.rs.core.UriInfo;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
-import org.springframework.http.HttpStatus;
-import org.springframework.stereotype.Controller;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.util.MultiValueMap;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.net.http.HttpResponse;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Controller to manage all current user endpoints.
  */
-@Path("/users/me")
-@Produces(MediaType.APPLICATION_JSON)
-@Controller
+@RestController
+@RequestMapping("/users/me")
 @Slf4j
 public class CurrentUserController implements DefaultController {
 
@@ -103,17 +99,14 @@ public class CurrentUserController implements DefaultController {
      * @param request Http request to get session.
      * @return Response with user information.
      */
-    @GET
-    public Response getMyInformation(final @Context HttpServletRequest request) {
+    @GetMapping
+    public ResponseEntity<UserDTO> getMyInformation(final HttpServletRequest request) {
         HttpSession session = request.getSession();
         User user = userService.getFromSession(session);
 
         log.info("[{}] Received GET request to get current user information", user.getLogin());
 
-        return Response
-            .status(HttpStatus.OK.value())
-            .entity(new BeanMapper<>(UserDTO.class).apply(user))
-            .build();
+        return ResponseEntity.ok(new BeanMapper<>(UserDTO.class).apply(user));
     }
 
     /**
@@ -121,9 +114,8 @@ public class CurrentUserController implements DefaultController {
      * @param request Http request to get session.
      * @return Response with image in body.
      */
-    @GET
-    @Path("/picture")
-    public Response getMyPicture(final @Context HttpServletRequest request) {
+    @GetMapping("/picture")
+    public ResponseEntity<byte[]> getMyPicture(final HttpServletRequest request) {
         HttpSession session = request.getSession();
         User user = userService.getFromSession(session);
         HttpResponse<byte[]> response = userService.getPicture(user);
@@ -133,7 +125,14 @@ public class CurrentUserController implements DefaultController {
 
         log.info("[{}] Received GET request to get current user picture", user.getLogin());
 
-        return Response.ok(response.body(), contentType).cacheControl(getCacheControl(userPictureCacheMaxAge)).build();
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.parseMediaType(contentType));
+        headers.setCacheControl(getCacheControl(userPictureCacheMaxAge));
+
+        return ResponseEntity
+                .ok()
+                .headers(headers)
+                .body(response.body());
     }
 
     /**
@@ -141,9 +140,8 @@ public class CurrentUserController implements DefaultController {
      * @param request Http request to get session.
      * @return Response with permissions.
      */
-    @GET
-    @Path("/permissions")
-    public Response getMyPermissions(final @Context HttpServletRequest request) {
+    @GetMapping("/permissions")
+    public ResponseEntity<List<PermissionDTO>> getMyPermissions(final HttpServletRequest request) {
         HttpSession session = request.getSession();
         User user = userService.getFromSession(session);
 
@@ -154,7 +152,7 @@ public class CurrentUserController implements DefaultController {
                 .map(new BeanMapper<>(PermissionDTO.class))
                 .toList();
 
-        return Response.ok(permissions).build();
+        return ResponseEntity.ok(permissions);
     }
 
     /**
@@ -164,19 +162,17 @@ public class CurrentUserController implements DefaultController {
      * then fetches their roles using the AccessControlService.
      *
      * @param request      HttpServletRequest to access the HTTP session and thereby identify the current user.
-     * @param uriInfo      UriInfo to extract query parameters for additional filtering.
-     * @param queryFilter  BeanParam object for pagination and filtering purposes.
+     * @param filters     All query parameters for filtering results.
+     * @param queryFilter the filter criteria and pagination information.
      * @return a Response containing a paginated list of AccessControlDTO objects representing the roles of the current
      * user.
      */
-    @GET
-    @Path("/roles")
-    public Response getMyRoles(final @Context HttpServletRequest request,
-                               final @Context UriInfo uriInfo,
-                               final @BeanParam @Valid QueryFilter queryFilter) {
+    @GetMapping("/roles")
+    public ResponseEntity<Page<AccessControlDTO>> getMyRoles(final HttpServletRequest request,
+                                                             final @RequestParam MultiValueMap<String, String> filters,
+                                                             final @ModelAttribute QueryFilter queryFilter) {
         HttpSession session = request.getSession();
         User user = userService.getFromSession(session);
-        Map<String, String> filters = this.getFilters(uriInfo);
 
         log.info(
                 "[{}] Received GET request to get current user roles with the following filters: {}",
@@ -188,10 +184,10 @@ public class CurrentUserController implements DefaultController {
                 AccessControlType.ROLE,
                 user,
                 filters,
-                queryFilter.getPagination()
+                queryFilter
         ).map(new BeanMapper<>(AccessControlDTO.class));
 
-        return Response.status(this.getStatus(resources)).entity(resources).build();
+        return ResponseEntity.status(this.getStatus(resources)).body(resources);
     }
 
     /**
@@ -200,20 +196,18 @@ public class CurrentUserController implements DefaultController {
      * The method uses the session information from the HttpServletRequest to identify the current user and
      * then fetches their roles using the AccessControlService.
      *
-     * @param request      HttpServletRequest to access the HTTP session and thereby identify the current user.
-     * @param uriInfo      UriInfo to extract query parameters for additional filtering.
-     * @param queryFilter  BeanParam object for pagination and filtering purposes.
+     * @param request     HttpServletRequest to access the HTTP session and thereby identify the current user.
+     * @param filters     All query parameters for filtering results.
+     * @param queryFilter the filter criteria and pagination information.
      * @return a Response containing a paginated list of AccessControlDTO objects representing the roles of the current
      * user.
      */
-    @GET
-    @Path("/groups")
-    public Response getMyGroups(final @Context HttpServletRequest request,
-                                final @Context UriInfo uriInfo,
-                                final @BeanParam @Valid QueryFilter queryFilter) {
+    @GetMapping("/groups")
+    public ResponseEntity<Page<AccessControlDTO>> getMyGroups(final HttpServletRequest request,
+                                                              final @RequestParam MultiValueMap<String, String> filters,
+                                                              final @ModelAttribute QueryFilter queryFilter) {
         HttpSession session = request.getSession();
         User user = userService.getFromSession(session);
-        Map<String, String> filters = this.getFilters(uriInfo);
 
         log.info(
                 "[{}] Received GET request to get current user groups with the following filters: {}",
@@ -225,10 +219,10 @@ public class CurrentUserController implements DefaultController {
                 AccessControlType.GROUP,
                 user,
                 filters,
-                queryFilter.getPagination()
+                queryFilter
         ).map(new BeanMapper<>(AccessControlDTO.class));
 
-        return Response.status(this.getStatus(resources)).entity(resources).build();
+        return ResponseEntity.status(this.getStatus(resources)).body(resources);
     }
 
     /**
@@ -237,20 +231,18 @@ public class CurrentUserController implements DefaultController {
      * The method uses the session information from the HttpServletRequest to identify the current user and
      * then fetches their scopes using the AccessControlService.
      *
-     * @param request      HttpServletRequest to access the HTTP session and thereby identify the current user.
-     * @param uriInfo      UriInfo to extract query parameters for additional filtering.
-     * @param queryFilter  BeanParam object for pagination and filtering purposes.
+     * @param request     HttpServletRequest to access the HTTP session and thereby identify the current user.
+     * @param filters     All query parameters for filtering results.
+     * @param queryFilter the filter criteria and pagination information.
      * @return a Response containing a paginated list of AccessControlDTO objects representing the scopes of the current
      * user.
      */
-    @GET
-    @Path("/scopes")
-    public Response getMyScopes(final @Context HttpServletRequest request,
-                                final @Context UriInfo uriInfo,
-                                final @BeanParam @Valid QueryFilter queryFilter) {
+    @GetMapping("/scopes")
+    public ResponseEntity<Page<AccessControlDTO>> getMyScopes(final HttpServletRequest request,
+                                                              final @RequestParam MultiValueMap<String, String> filters,
+                                                              final @ModelAttribute QueryFilter queryFilter) {
         HttpSession session = request.getSession();
         User user = userService.getFromSession(session);
-        Map<String, String> filters = this.getFilters(uriInfo);
 
         log.info(
                 "[{}] Received GET request to get current user scopes with the following filters: {}",
@@ -262,10 +254,10 @@ public class CurrentUserController implements DefaultController {
                 AccessControlType.SCOPE,
                 user,
                 filters,
-                queryFilter.getPagination()
+                queryFilter
         ).map(new BeanMapper<>(AccessControlDTO.class));
 
-        return Response.status(this.getStatus(resources)).entity(resources).build();
+        return ResponseEntity.status(this.getStatus(resources)).body(resources);
     }
 
     /**
@@ -275,20 +267,19 @@ public class CurrentUserController implements DefaultController {
      * The method uses the session information from the HttpServletRequest to identify the current user and
      * then fetches their AI conversations using the AIService.
      *
-     * @param request      HttpServletRequest to access the HTTP session and thereby identify the current user.
-     * @param uriInfo      UriInfo to extract query parameters for additional filtering.
-     * @param queryFilter  BeanParam object for pagination and filtering purposes.
+     * @param request     HttpServletRequest to access the HTTP session and thereby identify the current user.
+     * @param filters     All query parameters for filtering results.
+     * @param queryFilter the filter criteria and pagination information.
      * @return a Response containing a paginated list of AIConversationDTO objects representing the AI conversation of
      * the current user.
      */
-    @GET
-    @Path("/ai/conversations")
-    public Response getMyAIConversations(final @Context HttpServletRequest request,
-                                final @Context UriInfo uriInfo,
-                                final @BeanParam @Valid QueryFilter queryFilter) {
+    @GetMapping("/ai/conversations")
+    public ResponseEntity<Page<AIConversationDTO>> getMyAIConversations(
+            final HttpServletRequest request,
+            final @RequestParam MultiValueMap<String, String> filters,
+            final @ModelAttribute QueryFilter queryFilter) {
         HttpSession session = request.getSession();
         User user = userService.getFromSession(session);
-        Map<String, String> filters = this.getFilters(uriInfo);
 
         log.info(
                 "[{}] Received GET request to get current user AI conversations with the following filters: {}",
@@ -299,9 +290,9 @@ public class CurrentUserController implements DefaultController {
         Page<AIConversationDTO> resources = aiService.findAll(
                 user,
                 filters,
-                queryFilter.getPagination()
+                queryFilter
         ).map(new BeanMapper<>(AIConversationDTO.class));
 
-        return Response.status(this.getStatus(resources)).entity(resources).build();
+        return ResponseEntity.status(this.getStatus(resources)).body(resources);
     }
 }
