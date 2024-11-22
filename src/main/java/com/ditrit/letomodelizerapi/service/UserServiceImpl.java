@@ -1,12 +1,13 @@
 package com.ditrit.letomodelizerapi.service;
 
 import com.ditrit.letomodelizerapi.config.Constants;
+import com.ditrit.letomodelizerapi.controller.model.QueryFilter;
 import com.ditrit.letomodelizerapi.model.error.ApiException;
 import com.ditrit.letomodelizerapi.model.error.ErrorType;
 import com.ditrit.letomodelizerapi.model.user.UserRecord;
 import com.ditrit.letomodelizerapi.persistence.model.User;
 import com.ditrit.letomodelizerapi.persistence.repository.UserRepository;
-import com.ditrit.letomodelizerapi.persistence.specification.SpecificationHelper;
+import com.ditrit.letomodelizerapi.persistence.specification.CustomSpringQueryFilterSpecification;
 import jakarta.servlet.http.HttpSession;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
@@ -14,9 +15,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
@@ -26,6 +24,7 @@ import java.net.URISyntaxException;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -118,11 +117,11 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public Page<User> findAll(final Map<String, String> filters, final Pageable pageable) {
-        return this.userRepository.findAll(new SpecificationHelper<>(User.class, filters), PageRequest.of(
-                pageable.getPageNumber(),
-                pageable.getPageSize(),
-                pageable.getSortOr(Sort.by(Sort.Direction.ASC, "name"))));
+    public Page<User> findAll(final Map<String, List<String>> filters,
+                              final QueryFilter queryFilter) {
+        return this.userRepository.findAll(
+                new CustomSpringQueryFilterSpecification<>(User.class, filters),
+                queryFilter.getPageable(true, "name"));
     }
 
     @Override

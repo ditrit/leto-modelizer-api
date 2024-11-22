@@ -1,7 +1,10 @@
 package com.ditrit.letomodelizerapi.service;
 
+import com.ditrit.letomodelizerapi.controller.model.QueryFilter;
 import com.ditrit.letomodelizerapi.model.error.ApiException;
 import com.ditrit.letomodelizerapi.model.error.ErrorType;
+import com.ditrit.letomodelizerapi.model.permission.ActionPermission;
+import com.ditrit.letomodelizerapi.model.permission.EntityPermission;
 import com.ditrit.letomodelizerapi.persistence.model.AccessControl;
 import com.ditrit.letomodelizerapi.persistence.model.Library;
 import com.ditrit.letomodelizerapi.persistence.model.Permission;
@@ -16,10 +19,9 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.util.LinkedMultiValueMap;
 
-import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -50,7 +52,7 @@ class PermissionServiceImplTest {
                 .when(permissionRepository.findAll(Mockito.any(Specification.class), Mockito.any()))
                 .thenReturn(Page.empty());
 
-        assertEquals(Page.empty(), service.findAll(Map.of(), Pageable.ofSize(10)));
+        assertEquals(Page.empty(), service.findAll(new LinkedMultiValueMap<>(), new QueryFilter()));
     }
 
     @Test
@@ -59,8 +61,8 @@ class PermissionServiceImplTest {
         Permission expectedPermission = new Permission();
 
         expectedPermission.setId(UUID.randomUUID());
-        expectedPermission.setEntity("entity");
-        expectedPermission.setAction("action");
+        expectedPermission.setEntity(EntityPermission.ADMIN);
+        expectedPermission.setAction(ActionPermission.ACCESS);
 
         Mockito
                 .when(permissionRepository.findById(Mockito.any()))

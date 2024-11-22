@@ -1,5 +1,6 @@
 package com.ditrit.letomodelizerapi.service;
 
+import com.ditrit.letomodelizerapi.controller.model.QueryFilter;
 import com.ditrit.letomodelizerapi.model.error.ApiException;
 import com.ditrit.letomodelizerapi.model.error.ErrorType;
 import com.ditrit.letomodelizerapi.model.user.UserRecord;
@@ -16,14 +17,13 @@ import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.util.LinkedMultiValueMap;
 
 import java.io.IOException;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
-import java.util.Map;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -240,7 +240,7 @@ class UserServiceImplTest {
     @DisplayName("Test findAll: should retrieve all paginated users")
     void testFindAll() {
         Mockito.when(userRepository.findAll(Mockito.any(Specification.class), Mockito.any())).thenReturn(Page.empty());
-        assertEquals(Page.empty(), service.findAll(Map.of(), Pageable.ofSize(10)));
+        assertEquals(Page.empty(), service.findAll(new LinkedMultiValueMap<>(), new QueryFilter()));
     }
 
     @Test

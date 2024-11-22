@@ -1,5 +1,6 @@
 package com.ditrit.letomodelizerapi.service;
 
+import com.ditrit.letomodelizerapi.controller.model.QueryFilter;
 import com.ditrit.letomodelizerapi.model.error.ApiException;
 import com.ditrit.letomodelizerapi.model.error.ErrorType;
 import com.ditrit.letomodelizerapi.model.permission.ActionPermission;
@@ -17,12 +18,11 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
+import org.springframework.util.LinkedMultiValueMap;
 
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -45,13 +45,13 @@ class UserPermissionServiceImplTest {
         UserPermission userPermission = new UserPermission();
         userPermission.setId("id");
         userPermission.setPermissionId(uuid);
-        userPermission.setEntity(EntityPermission.ADMIN.name());
-        userPermission.setAction(ActionPermission.ACCESS.name());
+        userPermission.setEntity(EntityPermission.ADMIN);
+        userPermission.setAction(ActionPermission.ACCESS);
 
         Permission expectedPermission = new Permission();
         expectedPermission.setId(uuid);
-        expectedPermission.setEntity(EntityPermission.ADMIN.name());
-        expectedPermission.setAction(ActionPermission.ACCESS.name());
+        expectedPermission.setEntity(EntityPermission.ADMIN);
+        expectedPermission.setAction(ActionPermission.ACCESS);
 
         Mockito
                 .when(userPermissionRepository.findAllByUserIdAndEntityIsNot(Mockito.any(), Mockito.any()))
@@ -71,7 +71,7 @@ class UserPermissionServiceImplTest {
                 .when(userPermissionRepository.findAll(Mockito.any(Specification.class), Mockito.any()))
                 .thenReturn(Page.empty());
 
-        assertEquals(Page.empty(), service.findAll(user, Map.of(), Pageable.ofSize(10)));
+        assertEquals(Page.empty(), service.findAll(user, new LinkedMultiValueMap<>(), new QueryFilter()));
     }
 
     @Test

@@ -1,10 +1,11 @@
 package com.ditrit.letomodelizerapi.service;
 
+import com.ditrit.letomodelizerapi.controller.model.QueryFilter;
 import com.ditrit.letomodelizerapi.model.ai.AISecretRecord;
 import com.ditrit.letomodelizerapi.persistence.model.AISecret;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -17,11 +18,11 @@ public interface AISecretService {
     /**
      * Finds and returns a page of AISecret entities, filtered by provided criteria.
      *
-     * @param filters  a Map of strings representing the filtering criteria.
-     * @param pageable a Pageable object for pagination information.
+     * @param filters a Map of strings representing the filtering criteria.
+     * @param queryFilter a Pageable object for pagination information.
      * @return a Page of AISecret entities matching the specified type and filters.
      */
-    Page<AISecret> findAll(Map<String, String> filters, Pageable pageable);
+    Page<AISecret> findAll(Map<String, List<String>> filters, QueryFilter queryFilter);
 
     /**
      * Finds and returns an AISecret entity of a specific type by its ID.

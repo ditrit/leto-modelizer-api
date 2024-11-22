@@ -1,11 +1,11 @@
 package com.ditrit.letomodelizerapi.service;
 
+import com.ditrit.letomodelizerapi.controller.model.QueryFilter;
 import com.ditrit.letomodelizerapi.model.permission.ActionPermission;
 import com.ditrit.letomodelizerapi.model.permission.EntityPermission;
 import com.ditrit.letomodelizerapi.persistence.model.Permission;
 import com.ditrit.letomodelizerapi.persistence.model.User;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 import java.util.Map;
@@ -38,14 +38,12 @@ public interface UserPermissionService {
      *
      * @param user the User object for whom the permissions are being queried. This can be used to limit the search to
      *             permissions relevant to the user, either directly or through roles and groups the user belongs to.
-     * @param filters a map containing key-value pairs representing the filters to apply to the search. Each entry in
-     *                the map corresponds to a field and value to filter by.
-     * @param pageable a Pageable object specifying the pagination information such as page number, size, and sort
-     *                 order.
+     * @param filters a Map of strings representing the filtering criteria.
+     * @param queryFilter a Pageable object for pagination information.
      * @return a Page<Permission> containing the permissions that match the given user, filters, and pagination
      * settings.
      */
-    Page<Permission> findAll(User user, Map<String, String> filters, Pageable pageable);
+    Page<Permission> findAll(User user, Map<String, List<String>> filters, QueryFilter queryFilter);
 
     /**
      * Checks if a given user has permission for a specific action on an entity.

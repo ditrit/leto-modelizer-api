@@ -1,22 +1,22 @@
 package com.ditrit.letomodelizerapi.service;
 
+import com.ditrit.letomodelizerapi.controller.model.QueryFilter;
 import com.ditrit.letomodelizerapi.model.error.ApiException;
 import com.ditrit.letomodelizerapi.model.error.ErrorType;
 import com.ditrit.letomodelizerapi.persistence.model.AccessControlPermission;
 import com.ditrit.letomodelizerapi.persistence.model.AccessControlPermissionView;
 import com.ditrit.letomodelizerapi.persistence.repository.AccessControlPermissionRepository;
 import com.ditrit.letomodelizerapi.persistence.repository.AccessControlPermissionViewRepository;
-import com.ditrit.letomodelizerapi.persistence.specification.SpecificationHelper;
+import com.ditrit.letomodelizerapi.persistence.specification.CustomSpringQueryFilterSpecification;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
@@ -51,15 +51,14 @@ public class AccessControlPermissionServiceImpl implements AccessControlPermissi
 
     @Override
     public Page<AccessControlPermissionView> findAll(final UUID id,
-                                                     final Map<String, String> immutableFilters,
-                                                     final Pageable pageable) {
-        Map<String, String> filters = new HashMap<>(immutableFilters);
-        filters.put("accessControlId", id.toString());
+                                                     final Map<String, List<String>> immutableFilters,
+                                                     final QueryFilter queryFilter) {
+        var filters = new HashMap<>(immutableFilters);
+        filters.put("accessControlId", List.of(id.toString()));
 
         return accessControlPermissionViewRepository.findAll(
-                new SpecificationHelper<>(AccessControlPermissionView.class, filters),
-                PageRequest.of(pageable.getPageNumber(), pageable.getPageSize())
-        );
+                new CustomSpringQueryFilterSpecification<>(AccessControlPermissionView.class, filters),
+                queryFilter.getPageable());
     }
 
     @Override

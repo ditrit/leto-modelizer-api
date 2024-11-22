@@ -1,12 +1,13 @@
 package com.ditrit.letomodelizerapi.service;
 
+import com.ditrit.letomodelizerapi.controller.model.QueryFilter;
 import com.ditrit.letomodelizerapi.model.user.UserRecord;
 import com.ditrit.letomodelizerapi.persistence.model.User;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 
 import java.net.http.HttpResponse;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -59,11 +60,11 @@ public interface UserService {
      * This method allows for dynamic querying of users based on specified filters
      * and includes pagination and sorting functionality.
      *
-     * @param filters A map of string key-value pairs representing the filtering criteria.
-     * @param pageable The pagination and sorting information.
+     * @param filters a Map of strings representing the filtering criteria.
+     * @param queryFilter a Pageable object for pagination information.
      * @return A {@link Page<User>} containing users that match the filtering criteria.
      */
-    Page<User> findAll(Map<String, String> filters, Pageable pageable);
+    Page<User> findAll(Map<String, List<String>> filters, QueryFilter queryFilter);
 
     /**
      * Retrieves a user by their login identifier.

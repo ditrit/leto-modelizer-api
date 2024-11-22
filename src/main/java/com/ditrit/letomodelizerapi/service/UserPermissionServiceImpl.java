@@ -1,5 +1,6 @@
 package com.ditrit.letomodelizerapi.service;
 
+import com.ditrit.letomodelizerapi.controller.model.QueryFilter;
 import com.ditrit.letomodelizerapi.model.error.ApiException;
 import com.ditrit.letomodelizerapi.model.error.ErrorType;
 import com.ditrit.letomodelizerapi.model.permission.ActionPermission;
@@ -9,15 +10,12 @@ import com.ditrit.letomodelizerapi.persistence.model.Permission;
 import com.ditrit.letomodelizerapi.persistence.model.User;
 import com.ditrit.letomodelizerapi.persistence.model.UserPermission;
 import com.ditrit.letomodelizerapi.persistence.repository.UserPermissionRepository;
-import com.ditrit.letomodelizerapi.persistence.specification.SpecificationHelper;
+import com.ditrit.letomodelizerapi.persistence.specification.CustomSpringQueryFilterSpecification;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
@@ -73,17 +71,15 @@ public class UserPermissionServiceImpl implements UserPermissionService {
 
     @Override
     public Page<Permission> findAll(final User user,
-                                    final Map<String, String> immutableFilters,
-                                    final Pageable pageable) {
-        Map<String, String> filters = new HashMap<>(immutableFilters);
-        filters.put(USER_ID, user.getId().toString());
+                                    final Map<String, List<String>> immutableFilters,
+                                    final QueryFilter queryFilter) {
+        var filters = new HashMap<>(immutableFilters);
+        filters.put(USER_ID, List.of(user.getId().toString()));
 
         return this.userPermissionRepository.findAll(
-                new SpecificationHelper<>(UserPermission.class, filters), PageRequest.of(
-                    pageable.getPageNumber(),
-                    pageable.getPageSize(),
-                    pageable.getSortOr(Sort.by(Sort.Direction.ASC, LIBRARY_ENTITY, LIBRARY_ACTION))))
-                .map(new UserPermissionToPermissionFunction());
+                new CustomSpringQueryFilterSpecification<>(UserPermission.class, filters),
+                    queryFilter.getPageable(true, LIBRARY_ENTITY, LIBRARY_ACTION)
+                ).map(new UserPermissionToPermissionFunction());
     }
 
     @Override
@@ -91,13 +87,14 @@ public class UserPermissionServiceImpl implements UserPermissionService {
             final User user,
             final EntityPermission entity,
             final ActionPermission action) {
-        Map<String, String> filters = new HashMap<>();
-        filters.put(USER_ID, user.getId().toString());
-        filters.put(LIBRARY_ENTITY, entity.name());
-        filters.put(LIBRARY_ACTION, action.name());
-        filters.put(LIBRARY_ID, null);
+        Map<String, List<String>> filters = new HashMap<>();
+        filters.put(USER_ID, List.of(user.getId().toString()));
+        filters.put(LIBRARY_ENTITY, List.of(entity.name()));
+        filters.put(LIBRARY_ACTION, List.of(action.name()));
+        filters.put(LIBRARY_ID, List.of());
 
-        return userPermissionRepository.exists(new SpecificationHelper<>(UserPermission.class, filters));
+        return userPermissionRepository.exists(
+                new CustomSpringQueryFilterSpecification<>(UserPermission.class, filters));
     }
 
     @Override
@@ -119,19 +116,20 @@ public class UserPermissionServiceImpl implements UserPermissionService {
     @Override
     public void checkLibraryPermission(final User user, final  ActionPermission action, final UUID id) {
         String libraryId = null;
-        Map<String, String> filters = new HashMap<>();
-        filters.put(USER_ID, user.getId().toString());
-        filters.put(LIBRARY_ENTITY, EntityPermission.LIBRARY.name());
-        filters.put(LIBRARY_ACTION, action.name());
+        Map<String, List<String>> filters = new HashMap<>();
+        filters.put(USER_ID, List.of(user.getId().toString()));
+        filters.put(LIBRARY_ENTITY, List.of(EntityPermission.LIBRARY.name()));
+        filters.put(LIBRARY_ACTION, List.of(action.name()));
 
         if (id == null) {
-            filters.put(LIBRARY_ID, "null");
+            filters.put(LIBRARY_ID, List.of("null"));
         } else {
             libraryId = id.toString();
-            filters.put(LIBRARY_ID, String.format("null|%s", libraryId));
+            filters.put(LIBRARY_ID, List.of(String.format("null|%s", libraryId)));
         }
 
-        if (userPermissionRepository.exists(new SpecificationHelper<>(UserPermission.class, filters))) {
+        if (userPermissionRepository.exists(
+                new CustomSpringQueryFilterSpecification<>(UserPermission.class, filters))) {
             return;
         }
 

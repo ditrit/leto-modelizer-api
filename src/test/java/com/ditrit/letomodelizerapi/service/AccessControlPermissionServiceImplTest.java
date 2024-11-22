@@ -1,5 +1,6 @@
 package com.ditrit.letomodelizerapi.service;
 
+import com.ditrit.letomodelizerapi.controller.model.QueryFilter;
 import com.ditrit.letomodelizerapi.model.error.ApiException;
 import com.ditrit.letomodelizerapi.model.error.ErrorType;
 import com.ditrit.letomodelizerapi.persistence.model.AccessControlPermission;
@@ -14,10 +15,9 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.util.LinkedMultiValueMap;
 
-import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -44,7 +44,7 @@ class AccessControlPermissionServiceImplTest {
                 .when(accessControlPermissionViewRepository.findAll(Mockito.any(Specification.class), Mockito.any()))
                 .thenReturn(Page.empty());
 
-        assertEquals(Page.empty(), service.findAll(UUID.randomUUID(), Map.of(), Pageable.ofSize(10)));
+        assertEquals(Page.empty(), service.findAll(UUID.randomUUID(), new LinkedMultiValueMap<>(), new QueryFilter()));
     }
 
     @Test

@@ -1,5 +1,6 @@
 package com.ditrit.letomodelizerapi.service;
 
+import com.ditrit.letomodelizerapi.controller.model.QueryFilter;
 import com.ditrit.letomodelizerapi.model.error.ApiException;
 import com.ditrit.letomodelizerapi.model.error.ErrorType;
 import com.ditrit.letomodelizerapi.model.library.LibraryRecord;
@@ -23,16 +24,15 @@ import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
+import org.springframework.util.LinkedMultiValueMap;
 
 import java.io.IOException;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -667,7 +667,7 @@ class LibraryServiceImplTest {
 
         Mockito.when(libraryRepository.findAll(Mockito.any(Specification.class), Mockito.any())).thenReturn(Page.empty());
 
-        assertEquals(Page.empty(), service.findAll(Map.of(), PageRequest.of(1, 1)));
+        assertEquals(Page.empty(), service.findAll(new LinkedMultiValueMap<>(), new QueryFilter()));
     }
 
     @Test
@@ -678,7 +678,7 @@ class LibraryServiceImplTest {
         Mockito.when(userLibraryViewRepository.findAll(Mockito.any(Specification.class), Mockito.any())).thenReturn(Page.empty());
         User user = new User();
         user.setId(UUID.randomUUID());
-        assertEquals(Page.empty(), service.findAll(user, Map.of(), PageRequest.of(1, 1)));
+        assertEquals(Page.empty(), service.findAll(user, new LinkedMultiValueMap<>(), new QueryFilter()));
     }
 
     @Test
@@ -688,7 +688,7 @@ class LibraryServiceImplTest {
 
         Mockito.when(libraryTemplateRepository.findAll(Mockito.any(Specification.class), Mockito.any())).thenReturn(Page.empty());
 
-        assertEquals(Page.empty(), service.findAllTemplates(Map.of(), PageRequest.of(1, 1)));
+        assertEquals(Page.empty(), service.findAllTemplates(new LinkedMultiValueMap<>(), new QueryFilter()));
     }
 
     @Test
@@ -699,7 +699,7 @@ class LibraryServiceImplTest {
         Mockito.when(userLibraryTemplateViewRepository.findAllByUserId(Mockito.any(), Mockito.any(Specification.class), Mockito.any())).thenReturn(Page.empty());
         User user = new User();
         user.setId(UUID.randomUUID());
-        assertEquals(Page.empty(), service.findAllTemplates(user, Map.of(), PageRequest.of(1, 1)));
+        assertEquals(Page.empty(), service.findAllTemplates(user, new LinkedMultiValueMap<>(), new QueryFilter()));
     }
 
     @Test
