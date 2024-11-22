@@ -26,6 +26,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     * `GET    /api/ai/secrets/[SECRET_ID]`, to get an AI secret.
     * `PUT    /api/ai/secrets/[SECRET_ID]`, to update an AI secret.
     * `DELETE /api/ai/secrets/[SECRET_ID]`, to delete an AI secret.
+* Use library to filter database from query parameters.
+
+### Removed
+
+- Jersey by Spring.
 
 ## [1.0.0] - 2024/10/15
 
