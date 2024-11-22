@@ -5,6 +5,10 @@ package com.ditrit.letomodelizerapi.config;
  */
 public final class Constants {
     /**
+     * Minimum resource size.
+     */
+    public static final int MINIMUM_RESOURCE_SIZE = 1;
+    /**
      * Maximum resource size.
      */
     public static final int MAXIMUM_RESOURCE_SIZE = 200;
