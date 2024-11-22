@@ -10,27 +10,27 @@ import io.cucumber.java.en.And;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
-import jakarta.ws.rs.client.Client;
-import jakarta.ws.rs.client.ClientBuilder;
-import jakarta.ws.rs.client.Entity;
-import jakarta.ws.rs.client.Invocation;
-import jakarta.ws.rs.client.WebTarget;
-import jakarta.ws.rs.core.MediaType;
-import jakarta.ws.rs.core.Response;
 import org.apache.commons.lang.text.StrSubstitutor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.http.client.SimpleClientHttpRequestFactory;
+import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.RestTemplate;
 
+import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
 import java.io.IOException;
+import java.net.HttpURLConnection;
 import java.net.URISyntaxException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
-import java.security.KeyManagementException;
-import java.security.NoSuchAlgorithmException;
-import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -48,7 +48,7 @@ import static org.junit.Assert.*;
 public class StepDefinitions {
     private static final Logger LOGGER = LoggerFactory.getLogger(StepDefinitions.class);
     private static final HashMap<String, String> globalContext;
-    private static final SSLContext sslcontext;
+    private static final RestTemplate restTemplate;
 
     private static final String baseURI = "https://localhost:8443/api";
 
@@ -56,23 +56,50 @@ public class StepDefinitions {
     static {
         globalContext = new HashMap<>();
         globalContext.put("LIBRARY_HOST", "libraries");
-        try {
-            sslcontext = SSLContext.getInstance("TLS");
 
-            sslcontext.init(null, new TrustManager[]{new X509TrustManager() {
-                public void checkClientTrusted(X509Certificate[] arg0, String arg1) throws CertificateException {}
-                public void checkServerTrusted(X509Certificate[] arg0, String arg1) throws CertificateException {}
-                public X509Certificate[] getAcceptedIssuers() { return new X509Certificate[0]; }
+        try {
+            // Create SSL context to trust all certificates
+            SSLContext sslContext = SSLContext.getInstance("TLS");
+            sslContext.init(null, new TrustManager[]{new X509TrustManager() {
+                public void checkClientTrusted(X509Certificate[] chain, String authType) {
+                    // nothing to do
+                }
+
+                public void checkServerTrusted(X509Certificate[] chain, String authType) {
+                    // nothing to do
+                }
+
+                public X509Certificate[] getAcceptedIssuers() {
+                    return new X509Certificate[0];
+                }
             }}, new java.security.SecureRandom());
-        } catch (NoSuchAlgorithmException | KeyManagementException e) {
-            throw new RuntimeException(e);
+
+            SimpleClientHttpRequestFactory requestFactory = new SimpleClientHttpRequestFactory() {
+                @Override
+                protected void prepareConnection(HttpURLConnection connection, String httpMethod) {
+                    if (connection instanceof HttpsURLConnection) {
+                        ((HttpsURLConnection) connection).setSSLSocketFactory(sslContext.getSocketFactory());
+                        ((HttpsURLConnection) connection).setHostnameVerifier((hostname, session) -> true);
+                    }
+                    try {
+                        super.prepareConnection(connection, httpMethod);
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }
+                }
+            };
+
+            restTemplate = new RestTemplate(requestFactory);
+
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to initialize RestTemplate with custom SSL", e);
         }
     }
 
-    private final Client client = ClientBuilder.newBuilder()
-            .sslContext(sslcontext)
-            .hostnameVerifier((s1, s2) -> true)
-            .build();
+    public static RestTemplate getRestTemplate() {
+        return restTemplate;
+    }
+
     private final ObjectMapper mapper = new ObjectMapper();
     private int statusCode;
     private String body;
@@ -195,22 +222,21 @@ public class StepDefinitions {
 
         LOGGER.info(json.toString());
 
-        this.requestFull(endpoint, method, Entity.json(json.toString()), MediaType.APPLICATION_JSON);
+        this.requestFull(endpoint, method, json.toString(), MediaType.APPLICATION_JSON);
     }
 
-    public void requestFull(String endpoint, String method, Entity<?> body, String contentType) {
+    public void requestFull(String endpoint, String method, String body, MediaType contentType) {
         String uri = baseURI + replaceWithContext(endpoint);
 
-        WebTarget target = this.client.target(uri);
-        Invocation.Builder builder = target.request();
-        builder.cookie("SESSION", globalContext.get("COOKIE_SESSION"));
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Cookie", "SESSION=" + globalContext.get("COOKIE_SESSION"));
 
         if (contentType != null) {
-            builder.header("Content-Type", contentType);
+            headers.setContentType(contentType);
         }
 
         if (globalContext.containsKey("CSRF_HEADER")) {
-            builder.header(globalContext.get("CSRF_HEADER"), globalContext.get("CSRF_TOKEN"));
+            headers.add(globalContext.get("CSRF_HEADER"), globalContext.get("CSRF_TOKEN"));
         }
 
         LOGGER.info("{} request to {}", method, uri);
@@ -219,25 +245,45 @@ public class StepDefinitions {
         } else {
             LOGGER.info("With body: {}", body.toString());
         }
-        Response response;
-        if (body != null) {
-            response = builder.build(method, body).invoke();
-        } else {
-            response = builder.build(method).invoke();
+
+        HttpEntity<Object> requestEntity = new HttpEntity<>(body, headers);
+        HttpMethod httpMethod = HttpMethod.valueOf(method.toUpperCase());
+
+        ResponseEntity<String> response;
+        try {
+            response = restTemplate.exchange(uri, httpMethod, requestEntity, String.class);
+            LOGGER.info("{}", response.getBody());
+
+            manageResponse(
+                    response.getStatusCode().value(),
+                    response.getHeaders().getContentType(),
+                    response.getBody());
+        } catch (HttpClientErrorException e) {
+            manageResponse(
+                    e.getStatusCode().value(),
+                    e.getResponseHeaders().getContentType(),
+                    e.getResponseBodyAsString());
+        } catch (Exception e) {
+            LOGGER.error("Error while making HTTP request", e);
+            throw new RuntimeException("HTTP request failed", e);
+        }
+    }
+
+    public void manageResponse(int statusCode, MediaType contentType, String body) {
+        this.statusCode = statusCode;
+        if (body == null) {
+            return;
         }
 
-        statusCode = response.getStatus();
-        LOGGER.info("Receive {} as status code", statusCode);
-        LOGGER.info("Receive {} as content type", response.getMediaType());
-        if (statusCode != 204 && MediaType.valueOf(MediaType.APPLICATION_JSON).isCompatible(response.getMediaType())) {
+        if (statusCode != 204 && MediaType.APPLICATION_JSON.isCompatibleWith(contentType)) {
             try {
-                json = mapper.readTree(response.readEntity(String.class));
+                json = mapper.readTree(body);
                 LOGGER.info("With body: {}", json);
             } catch (IOException e) {
                 LOGGER.error("Can't read body", e);
             }
         } else {
-            this.body = response.readEntity(String.class);
+            this.body = body;
         }
     }
 
@@ -251,7 +297,7 @@ public class StepDefinitions {
         return String.format("%s %s", globalContext.get("authenticationType"), Base64.getUrlEncoder().encodeToString(token.getBytes()));
     }
 
-    public Entity<String> createBody(DataTable table) {
+    public String createBody(DataTable table) {
         if (table == null || table.isEmpty()) {
             return null;
         }
@@ -269,11 +315,10 @@ public class StepDefinitions {
         String type = table.cell(1, 1);
 
         if ("BASE64".equals(type)) {
-            String base64Value = Base64.getUrlEncoder().encodeToString(value.getBytes());
-            return Entity.text(base64Value);
+            return Base64.getUrlEncoder().encodeToString(value.getBytes());
         }
 
-        return Entity.text(value);
+        return value;
     }
 
     @Then("I expect \"{int}\" as status code")
