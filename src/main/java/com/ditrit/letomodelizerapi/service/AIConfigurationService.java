@@ -1,10 +1,11 @@
 package com.ditrit.letomodelizerapi.service;
 
+import com.ditrit.letomodelizerapi.controller.model.QueryFilter;
 import com.ditrit.letomodelizerapi.model.ai.AIConfigurationRecord;
 import com.ditrit.letomodelizerapi.persistence.model.AIConfiguration;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -18,10 +19,10 @@ public interface AIConfigurationService {
      * Finds and returns a page of AIConfiguration entities, filtered by provided criteria.
      *
      * @param filters  a Map of strings representing the filtering criteria.
-     * @param pageable a Pageable object for pagination information.
+     * @param queryFilter a Pageable object for pagination information.
      * @return a Page of AIConfiguration entities matching the specified type and filters.
      */
-    Page<AIConfiguration> findAll(Map<String, String> filters, Pageable pageable);
+    Page<AIConfiguration> findAll(Map<String, List<String>> filters, QueryFilter queryFilter);
 
     /**
      * Finds and returns an AIConfiguration entity of a specific type by its ID.

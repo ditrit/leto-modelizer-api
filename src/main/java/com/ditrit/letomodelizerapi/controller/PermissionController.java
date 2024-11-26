@@ -9,22 +9,17 @@ import com.ditrit.letomodelizerapi.service.UserPermissionService;
 import com.ditrit.letomodelizerapi.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
-import jakarta.validation.Valid;
-import jakarta.ws.rs.BeanParam;
-import jakarta.ws.rs.GET;
-import jakarta.ws.rs.Path;
-import jakarta.ws.rs.Produces;
-import jakarta.ws.rs.core.Context;
-import jakarta.ws.rs.core.MediaType;
-import jakarta.ws.rs.core.Response;
-import jakarta.ws.rs.core.UriInfo;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
-import org.springframework.stereotype.Controller;
-
-import java.util.Map;
+import org.springframework.http.ResponseEntity;
+import org.springframework.util.MultiValueMap;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 /**
  * REST Controller for managing permissions.
@@ -32,9 +27,8 @@ import java.util.Map;
  * Only accessible by users with administrative permissions.
  */
 @Slf4j
-@Path("/permissions")
-@Produces(MediaType.APPLICATION_JSON)
-@Controller
+@RestController
+@RequestMapping("/permissions")
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class PermissionController implements DefaultController {
 
@@ -58,18 +52,18 @@ public class PermissionController implements DefaultController {
      * Only accessible by users with administrative permissions.
      *
      * @param request      HttpServletRequest to access the HTTP session
-     * @param uriInfo      UriInfo to extract query parameters
-     * @param queryFilter  BeanParam for pagination and filtering
+     * @param filters     All query parameters for filtering results.
+     * @param queryFilter the filter criteria and pagination information.
      * @return a Response containing a page of Permission objects
      */
-    @GET
-    public Response findAll(final @Context HttpServletRequest request,
-                            final @Context UriInfo uriInfo,
-                            final @BeanParam @Valid QueryFilter queryFilter) {
+    @GetMapping
+    public ResponseEntity<Page<Permission>> findAll(
+            final HttpServletRequest request,
+            final @RequestParam MultiValueMap<String, String> filters,
+            final @ModelAttribute QueryFilter queryFilter) {
         HttpSession session = request.getSession();
         User user = userService.getFromSession(session);
         userPermissionService.checkIsAdmin(user, null);
-        Map<String, String> filters = this.getFilters(uriInfo);
 
         log.info(
                 "[{}] Received GET request to get permissions with the following filters: {}",
@@ -77,8 +71,8 @@ public class PermissionController implements DefaultController {
                 filters
         );
 
-        Page<Permission> resources = permissionService.findAll(filters, queryFilter.getPagination());
+        Page<Permission> resources = permissionService.findAll(filters, queryFilter);
 
-        return Response.status(this.getStatus(resources)).entity(resources).build();
+        return ResponseEntity.status(this.getStatus(resources)).body(resources);
     }
 }

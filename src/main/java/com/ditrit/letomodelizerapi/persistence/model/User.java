@@ -1,6 +1,6 @@
 package com.ditrit.letomodelizerapi.persistence.model;
 
-import com.ditrit.letomodelizerapi.persistence.specification.filter.FilterType;
+import io.github.zorin95670.predicate.FilterType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -30,35 +30,35 @@ public class User extends AbstractEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "usr_id")
-    @FilterType(type = FilterType.Type.UUID)
+    @FilterType(type = UUID.class)
     private UUID id;
 
     /**
      * Email of the user.
      */
     @Column(name = "email")
-    @FilterType(type = FilterType.Type.TEXT)
+    @FilterType(type = String.class)
     private String email;
 
     /**
      * Login of the user.
      */
     @Column(name = "login")
-    @FilterType(type = FilterType.Type.TEXT)
+    @FilterType(type = String.class)
     private String login;
 
     /**
      * Full name of the user.
      */
     @Column(name = "name")
-    @FilterType(type = FilterType.Type.TEXT)
+    @FilterType(type = String.class)
     private String name;
 
     /**
      * URL link to the user's profile picture.
      */
     @Column(name = "picture")
-    @FilterType(type = FilterType.Type.TEXT)
+    @FilterType(type = String.class)
     private String picture;
 
     /**

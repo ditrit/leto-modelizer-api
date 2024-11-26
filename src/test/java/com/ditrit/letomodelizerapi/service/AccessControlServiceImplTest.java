@@ -1,5 +1,6 @@
 package com.ditrit.letomodelizerapi.service;
 
+import com.ditrit.letomodelizerapi.controller.model.QueryFilter;
 import com.ditrit.letomodelizerapi.model.accesscontrol.AccessControlRecord;
 import com.ditrit.letomodelizerapi.model.accesscontrol.AccessControlType;
 import com.ditrit.letomodelizerapi.model.error.ApiException;
@@ -23,10 +24,9 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.util.LinkedMultiValueMap;
 
-import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -67,7 +67,7 @@ class AccessControlServiceImplTest {
                 .when(accessControlRepository.findAll(Mockito.any(Specification.class), Mockito.any()))
                 .thenReturn(Page.empty());
 
-        assertEquals(Page.empty(), service.findAll(AccessControlType.ROLE, Map.of(), Pageable.ofSize(10)));
+        assertEquals(Page.empty(), service.findAll(AccessControlType.ROLE, new LinkedMultiValueMap<>(), new QueryFilter()));
     }
 
     @Test
@@ -80,7 +80,7 @@ class AccessControlServiceImplTest {
                 .when(userAccessControlViewRepository.findAll(Mockito.any(Specification.class), Mockito.any()))
                 .thenReturn(Page.empty());
 
-        assertEquals(Page.empty(), service.findAll(AccessControlType.ROLE, user, Map.of(), Pageable.ofSize(10)));
+        assertEquals(Page.empty(), service.findAll(AccessControlType.ROLE, user, new LinkedMultiValueMap<>(), new QueryFilter()));
     }
 
     @Test
@@ -97,7 +97,7 @@ class AccessControlServiceImplTest {
                 .when(accessControlRepository.findOne(Mockito.any(Specification.class)))
                 .thenReturn(Optional.of(accessControl));
 
-        assertEquals(Page.empty(), service.findAllAccessControls(AccessControlType.ROLE, id, AccessControlType.ROLE, Map.of(), Pageable.ofSize(10)));
+        assertEquals(Page.empty(), service.findAllAccessControls(AccessControlType.ROLE, id, AccessControlType.ROLE, new LinkedMultiValueMap<>(), new QueryFilter()));
     }
 
     @Test
@@ -115,7 +115,7 @@ class AccessControlServiceImplTest {
                 .when(accessControlTreeViewRepository.findAll(Mockito.any(Specification.class), Mockito.any()))
                 .thenReturn(Page.empty());
 
-        assertEquals(Page.empty(), service.findAllChildren(AccessControlType.ROLE, id, AccessControlType.GROUP, Map.of(), Pageable.ofSize(10)));
+        assertEquals(Page.empty(), service.findAllChildren(AccessControlType.ROLE, id, AccessControlType.GROUP, new LinkedMultiValueMap<>(), new QueryFilter()));
     }
 
     @Test
@@ -132,7 +132,7 @@ class AccessControlServiceImplTest {
                 .when(userAccessControlViewRepository.findAll(Mockito.any(Specification.class), Mockito.any()))
                 .thenReturn(Page.empty());
 
-        assertEquals(Page.empty(), service.findAllUsers(AccessControlType.ROLE, UUID.randomUUID(), Map.of(), Pageable.ofSize(10)));
+        assertEquals(Page.empty(), service.findAllUsers(AccessControlType.ROLE, UUID.randomUUID(), new LinkedMultiValueMap<>(), new QueryFilter()));
     }
 
     @Test

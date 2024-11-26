@@ -1,6 +1,7 @@
 package com.ditrit.letomodelizerapi.service;
 
 import com.ditrit.letomodelizerapi.config.Constants;
+import com.ditrit.letomodelizerapi.controller.model.QueryFilter;
 import com.ditrit.letomodelizerapi.model.ai.AIConversationRecord;
 import com.ditrit.letomodelizerapi.model.ai.AICreateFileRecord;
 import com.ditrit.letomodelizerapi.model.ai.AIMessageRecord;
@@ -12,7 +13,7 @@ import com.ditrit.letomodelizerapi.persistence.model.AIMessage;
 import com.ditrit.letomodelizerapi.persistence.model.User;
 import com.ditrit.letomodelizerapi.persistence.repository.AIConversationRepository;
 import com.ditrit.letomodelizerapi.persistence.repository.AIMessageRepository;
-import com.ditrit.letomodelizerapi.persistence.specification.SpecificationHelper;
+import com.ditrit.letomodelizerapi.persistence.specification.CustomSpringQueryFilterSpecification;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -28,16 +29,13 @@ import com.github.erosb.jsonsKema.ValidationFailure;
 import com.github.erosb.jsonsKema.Validator;
 import com.github.erosb.jsonsKema.ValidatorConfig;
 import jakarta.transaction.Transactional;
-import jakarta.ws.rs.core.HttpHeaders;
-import jakarta.ws.rs.core.MediaType;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 
 import java.io.ByteArrayOutputStream;
@@ -153,7 +151,7 @@ public class AIServiceImpl implements AIService {
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(uri)
                     .header(HttpHeaders.CONTENT_TYPE, contentType)
-                    .headers(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON)
+                    .headers(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON.toString())
                     .POST(HttpRequest.BodyPublishers.ofByteArray(body))
                     .build();
 
@@ -205,8 +203,10 @@ public class AIServiceImpl implements AIService {
         json.put(Constants.DEFAULT_PLUGIN_NAME_PROPERTY, conversation.getKey().split("/")[2]);
         json.set("files", arrayNode);
 
-        JsonNode response = mapper.readTree(sendRequest(Constants.DEFAULT_MESSAGE_PROPERTY, MediaType.APPLICATION_JSON,
+        JsonNode response = mapper.readTree(
+                sendRequest(Constants.DEFAULT_MESSAGE_PROPERTY, MediaType.APPLICATION_JSON.toString(),
                 json.toString().getBytes()));
+
         return response.get(Constants.DEFAULT_CONTEXT_PROPERTY).asText();
     }
 
@@ -232,7 +232,7 @@ public class AIServiceImpl implements AIService {
         json.put(Constants.DEFAULT_PLUGIN_NAME_PROPERTY, createFileRecord.plugin());
         json.put("description", createFileRecord.description());
 
-        return sendRequest(createFileRecord.type(), MediaType.APPLICATION_JSON, json.toString().getBytes());
+        return sendRequest(createFileRecord.type(), MediaType.APPLICATION_JSON.toString(), json.toString().getBytes());
     }
 
     @Override
@@ -315,7 +315,7 @@ public class AIServiceImpl implements AIService {
         json.put(Constants.DEFAULT_PLUGIN_NAME_PROPERTY, aiMessage.plugin());
 
         JsonNode response = new ObjectMapper()
-                .readTree(sendRequest(Constants.DEFAULT_MESSAGE_PROPERTY, MediaType.APPLICATION_JSON,
+                .readTree(sendRequest(Constants.DEFAULT_MESSAGE_PROPERTY, MediaType.APPLICATION_JSON.toString(),
                         json.toString().getBytes()));
 
         compressedMessage = compress(response.get(Constants.DEFAULT_MESSAGE_PROPERTY).asText());
@@ -336,57 +336,46 @@ public class AIServiceImpl implements AIService {
 
     @Override
     public Page<AIConversation> findAll(final User user,
-                                        final Map<String, String> immutableFilters,
-                                        final Pageable pageable) {
-        Map<String, String> filters = new HashMap<>(immutableFilters);
-        filters.put("userId", user.getId().toString());
+                                        final Map<String, List<String>> immutableFilters,
+                                        final QueryFilter queryFilter) {
+        var filters = new HashMap<>(immutableFilters);
+        filters.put("userId", List.of(user.getId().toString()));
 
         return aiConversationRepository.findAll(
-                new SpecificationHelper<>(AIConversation.class, filters),
-                PageRequest.of(
-                        pageable.getPageNumber(),
-                        pageable.getPageSize(),
-                        pageable.getSortOr(Sort.by(Sort.Direction.DESC, Constants.DEFAULT_UPDATE_DATE_PROPERTY))
-                )
+                new CustomSpringQueryFilterSpecification<>(AIConversation.class, filters),
+                queryFilter.getPageable(Constants.DEFAULT_UPDATE_DATE_PROPERTY)
         );
     }
 
     @Override
     public Page<AIMessage> findAllMessages(final User user,
                                            final UUID id,
-                                           final Map<String, String> immutableFilters,
-                                           final Pageable pageable) {
+                                           final Map<String, List<String>> immutableFilters,
+                                           final QueryFilter queryFilter) {
         AIConversation conversation = aiConversationRepository.findByIdAndUserId(id, user.getId())
                 .orElseThrow(() -> new ApiException(ErrorType.ENTITY_NOT_FOUND, "id", id.toString()));
 
-        Map<String, String> filters = new HashMap<>(immutableFilters);
-        filters.put("aiConversation", conversation.getId().toString());
+        var filters = new HashMap<>(immutableFilters);
+        filters.put("aiConversation", List.of(conversation.getId().toString()));
 
         return aiMessageRepository.findAll(
-                new SpecificationHelper<>(AIMessage.class, filters),
-                PageRequest.of(
-                        pageable.getPageNumber(),
-                        pageable.getPageSize(),
-                        pageable.getSortOr(Sort.by(Sort.Direction.DESC, Constants.DEFAULT_UPDATE_DATE_PROPERTY)))
+                new CustomSpringQueryFilterSpecification<>(AIMessage.class, filters),
+                queryFilter.getPageable(Constants.DEFAULT_UPDATE_DATE_PROPERTY)
         );
     }
 
     @Override
-    public Page<AIConversation> findAllConversations(final Map<String, String> immutableFilters,
-                                                     final Pageable pageable) {
-
+    public Page<AIConversation> findAllConversations(final Map<String, List<String>> filters,
+                                                     final QueryFilter queryFilter) {
         return aiConversationRepository.findAll(
-                new SpecificationHelper<>(AIConversation.class, immutableFilters),
-                PageRequest.of(
-                        pageable.getPageNumber(),
-                        pageable.getPageSize(),
-                        pageable.getSortOr(Sort.by(Sort.Direction.DESC, Constants.DEFAULT_UPDATE_DATE_PROPERTY))
-        ));
+                new CustomSpringQueryFilterSpecification<>(AIConversation.class, filters),
+                queryFilter.getPageable(Constants.DEFAULT_UPDATE_DATE_PROPERTY)
+        );
     }
 
     @Override
     public void sendConfiguration(final byte[] configuration) {
-        sendRequest("configurations", MediaType.APPLICATION_OCTET_STREAM, configuration);
+        sendRequest("configurations", MediaType.APPLICATION_OCTET_STREAM.toString(), configuration);
     }
 
     @Override
@@ -396,8 +385,8 @@ public class AIServiceImpl implements AIService {
             URI uri = new URI(aiHost).resolve(endpoint);
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(uri)
-                    .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
-                    .headers(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON)
+                    .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON.toString())
+                    .headers(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON.toString())
                     .GET()
                     .build();
 

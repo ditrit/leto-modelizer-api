@@ -2,8 +2,10 @@ package com.ditrit.letomodelizerapi.controller;
 
 import com.ditrit.letomodelizerapi.controller.model.QueryFilter;
 import com.ditrit.letomodelizerapi.helper.MockHelper;
+import com.ditrit.letomodelizerapi.model.ai.AIConversationDTO;
 import com.ditrit.letomodelizerapi.model.ai.AIConversationRecord;
 import com.ditrit.letomodelizerapi.model.ai.AICreateFileRecord;
+import com.ditrit.letomodelizerapi.model.ai.AIMessageDTO;
 import com.ditrit.letomodelizerapi.model.ai.AIMessageRecord;
 import com.ditrit.letomodelizerapi.persistence.model.AIConversation;
 import com.ditrit.letomodelizerapi.persistence.model.AIMessage;
@@ -15,7 +17,6 @@ import com.ditrit.letomodelizerapi.service.UserService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
-import jakarta.ws.rs.core.Response;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -26,6 +27,8 @@ import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.util.LinkedMultiValueMap;
 
 import java.io.IOException;
 import java.util.List;
@@ -67,11 +70,11 @@ class AIControllerTest extends MockHelper {
                 .thenReturn(session);
 
         Mockito.when(aiService.createFile(aiCreateFileRecord)).thenReturn("OK");
-        final Response response = this.controller.generateFiles(request, aiCreateFileRecord);
+        final ResponseEntity<String> response = this.controller.generateFiles(request, aiCreateFileRecord);
 
         assertNotNull(response);
-        assertEquals(HttpStatus.CREATED.value(), response.getStatus());
-        assertNotNull(response.getEntity());
+        assertEquals(HttpStatus.CREATED, response.getStatusCode());
+        assertNotNull(response.getBody());
     }
 
     @Test
@@ -92,11 +95,11 @@ class AIControllerTest extends MockHelper {
         Mockito.when(userService.getFromSession(Mockito.any())).thenReturn(user);
         Mockito.when(aiService.createConversation(user, aiConversationRecord)).thenReturn(new AIConversation());
 
-        Response response = this.controller.createConversations(request, aiConversationRecord);
+        ResponseEntity<AIConversationDTO> response = this.controller.createConversations(request, aiConversationRecord);
 
         assertNotNull(response);
-        assertEquals(HttpStatus.CREATED.value(), response.getStatus());
-        assertNotNull(response.getEntity());
+        assertEquals(HttpStatus.CREATED, response.getStatusCode());
+        assertNotNull(response.getBody());
     }
 
     @Test
@@ -112,11 +115,11 @@ class AIControllerTest extends MockHelper {
         Mockito.doNothing().when(userPermissionService).checkIsAdmin(Mockito.any(), Mockito.any());
         Mockito.when(aiService.findAllConversations(Mockito.any(), Mockito.any())).thenReturn(Page.empty());
 
-        Response response = this.controller.findAllConversations(request, mockUriInfo(), new QueryFilter());
+        ResponseEntity<Page<AIConversationDTO>> response = this.controller.findAllConversations(request, new LinkedMultiValueMap<>(), new QueryFilter());
 
         assertNotNull(response);
-        assertEquals(HttpStatus.OK.value(), response.getStatus());
-        assertNotNull(response.getEntity());
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertNotNull(response.getBody());
     }
 
     @Test
@@ -131,11 +134,11 @@ class AIControllerTest extends MockHelper {
         Mockito.when(userService.getFromSession(Mockito.any())).thenReturn(user);
         Mockito.when(aiService.getConversationById(Mockito.any(), Mockito.any())).thenReturn(new AIConversation());
 
-        Response response = this.controller.getConversationById(request, UUID.randomUUID());
+        ResponseEntity<AIConversationDTO> response = this.controller.getConversationById(request, UUID.randomUUID());
 
         assertNotNull(response);
-        assertEquals(HttpStatus.OK.value(), response.getStatus());
-        assertNotNull(response.getEntity());
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertNotNull(response.getBody());
     }
 
     @Test
@@ -157,11 +160,11 @@ class AIControllerTest extends MockHelper {
         Mockito.when(userService.getFromSession(Mockito.any())).thenReturn(user);
         Mockito.when(aiService.updateConversationById(Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(new AIConversation());
 
-        Response response = this.controller.updateConversationById(request, UUID.randomUUID(), aiConversationRecord);
+        ResponseEntity<AIConversationDTO> response = this.controller.updateConversationById(request, UUID.randomUUID(), aiConversationRecord);
 
         assertNotNull(response);
-        assertEquals(HttpStatus.OK.value(), response.getStatus());
-        assertNotNull(response.getEntity());
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertNotNull(response.getBody());
     }
 
     @Test
@@ -177,10 +180,10 @@ class AIControllerTest extends MockHelper {
         Mockito.when(userPermissionService.hasPermission(Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(false);
         Mockito.doNothing().when(aiService).deleteConversationById(Mockito.any(), Mockito.any());
 
-        Response response = this.controller.deleteConversationById(request, UUID.randomUUID());
+        ResponseEntity<Object> response = this.controller.deleteConversationById(request, UUID.randomUUID());
 
         assertNotNull(response);
-        assertEquals(HttpStatus.NO_CONTENT.value(), response.getStatus());
+        assertEquals(HttpStatus.NO_CONTENT, response.getStatusCode());
         Mockito.verify(aiService, Mockito.times(0)).deleteConversationById(Mockito.any());
         Mockito.verify(aiService, Mockito.times(1)).deleteConversationById(Mockito.any(), Mockito.any());
     }
@@ -198,10 +201,10 @@ class AIControllerTest extends MockHelper {
         Mockito.when(userPermissionService.hasPermission(Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(true);
         Mockito.doNothing().when(aiService).deleteConversationById(Mockito.any());
 
-        Response response = this.controller.deleteConversationById(request, UUID.randomUUID());
+        ResponseEntity<Object> response = this.controller.deleteConversationById(request, UUID.randomUUID());
 
         assertNotNull(response);
-        assertEquals(HttpStatus.NO_CONTENT.value(), response.getStatus());
+        assertEquals(HttpStatus.NO_CONTENT, response.getStatusCode());
         Mockito.verify(aiService, Mockito.times(1)).deleteConversationById(Mockito.any());
         Mockito.verify(aiService, Mockito.times(0)).deleteConversationById(Mockito.any(), Mockito.any());
     }
@@ -220,11 +223,11 @@ class AIControllerTest extends MockHelper {
         Mockito.when(userService.getFromSession(Mockito.any())).thenReturn(user);
         Mockito.when(aiService.sendMessage(Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(message);
 
-        Response response = this.controller.createConversationMessage(request, UUID.randomUUID(), new AIMessageRecord("ok", "plugin"));
+        ResponseEntity<AIMessageDTO> response = this.controller.createConversationMessage(request, UUID.randomUUID(), new AIMessageRecord("ok", "plugin"));
 
         assertNotNull(response);
-        assertEquals(HttpStatus.CREATED.value(), response.getStatus());
-        assertNotNull(response.getEntity());
+        assertEquals(HttpStatus.CREATED, response.getStatusCode());
+        assertNotNull(response.getBody());
     }
 
     @Test
@@ -240,11 +243,11 @@ class AIControllerTest extends MockHelper {
         Mockito.when(aiService.findAllMessages(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any()))
                 .thenReturn(Page.empty());
 
-        Response response = this.controller.findAllMessages(request, UUID.randomUUID(), mockUriInfo(), new QueryFilter());
+        ResponseEntity<Page<AIMessageDTO>> response = this.controller.findAllMessages(request, UUID.randomUUID(), new LinkedMultiValueMap<>(), new QueryFilter());
 
         assertNotNull(response);
-        assertEquals(HttpStatus.OK.value(), response.getStatus());
-        assertNotNull(response.getEntity());
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertNotNull(response.getBody());
     }
 
     @Test
@@ -258,11 +261,11 @@ class AIControllerTest extends MockHelper {
         Mockito.when(aiSecretService.generateConfiguration()).thenReturn(new byte[0]);
         Mockito.doNothing().when(aiService).sendConfiguration(Mockito.any());
 
-        Response response = this.controller.sendConfigurationToProxy(request);
+        ResponseEntity<Object> response = this.controller.sendConfigurationToProxy(request);
 
         assertNotNull(response);
-        assertEquals(HttpStatus.NO_CONTENT.value(), response.getStatus());
-        assertNull(response.getEntity());
+        assertEquals(HttpStatus.NO_CONTENT, response.getStatusCode());
+        assertNull(response.getBody());
     }
 
     @Test
@@ -279,10 +282,10 @@ class AIControllerTest extends MockHelper {
         Mockito.doNothing().when(userPermissionService).checkPermission(Mockito.any(), Mockito.any(), Mockito.any(),
                 Mockito.any());
 
-        Response response = this.controller.retrieveConfigurationDescriptions(request);
+        ResponseEntity<String> response = this.controller.retrieveConfigurationDescriptions(request);
 
         assertNotNull(response);
-        assertEquals(HttpStatus.OK.value(), response.getStatus());
-        assertEquals("test", response.getEntity());
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertEquals("test", response.getBody());
     }
 }

@@ -1,5 +1,6 @@
 package com.ditrit.letomodelizerapi.service;
 
+import com.ditrit.letomodelizerapi.controller.model.QueryFilter;
 import com.ditrit.letomodelizerapi.model.ai.AIConversationRecord;
 import com.ditrit.letomodelizerapi.model.ai.AICreateFileRecord;
 import com.ditrit.letomodelizerapi.model.ai.AIMessageRecord;
@@ -8,9 +9,9 @@ import com.ditrit.letomodelizerapi.persistence.model.AIMessage;
 import com.ditrit.letomodelizerapi.persistence.model.User;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -91,32 +92,31 @@ public interface AIService {
      * Finds all AI conversations for a user with optional filtering and pagination.
      *
      * @param user the user for whom to find conversations.
-     * @param filters a map of filters to apply to the search.
-     * @param pageable pagination information.
+     * @param filters a Map of strings representing the filtering criteria.
+     * @param queryFilter a Pageable object for pagination information.
      * @return a Page containing the AI conversations matching the filters.
      */
-    Page<AIConversation> findAll(User user, Map<String, String> filters, Pageable pageable);
+    Page<AIConversation> findAll(User user, Map<String, List<String>> filters, QueryFilter queryFilter);
 
     /**
      * Finds all messages for a specific AI conversation with optional filtering and pagination.
      *
      * @param user the user requesting the messages.
      * @param id the ID of the conversation for which to find messages.
-     * @param filters a map of filters to apply to the search.
-     * @param pageable pagination information.
+     * @param filters a Map of strings representing the filtering criteria.
+     * @param queryFilter a Pageable object for pagination information.
      * @return a Page containing the messages for the specified conversation.
      */
-    Page<AIMessage> findAllMessages(User user, UUID id, Map<String, String> filters, Pageable pageable);
+    Page<AIMessage> findAllMessages(User user, UUID id, Map<String, List<String>> filters, QueryFilter queryFilter);
 
     /**
      * Finds all AI conversations with optional filtering and pagination.
      *
-     * @param immutableFilters a map of immutable filters to apply to the search.
-     * @param pageable pagination information.
+     * @param filters  a Map of strings representing the filtering criteria.
+     * @param queryFilter a Pageable object for pagination information.
      * @return a Page containing all AI conversations matching the filters.
      */
-    Page<AIConversation> findAllConversations(Map<String, String> immutableFilters,
-                                              Pageable pageable);
+    Page<AIConversation> findAllConversations(Map<String, List<String>> filters, QueryFilter queryFilter);
 
     /**
      * Sends the encrypted configuration to the AI proxy.

@@ -3,7 +3,7 @@ package com.ditrit.letomodelizerapi.persistence.model;
 import com.ditrit.letomodelizerapi.model.library.LibraryTemplateType;
 import com.ditrit.letomodelizerapi.persistence.converter.LibraryTemplateTypeConverter;
 import com.ditrit.letomodelizerapi.persistence.converter.StringListConverter;
-import com.ditrit.letomodelizerapi.persistence.specification.filter.FilterType;
+import io.github.zorin95670.predicate.FilterType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
@@ -33,42 +33,42 @@ public class UserLibraryTemplateView {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "ult_id")
-    @FilterType(type = FilterType.Type.TEXT)
+    @FilterType(type = String.class)
     private String id;
 
     /**
      * The identifier of the user to whom this template of library is assigned.
      */
     @Column(name = "usr_id")
-    @FilterType(type = FilterType.Type.UUID)
+    @FilterType(type = UUID.class)
     private UUID userId;
 
     /**
      * Library template ID associated with this view.
      */
     @Column(name = "lit_id")
-    @FilterType(type = FilterType.Type.UUID)
+    @FilterType(type = UUID.class)
     private UUID libraryTemplateId;
 
     /**
      * Library ID associated with this library template.
      */
     @Column(name = "lib_id")
-    @FilterType(type = FilterType.Type.UUID)
+    @FilterType(type = UUID.class)
     private UUID libraryId;
 
     /**
      * Documentation URL for the library template.
      */
     @Column(name = "documentation_url")
-    @FilterType(type = FilterType.Type.TEXT)
+    @FilterType(type = String.class)
     private String documentationUrl;
 
     /**
      * Name of the library template.
      */
     @Column(name = "name")
-    @FilterType(type = FilterType.Type.TEXT)
+    @FilterType(type = String.class)
     private String name;
 
     /**
@@ -77,14 +77,14 @@ public class UserLibraryTemplateView {
     @Column(name = "type", nullable = false)
     @Convert(converter = LibraryTemplateTypeConverter.class)
     @ColumnTransformer(write = "?::library_template_type")
-    @FilterType(type = FilterType.Type.ENUM)
+    @FilterType(type = String.class)
     private LibraryTemplateType type;
 
     /**
      * Description of the library template.
      */
     @Column(name = "description")
-    @FilterType(type = FilterType.Type.TEXT)
+    @FilterType(type = String.class)
     private String description;
 
     /**
@@ -98,7 +98,7 @@ public class UserLibraryTemplateView {
      */
     @Column(name = "plugins")
     @Convert(converter = StringListConverter.class)
-    @FilterType(type = FilterType.Type.TEXT)
+    @FilterType(type = String.class)
     private List<String> plugins;
 
     /**

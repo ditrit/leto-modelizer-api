@@ -1,6 +1,6 @@
 package com.ditrit.letomodelizerapi.persistence.model;
 
-import com.ditrit.letomodelizerapi.persistence.specification.filter.FilterType;
+import io.github.zorin95670.predicate.FilterType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -33,7 +33,7 @@ public class AccessControlTree extends AbstractEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "act_id")
-    @FilterType(type = FilterType.Type.UUID)
+    @FilterType(type = UUID.class)
     private UUID id;
 
     /**
@@ -41,7 +41,7 @@ public class AccessControlTree extends AbstractEntity {
      * This field represents the parent node in the access control tree structure.
      */
     @Column(name = "parent")
-    @FilterType(type = FilterType.Type.UUID)
+    @FilterType(type = UUID.class)
     private UUID parent;
 
     /**
@@ -49,7 +49,7 @@ public class AccessControlTree extends AbstractEntity {
      * This field represents the current node in the access control tree structure.
      */
     @Column(name = "current")
-    @FilterType(type = FilterType.Type.UUID)
+    @FilterType(type = UUID.class)
     private UUID current;
 
     /**

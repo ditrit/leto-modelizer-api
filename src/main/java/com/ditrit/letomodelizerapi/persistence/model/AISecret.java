@@ -1,6 +1,6 @@
 package com.ditrit.letomodelizerapi.persistence.model;
 
-import com.ditrit.letomodelizerapi.persistence.specification.filter.FilterType;
+import io.github.zorin95670.predicate.FilterType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -30,14 +30,14 @@ public class AISecret extends AbstractEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "ais_id")
-    @FilterType(type = FilterType.Type.UUID)
+    @FilterType(type = UUID.class)
     private UUID id;
 
     /**
      * The secret key given by the user, must be unique.
      */
     @Column(name = "key")
-    @FilterType(type = FilterType.Type.TEXT)
+    @FilterType(type = String.class)
     private String key;
 
     /**

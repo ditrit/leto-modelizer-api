@@ -1,14 +1,15 @@
 package com.ditrit.letomodelizerapi.service;
 
+import com.ditrit.letomodelizerapi.controller.model.QueryFilter;
 import com.ditrit.letomodelizerapi.model.library.LibraryRecord;
 import com.ditrit.letomodelizerapi.persistence.model.Library;
 import com.ditrit.letomodelizerapi.persistence.model.LibraryTemplate;
 import com.ditrit.letomodelizerapi.persistence.model.User;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 
 import java.net.http.HttpResponse;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -77,40 +78,40 @@ public interface LibraryService {
     /**
      * Finds all libraries that match the given filters and pagination settings.
      *
-     * @param filters  a map of filter criteria
-     * @param pageable the pagination settings
+     * @param filters a Map of strings representing the filtering criteria.
+     * @param queryFilter a Pageable object for pagination information.
      * @return a page of Library entities
      */
-    Page<Library> findAll(Map<String, String> filters, Pageable pageable);
+    Page<Library> findAll(Map<String, List<String>> filters, QueryFilter queryFilter);
 
     /**
      * Finds all libraries accessible to a given user that match the provided filters and pagination settings.
      *
      * @param user     the user for which to find accessible libraries
-     * @param filters  a map of filter criteria
-     * @param pageable the pagination settings
+     * @param filters a Map of strings representing the filtering criteria.
+     * @param queryFilter a Pageable object for pagination information.
      * @return a page of Library entities accessible to the given user
      */
-    Page<Library> findAll(User user, Map<String, String> filters, Pageable pageable);
+    Page<Library> findAll(User user, Map<String, List<String>> filters, QueryFilter queryFilter);
 
     /**
      * Finds all library templates that match the given filters and pagination settings.
      *
-     * @param filters  a map of filter criteria
-     * @param pageable the pagination settings
+     * @param filters a Map of strings representing the filtering criteria.
+     * @param queryFilter a Pageable object for pagination information.
      * @return a page of LibraryTemplate entities
      */
-    Page<LibraryTemplate> findAllTemplates(Map<String, String> filters, Pageable pageable);
+    Page<LibraryTemplate> findAllTemplates(Map<String, List<String>> filters, QueryFilter queryFilter);
 
     /**
      * Finds all library templates accessible to a given user that match the provided filters and pagination settings.
      *
      * @param user     the user for which to find accessible libraries
-     * @param filters  a map of filter criteria
-     * @param pageable the pagination settings
+     * @param filters a Map of strings representing the filtering criteria.
+     * @param queryFilter a Pageable object for pagination information.
      * @return a page of LibraryTemplate entities accessible to the given user
      */
-    Page<LibraryTemplate> findAllTemplates(User user, Map<String, String> filters, Pageable pageable);
+    Page<LibraryTemplate> findAllTemplates(User user, Map<String, List<String>> filters, QueryFilter queryFilter);
 
     /**
      * Retrieves a library template by its ID.

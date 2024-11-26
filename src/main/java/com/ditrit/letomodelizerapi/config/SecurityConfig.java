@@ -1,17 +1,15 @@
 package com.ditrit.letomodelizerapi.config;
 
 import com.ditrit.letomodelizerapi.controller.handler.AuthenticationSuccessHandler;
-import com.ditrit.letomodelizerapi.persistence.repository.UserCsrfTokenRepository;
 import com.ditrit.letomodelizerapi.persistence.repository.DatabaseCsrfTokenRepository;
+import com.ditrit.letomodelizerapi.persistence.repository.UserCsrfTokenRepository;
+import com.ditrit.letomodelizerapi.service.OAuth2UserService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
-import org.springframework.security.oauth2.client.userinfo.OAuth2UserService;
-import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.web.SecurityFilterChain;
 
 /**
@@ -26,7 +24,7 @@ public class SecurityConfig {
     /**
      * Service to authenticate user.
      */
-    private final OAuth2UserService<OAuth2UserRequest, OAuth2User> oAuth2UserService;
+    private final OAuth2UserService oAuth2UserService;
 
     /**
      * Repository for CRUD operations on UserCsrfToken entities.
@@ -51,7 +49,7 @@ public class SecurityConfig {
      *        indicating how long (in seconds) the tokens are considered valid.
      */
     @Autowired
-    public SecurityConfig(final OAuth2UserService<OAuth2UserRequest, OAuth2User> oAuth2UserService,
+    public SecurityConfig(final OAuth2UserService oAuth2UserService,
                           final UserCsrfTokenRepository userCsrfTokenRepository,
                           @Value("${csrf.token.timeout}") final long csrfTokenTimeout) {
         this.oAuth2UserService = oAuth2UserService;

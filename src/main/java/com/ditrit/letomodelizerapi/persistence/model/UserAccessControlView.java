@@ -1,7 +1,7 @@
 package com.ditrit.letomodelizerapi.persistence.model;
 
 import com.ditrit.letomodelizerapi.model.accesscontrol.AccessControlType;
-import com.ditrit.letomodelizerapi.persistence.specification.filter.FilterType;
+import io.github.zorin95670.predicate.FilterType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -26,49 +26,49 @@ public class UserAccessControlView {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "usa_id")
-    @FilterType(type = FilterType.Type.TEXT)
+    @FilterType(type = String.class)
     private String id;
 
     /**
      * The identifier of the user to whom this access control is assigned.
      */
     @Column(name = "usr_id")
-    @FilterType(type = FilterType.Type.UUID)
+    @FilterType(type = UUID.class)
     private UUID userId;
 
     /**
      * Email of the user.
      */
     @Column(name = "email")
-    @FilterType(type = FilterType.Type.TEXT)
+    @FilterType(type = String.class)
     private String email;
 
     /**
      * Login of the user.
      */
     @Column(name = "login")
-    @FilterType(type = FilterType.Type.TEXT)
+    @FilterType(type = String.class)
     private String login;
 
     /**
      * Full name of the user.
      */
     @Column(name = "user_name")
-    @FilterType(type = FilterType.Type.TEXT)
+    @FilterType(type = String.class)
     private String userName;
 
     /**
      * The identifier of the access control.
      */
     @Column(name = "aco_id")
-    @FilterType(type = FilterType.Type.UUID)
+    @FilterType(type = UUID.class)
     private UUID accessControlId;
 
     /**
      * The name of the access control.
      */
     @Column(name = "name")
-    @FilterType(type = FilterType.Type.TEXT)
+    @FilterType(type = String.class)
     private String name;
 
     /**
@@ -76,7 +76,7 @@ public class UserAccessControlView {
      * This is defined by the AccessControlType enum.
      */
     @Column(name = "type", nullable = false)
-    @FilterType(type = FilterType.Type.TEXT)
+    @FilterType(type = AccessControlType.class)
     private AccessControlType type;
 
     /**
@@ -87,6 +87,6 @@ public class UserAccessControlView {
      * hierarchical structure and for operations that depend on direct lineage.
      */
     @Column(name = "direct")
-    @FilterType(type = FilterType.Type.BOOLEAN)
+    @FilterType(type = Boolean.class)
     private Boolean isDirect;
 }

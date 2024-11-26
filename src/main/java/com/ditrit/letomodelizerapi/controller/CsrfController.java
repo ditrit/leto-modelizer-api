@@ -9,25 +9,21 @@ import com.ditrit.letomodelizerapi.service.UserPermissionService;
 import com.ditrit.letomodelizerapi.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
-import jakarta.ws.rs.GET;
-import jakarta.ws.rs.Path;
-import jakarta.ws.rs.Produces;
-import jakarta.ws.rs.core.Context;
-import jakarta.ws.rs.core.MediaType;
-import jakarta.ws.rs.core.Response;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.web.csrf.CsrfToken;
-import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 /**
  * Controller to manage '/csrf' endpoint.
  */
 @Slf4j
-@Path("/csrf")
-@Produces(MediaType.APPLICATION_JSON)
-@Controller
+@RestController
+@RequestMapping("/csrf")
 @AllArgsConstructor(onConstructor = @__(@Autowired))
 public class CsrfController {
 
@@ -57,9 +53,8 @@ public class CsrfController {
      * @param request the HttpServletRequest from which to retrieve the current user session and CSRF token.
      * @return a Response object containing the UserCsrfTokenDTO, which includes the CSRF token details.
      */
-    @GET
-    @Produces(MediaType.APPLICATION_JSON)
-    public Response getCsrfToken(final @Context HttpServletRequest request) {
+    @GetMapping
+    public ResponseEntity<UserCsrfTokenDTO> getCsrfToken(final HttpServletRequest request) {
         HttpSession session = request.getSession();
         User user = userService.getFromSession(session);
         userPermissionService.checkIsAdmin(user, null);
@@ -76,6 +71,6 @@ public class CsrfController {
 
         token.setExpirationDate(userToken.getExpirationDate());
 
-        return Response.ok(token).build();
+        return ResponseEntity.ok(token);
     }
 }

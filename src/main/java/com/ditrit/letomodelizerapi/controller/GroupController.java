@@ -1,6 +1,5 @@
 package com.ditrit.letomodelizerapi.controller;
 
-import com.ditrit.letomodelizerapi.config.Constants;
 import com.ditrit.letomodelizerapi.controller.model.QueryFilter;
 import com.ditrit.letomodelizerapi.model.BeanMapper;
 import com.ditrit.letomodelizerapi.model.accesscontrol.AccessControlDTO;
@@ -21,27 +20,25 @@ import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import jakarta.ws.rs.BeanParam;
-import jakarta.ws.rs.Consumes;
-import jakarta.ws.rs.DELETE;
-import jakarta.ws.rs.GET;
-import jakarta.ws.rs.POST;
-import jakarta.ws.rs.PUT;
-import jakarta.ws.rs.Path;
-import jakarta.ws.rs.PathParam;
-import jakarta.ws.rs.Produces;
-import jakarta.ws.rs.core.Context;
-import jakarta.ws.rs.core.MediaType;
-import jakarta.ws.rs.core.Response;
-import jakarta.ws.rs.core.UriInfo;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
-import org.springframework.stereotype.Controller;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.util.MultiValueMap;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
-import java.util.Map;
 import java.util.UUID;
 
 /**
@@ -51,9 +48,8 @@ import java.util.UUID;
  * Only accessible by users with administrative permissions.
  */
 @Slf4j
-@Path("/groups")
-@Produces(MediaType.APPLICATION_JSON)
-@Controller
+@RestController
+@RequestMapping("/groups")
 @AllArgsConstructor(onConstructor = @__(@Autowired))
 public class GroupController implements DefaultController {
 
@@ -81,25 +77,24 @@ public class GroupController implements DefaultController {
      * Finds and returns all groups based on the provided query filters.
      *
      * @param request     HttpServletRequest to access the HTTP session
-     * @param uriInfo     UriInfo to extract query parameters
-     * @param queryFilter BeanParam for pagination and filtering
+     * @param filters All query parameters for filtering results.
+     * @param queryFilter the filter criteria and pagination information.
      * @return a Response containing a page of AccessControlDTO objects
      */
-    @GET
-    public Response findAll(final @Context HttpServletRequest request,
-                            final @Context UriInfo uriInfo,
-                            final @BeanParam @Valid QueryFilter queryFilter) {
+    @GetMapping
+    public ResponseEntity<Page<AccessControlDTO>> findAll(final HttpServletRequest request,
+                                                          final @RequestParam MultiValueMap<String, String> filters,
+                                                          final @ModelAttribute QueryFilter queryFilter) {
         HttpSession session = request.getSession();
         User user = userService.getFromSession(session);
         userPermissionService.checkIsAdmin(user, null);
-        Map<String, String> filters = this.getFilters(uriInfo);
 
         log.info("[{}] Received GET request to get groups with the following filters: {}", user.getLogin(), filters);
         Page<AccessControlDTO> resources = accessControlService
-                .findAll(AccessControlType.GROUP, filters, queryFilter.getPagination())
+                .findAll(AccessControlType.GROUP, filters, queryFilter)
                 .map(new BeanMapper<>(AccessControlDTO.class));
 
-        return Response.status(this.getStatus(resources)).entity(resources).build();
+        return ResponseEntity.status(this.getStatus(resources)).body(resources);
     }
 
     /**
@@ -109,10 +104,9 @@ public class GroupController implements DefaultController {
      * @param id      the ID of the group to retrieve
      * @return a Response containing the AccessControlDTO of the requested group
      */
-    @GET
-    @Path("/{id}")
-    public Response getGroupById(final @Context HttpServletRequest request,
-                                 final @PathParam("id") @Valid @NotNull UUID id) {
+    @GetMapping("/{id}")
+    public ResponseEntity<AccessControlDTO> getGroupById(final HttpServletRequest request,
+                                                         final @PathVariable UUID id) {
         HttpSession session = request.getSession();
         User user = userService.getFromSession(session);
         userPermissionService.checkIsAdmin(user, null);
@@ -121,7 +115,7 @@ public class GroupController implements DefaultController {
         AccessControlDTO accessControlDTO = new BeanMapper<>(AccessControlDTO.class)
                 .apply(accessControlService.findById(AccessControlType.GROUP, id));
 
-        return Response.ok(accessControlDTO).build();
+        return ResponseEntity.ok(accessControlDTO);
     }
 
     /**
@@ -131,9 +125,10 @@ public class GroupController implements DefaultController {
      * @param accessControlRecord Data for creating the new group
      * @return a Response indicating the outcome of the creation operation
      */
-    @POST
-    public Response createGroup(final @Context HttpServletRequest request,
-                                final @Valid AccessControlRecord accessControlRecord) {
+    @PostMapping
+    public ResponseEntity<AccessControlDTO> createGroup(
+            final HttpServletRequest request,
+            final @RequestBody @Valid AccessControlRecord accessControlRecord) {
         HttpSession session = request.getSession();
         User user = userService.getFromSession(session);
         userPermissionService.checkIsAdmin(user, null);
@@ -142,7 +137,7 @@ public class GroupController implements DefaultController {
         AccessControlDTO accessControlDTO = new BeanMapper<>(AccessControlDTO.class)
                 .apply(accessControlService.create(AccessControlType.GROUP, accessControlRecord));
 
-        return Response.status(HttpStatus.CREATED.value()).entity(accessControlDTO).build();
+        return ResponseEntity.status(HttpStatus.CREATED.value()).body(accessControlDTO);
     }
 
     /**
@@ -153,11 +148,11 @@ public class GroupController implements DefaultController {
      * @param accessControlRecord Data for updating the group
      * @return a Response indicating the outcome of the update operation
      */
-    @PUT
-    @Path("/{id}")
-    public Response updateGroup(final @Context HttpServletRequest request,
-                                final @PathParam("id") @Valid @NotNull UUID id,
-                                final @Valid AccessControlRecord accessControlRecord) {
+    @PutMapping("/{id}")
+    public ResponseEntity<AccessControlDTO> updateGroup(
+            final HttpServletRequest request,
+            final @PathVariable UUID id,
+            final @RequestBody @Valid AccessControlRecord accessControlRecord) {
         HttpSession session = request.getSession();
         User user = userService.getFromSession(session);
         userPermissionService.checkIsAdmin(user, null);
@@ -172,7 +167,7 @@ public class GroupController implements DefaultController {
         AccessControlDTO accessControlDTO = new BeanMapper<>(AccessControlDTO.class)
                 .apply(accessControlService.update(AccessControlType.GROUP, id, accessControlRecord));
 
-        return Response.ok(accessControlDTO).build();
+        return ResponseEntity.ok(accessControlDTO);
     }
 
     /**
@@ -182,10 +177,9 @@ public class GroupController implements DefaultController {
      * @param id      the ID of the group to delete
      * @return a Response indicating the outcome of the delete operation
      */
-    @DELETE
-    @Path("/{id}")
-    public Response deleteGroup(final @Context HttpServletRequest request,
-                                final @PathParam("id") @Valid @NotNull UUID id) {
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Object> deleteGroup(final HttpServletRequest request,
+                                              final @PathVariable UUID id) {
         HttpSession session = request.getSession();
         User user = userService.getFromSession(session);
         userPermissionService.checkIsAdmin(user, null);
@@ -193,7 +187,7 @@ public class GroupController implements DefaultController {
         log.info("[{}] Received DELETE request to delete group with id {}", user.getLogin(), id);
         accessControlService.delete(AccessControlType.GROUP, id);
 
-        return Response.noContent().build();
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).contentType(MediaType.APPLICATION_JSON).build();
     }
 
     /**
@@ -203,21 +197,18 @@ public class GroupController implements DefaultController {
      *
      * @param request     HttpServletRequest to access the HTTP session for authentication and authorization.
      * @param id          the ID of the group for which users are to be retrieved.
-     * @param uriInfo     UriInfo to extract query parameters for additional filtering.
-     * @param queryFilter BeanParam object for pagination and filtering purposes.
+     * @param filters All query parameters for filtering results.
+     * @param queryFilter the filter criteria and pagination information.
      * @return a Response containing a paginated list of UserDTO objects associated with the group.
      */
-    @GET
-    @Path("/{id}/users")
-    public Response getUsersByGroup(final @Context HttpServletRequest request,
-                                    final @PathParam("id") @Valid @NotNull UUID id,
-                                    final @Context UriInfo uriInfo,
-                                    final @BeanParam @Valid QueryFilter queryFilter) {
+    @GetMapping("/{id}/users")
+    public ResponseEntity<Page<UserDTO>> getUsersByGroup(final HttpServletRequest request,
+                                                         final @PathVariable UUID id,
+                                                         final @RequestParam MultiValueMap<String, String> filters,
+                                                         final @ModelAttribute QueryFilter queryFilter) {
         HttpSession session = request.getSession();
         User user = userService.getFromSession(session);
         userPermissionService.checkIsAdmin(user, null);
-
-        Map<String, String> filters = this.getFilters(uriInfo);
 
         log.info(
                 "[{}] Received GET request to get users of group {} with the following filters: {}",
@@ -227,10 +218,10 @@ public class GroupController implements DefaultController {
         );
 
         Page<UserDTO> resources = accessControlService
-                .findAllUsers(AccessControlType.GROUP, id, filters, queryFilter.getPagination())
+                .findAllUsers(AccessControlType.GROUP, id, filters, queryFilter)
                 .map(new BeanMapper<>(UserDTO.class));
 
-        return Response.status(this.getStatus(resources)).entity(resources).build();
+        return ResponseEntity.status(this.getStatus(resources)).body(resources);
     }
 
     /**
@@ -243,12 +234,10 @@ public class GroupController implements DefaultController {
      * @param login   the login identifier of the user to associate with the group.
      * @return a Response indicating the outcome of the association operation.
      */
-    @POST
-    @Consumes(MediaType.TEXT_PLAIN)
-    @Path("/{id}/users")
-    public Response associateUser(final @Context HttpServletRequest request,
-                                  final @PathParam("id") @Valid @NotNull UUID id,
-                                  final @Valid @NotBlank String login) {
+    @PostMapping("/{id}/users")
+    public ResponseEntity<Object> associateUser(final HttpServletRequest request,
+                                                final @PathVariable UUID id,
+                                                final @RequestBody @Valid @NotBlank String login) {
         HttpSession session = request.getSession();
         User user = userService.getFromSession(session);
         userPermissionService.checkIsAdmin(user, null);
@@ -256,7 +245,7 @@ public class GroupController implements DefaultController {
         log.info("[{}] Received POST request to associate group {} with user {}", user.getLogin(), id, login);
         accessControlService.associateUser(AccessControlType.GROUP, id, login);
 
-        return Response.status(HttpStatus.CREATED.value()).build();
+        return ResponseEntity.status(HttpStatus.CREATED.value()).contentType(MediaType.APPLICATION_JSON).build();
     }
 
     /**
@@ -269,11 +258,10 @@ public class GroupController implements DefaultController {
      * @param login   the login identifier of the user to dissociate from the group.
      * @return a Response indicating the outcome of the dissociation operation.
      */
-    @DELETE
-    @Path("/{id}/users/{login}")
-    public Response dissociateUser(final @Context HttpServletRequest request,
-                                   final @PathParam("id") @Valid @NotNull UUID id,
-                                   final @PathParam(Constants.DEFAULT_USER_PROPERTY) @Valid @NotBlank String login) {
+    @DeleteMapping("/{id}/users/{login}")
+    public ResponseEntity<Object> dissociateUser(final HttpServletRequest request,
+                                                 final @PathVariable UUID id,
+                                                 final @PathVariable String login) {
         HttpSession session = request.getSession();
         User user = userService.getFromSession(session);
         userPermissionService.checkIsAdmin(user, null);
@@ -281,7 +269,7 @@ public class GroupController implements DefaultController {
         log.info("[{}] Received DELETE request to dissociate group {} with user {}", user.getLogin(), id, login);
         accessControlService.dissociateUser(AccessControlType.GROUP, id, login);
 
-        return Response.noContent().build();
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).contentType(MediaType.APPLICATION_JSON).build();
     }
 
     /**
@@ -292,22 +280,20 @@ public class GroupController implements DefaultController {
      *
      * @param request     the HttpServletRequest from which to obtain the HttpSession for user validation.
      * @param id          the ID of the group for which to retrieve sub-groups. Must be a valid and non-null Long value.
-     * @param uriInfo     UriInfo context to extract query parameters for filtering results.
-     * @param queryFilter bean parameter encapsulating filtering and pagination criteria.
+     * @param filters All query parameters for filtering results.
+     * @param queryFilter the filter criteria and pagination information.
      * @return a Response object containing the requested page of AccessControlDirectDTO objects representing the
      * sub-groups of the specified group. The status of the response can vary based on the outcome of the request.
      */
-    @GET
-    @Path("/{id}/groups")
-    public Response getSubGroupsOfGroup(final @Context HttpServletRequest request,
-                                        final @PathParam("id") @Valid @NotNull UUID id,
-                                        final @Context UriInfo uriInfo,
-                                        final @BeanParam @Valid QueryFilter queryFilter) {
+    @GetMapping("/{id}/groups")
+    public ResponseEntity<Page<AccessControlDirectDTO>> getSubGroupsOfGroup(
+            final HttpServletRequest request,
+            final @PathVariable UUID id,
+            final @RequestParam MultiValueMap<String, String> filters,
+            final @ModelAttribute QueryFilter queryFilter) {
         HttpSession session = request.getSession();
         User user = userService.getFromSession(session);
         userPermissionService.checkIsAdmin(user, null);
-
-        Map<String, String> filters = this.getFilters(uriInfo);
 
         log.info(
                 "[{}] Received GET request to get sub-groups of group {} with the following filters: {}",
@@ -322,10 +308,10 @@ public class GroupController implements DefaultController {
                         id,
                         AccessControlType.GROUP,
                         filters,
-                        queryFilter.getPagination()
+                        queryFilter
                 );
 
-        return Response.status(this.getStatus(resources)).entity(resources).build();
+        return ResponseEntity.status(this.getStatus(resources)).body(resources);
     }
 
     /**
@@ -343,12 +329,10 @@ public class GroupController implements DefaultController {
      * @return a Response object indicating the outcome of the association operation. A successful operation returns
      * a status of CREATED.
      */
-    @POST
-    @Consumes(MediaType.TEXT_PLAIN)
-    @Path("/{id}/groups")
-    public Response associate(final @Context HttpServletRequest request,
-                              final @PathParam("id") @Valid @NotNull UUID id,
-                              final @Valid @NotNull String subGroupId) {
+    @PostMapping("/{id}/groups")
+    public ResponseEntity<Object> associate(final HttpServletRequest request,
+                                            final @PathVariable UUID id,
+                                            final @RequestBody @Valid @NotNull String subGroupId) {
         HttpSession session = request.getSession();
         User user = userService.getFromSession(session);
         userPermissionService.checkIsAdmin(user, null);
@@ -361,7 +345,7 @@ public class GroupController implements DefaultController {
                 UUID.fromString(subGroupId)
         );
 
-        return Response.status(HttpStatus.CREATED.value()).build();
+        return ResponseEntity.status(HttpStatus.CREATED.value()).contentType(MediaType.APPLICATION_JSON).build();
     }
 
     /**
@@ -379,11 +363,10 @@ public class GroupController implements DefaultController {
      * @return a Response object with a status indicating the outcome of the dissociation operation. A successful
      * operation returns a status of NO_CONTENT.
      */
-    @DELETE
-    @Path("/{id}/groups/{subGroupId}")
-    public Response dissociate(final @Context HttpServletRequest request,
-                               final @PathParam("id") @Valid @NotNull UUID id,
-                               final @PathParam("subGroupId") @Valid @NotNull UUID subGroupId) {
+    @DeleteMapping("/{id}/groups/{subGroupId}")
+    public ResponseEntity<Object> dissociate(final HttpServletRequest request,
+                                             final @PathVariable UUID id,
+                                             final @PathVariable UUID subGroupId) {
         HttpSession session = request.getSession();
         User user = userService.getFromSession(session);
         userPermissionService.checkIsAdmin(user, null);
@@ -397,7 +380,7 @@ public class GroupController implements DefaultController {
 
         accessControlService.dissociate(AccessControlType.GROUP, id, AccessControlType.GROUP, subGroupId);
 
-        return Response.noContent().build();
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).contentType(MediaType.APPLICATION_JSON).build();
     }
 
     /**
@@ -411,24 +394,21 @@ public class GroupController implements DefaultController {
      *
      * @param request     The HttpServletRequest providing context to access the HTTP session.
      * @param id          The unique identifier of the group whose roles are being retrieved.
-     * @param uriInfo     URI information for extracting query parameters to apply as filters.
-     * @param queryFilter A BeanParam object encapsulating pagination and filtering criteria to manage result set size
-     *                    and relevance.
+     * @param filters     All query parameters for filtering results.
+     * @param queryFilter the filter criteria and pagination information.
      * @return A Response object containing a paginated list of AccessControlDirectDTO objects representing the roles
      * associated with the specified group. The response includes pagination details and adheres to the
      * HTTP status code conventions to indicate the outcome of the request.
      */
-    @GET
-    @Path("/{id}/roles")
-    public Response getRolesOfGroup(final @Context HttpServletRequest request,
-                                    final @PathParam("id") @Valid @NotNull UUID id,
-                                    final @Context UriInfo uriInfo,
-                                    final @BeanParam @Valid QueryFilter queryFilter) {
+    @GetMapping("/{id}/roles")
+    public ResponseEntity<Page<AccessControlDirectDTO>> getRolesOfGroup(
+            final HttpServletRequest request,
+            final @PathVariable UUID id,
+            final @RequestParam MultiValueMap<String, String> filters,
+            final @ModelAttribute QueryFilter queryFilter) {
         HttpSession session = request.getSession();
         User user = userService.getFromSession(session);
         userPermissionService.checkIsAdmin(user, null);
-
-        Map<String, String> filters = this.getFilters(uriInfo);
 
         log.info(
                 "[{}] Received GET request to get roles of group {} with the following filters: {}",
@@ -442,10 +422,10 @@ public class GroupController implements DefaultController {
                         AccessControlType.GROUP,
                         id, AccessControlType.ROLE,
                         filters,
-                        queryFilter.getPagination()
+                        queryFilter
                 );
 
-        return Response.status(this.getStatus(resources)).entity(resources).build();
+        return ResponseEntity.status(this.getStatus(resources)).body(resources);
     }
 
     /**
@@ -459,24 +439,21 @@ public class GroupController implements DefaultController {
      *
      * @param request     The HttpServletRequest providing context to access the HTTP session.
      * @param id          The unique identifier of the group whose scopes are being retrieved.
-     * @param uriInfo     URI information for extracting query parameters to apply as filters.
-     * @param queryFilter A BeanParam object encapsulating pagination and filtering criteria to manage result set size
-     *                    and relevance.
+     * @param filters     All query parameters for filtering results.
+     * @param queryFilter the filter criteria and pagination information.
      * @return A Response object containing a paginated list of AccessControlDirectDTO objects representing the scopes
      * associated with the specified group. The response includes pagination details and adheres to the
      * HTTP status code conventions to indicate the outcome of the request.
      */
-    @GET
-    @Path("/{id}/scopes")
-    public Response getScopesOfGroup(final @Context HttpServletRequest request,
-                                    final @PathParam("id") @Valid @NotNull UUID id,
-                                    final @Context UriInfo uriInfo,
-                                    final @BeanParam @Valid QueryFilter queryFilter) {
+    @GetMapping("/{id}/scopes")
+    public ResponseEntity<Page<AccessControlDirectDTO>> getScopesOfGroup(
+            final HttpServletRequest request,
+            final @PathVariable UUID id,
+            final @RequestParam MultiValueMap<String, String> filters,
+            final @ModelAttribute QueryFilter queryFilter) {
         HttpSession session = request.getSession();
         User user = userService.getFromSession(session);
         userPermissionService.checkIsAdmin(user, null);
-
-        Map<String, String> filters = this.getFilters(uriInfo);
 
         log.info(
                 "[{}] Received GET request to get scopes of group {} with the following filters: {}",
@@ -491,10 +468,10 @@ public class GroupController implements DefaultController {
                         id,
                         AccessControlType.SCOPE,
                         filters,
-                        queryFilter.getPagination()
+                        queryFilter
                 );
 
-        return Response.status(this.getStatus(resources)).entity(resources).build();
+        return ResponseEntity.status(this.getStatus(resources)).body(resources);
     }
 
     /**
@@ -506,22 +483,20 @@ public class GroupController implements DefaultController {
      * @param request     the HttpServletRequest from which to obtain the HttpSession for user validation.
      * @param id          the ID of the groups for which to retrieve permissions. Must be a valid and non-null Long
      *                    value.
-     * @param uriInfo     UriInfo context to extract query parameters for filtering results.
-     * @param queryFilter bean parameter encapsulating filtering and pagination criteria.
+     * @param filters     All query parameters for filtering results.
+     * @param queryFilter the filter criteria and pagination information.
      * @return a Response object containing the requested page of PermissionDirectDTO objects representing the
      * permissions of the specified group. The status of the response can vary based on the outcome of the request.
      */
-    @GET
-    @Path("/{id}/permissions")
-    public Response getPermissionsOfGroup(final @Context HttpServletRequest request,
-                                          final @PathParam("id") @Valid @NotNull UUID id,
-                                          final @Context UriInfo uriInfo,
-                                          final @BeanParam @Valid QueryFilter queryFilter) {
+    @GetMapping("/{id}/permissions")
+    public ResponseEntity<Page<PermissionDirectDTO>> getPermissionsOfGroup(
+            final HttpServletRequest request,
+            final @PathVariable UUID id,
+            final @RequestParam MultiValueMap<String, String> filters,
+            final @ModelAttribute QueryFilter queryFilter) {
         HttpSession session = request.getSession();
         User user = userService.getFromSession(session);
         userPermissionService.checkIsAdmin(user, null);
-
-        Map<String, String> filters = this.getFilters(uriInfo);
 
         log.info(
                 "[{}] Received GET request to get permissions of group {} with the following filters: {}",
@@ -532,10 +507,10 @@ public class GroupController implements DefaultController {
 
         AccessControl accessControl = accessControlService.findById(AccessControlType.GROUP, id);
         Page<PermissionDirectDTO> resources = accessControlPermissionService
-                .findAll(accessControl.getId(), filters, queryFilter.getPagination())
+                .findAll(accessControl.getId(), filters, queryFilter)
                 .map(new AccessControlPermissionViewToPermissionDirectDTOFunction());
 
 
-        return Response.status(this.getStatus(resources)).entity(resources).build();
+        return ResponseEntity.status(this.getStatus(resources)).body(resources);
     }
 }

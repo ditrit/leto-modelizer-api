@@ -1,6 +1,7 @@
 package com.ditrit.letomodelizerapi.service;
 
 import com.ditrit.letomodelizerapi.config.Constants;
+import com.ditrit.letomodelizerapi.controller.model.QueryFilter;
 import com.ditrit.letomodelizerapi.model.BeanMapper;
 import com.ditrit.letomodelizerapi.model.ai.AISecretRecord;
 import com.ditrit.letomodelizerapi.model.error.ApiException;
@@ -9,7 +10,7 @@ import com.ditrit.letomodelizerapi.persistence.model.AIConfiguration;
 import com.ditrit.letomodelizerapi.persistence.model.AISecret;
 import com.ditrit.letomodelizerapi.persistence.repository.AIConfigurationRepository;
 import com.ditrit.letomodelizerapi.persistence.repository.AISecretRepository;
-import com.ditrit.letomodelizerapi.persistence.specification.SpecificationHelper;
+import com.ditrit.letomodelizerapi.persistence.specification.CustomSpringQueryFilterSpecification;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.hubspot.jinjava.Jinjava;
 import jakarta.transaction.Transactional;
@@ -17,9 +18,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import javax.crypto.Cipher;
@@ -201,24 +199,21 @@ public class AISecretServiceImpl implements AISecretService {
      * This method return data with encoded secret value.
      * Ensure the secret value is not exposed, even if it is encrypted.
      *
-     * @param filters  a Map of strings representing the filtering criteria.
-     * @param pageable a Pageable object for pagination information.
+     * @param filters     a Map of strings representing the filtering criteria.
+     * @param queryFilter a Pageable object for pagination information.
      * @return a Page of AISecret entities matching the specified type and filters.
      */
-    private Page<AISecret> findAllWithSecretValue(final Map<String, String> filters,
-                                                             final Pageable pageable) {
-        return aiSecretRepository.findAll(new SpecificationHelper<>(AISecret.class, filters),
-                PageRequest.of(
-                        pageable.getPageNumber(),
-                        pageable.getPageSize(),
-                        pageable.getSortOr(Sort.by(Sort.Direction.ASC, "key"))
-                )
-        );
+    private Page<AISecret> findAllWithSecretValue(final Map<String, List<String>> filters,
+                                                  final QueryFilter queryFilter) {
+        return aiSecretRepository.findAll(
+                new CustomSpringQueryFilterSpecification<>(AISecret.class, filters),
+                queryFilter.getPageable(true, "key"));
     }
 
     @Override
-    public Page<AISecret> findAll(final Map<String, String> filters, final Pageable pageable) {
-        return findAllWithSecretValue(filters, pageable)
+    public Page<AISecret> findAll(final Map<String, List<String>> filters,
+                                  final QueryFilter queryFilter) {
+        return findAllWithSecretValue(filters, queryFilter)
                 .map(new BeanMapper<>(AISecret.class, Constants.DEFAULT_AI_SECRET_VALUE_PROPERTY));
     }
 

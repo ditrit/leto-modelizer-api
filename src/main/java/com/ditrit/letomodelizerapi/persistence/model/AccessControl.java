@@ -2,7 +2,7 @@ package com.ditrit.letomodelizerapi.persistence.model;
 
 import com.ditrit.letomodelizerapi.model.accesscontrol.AccessControlType;
 import com.ditrit.letomodelizerapi.persistence.converter.AccessControlTypeConverter;
-import com.ditrit.letomodelizerapi.persistence.specification.filter.FilterType;
+import io.github.zorin95670.predicate.FilterType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
@@ -34,14 +34,14 @@ public class AccessControl extends AbstractEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "aco_id")
-    @FilterType(type = FilterType.Type.UUID)
+    @FilterType(type = UUID.class)
     private UUID id;
 
     /**
      * The name of the access control.
      */
     @Column(name = "name")
-    @FilterType(type = FilterType.Type.TEXT)
+    @FilterType(type = String.class)
     private String name;
 
     /**
@@ -51,7 +51,7 @@ public class AccessControl extends AbstractEntity {
     @Column(name = "type", nullable = false)
     @Convert(converter = AccessControlTypeConverter.class)
     @ColumnTransformer(write = "?::access_control_type")
-    @FilterType(type = FilterType.Type.ENUM)
+    @FilterType(type = AccessControlType.class)
     private AccessControlType type;
 
     /**

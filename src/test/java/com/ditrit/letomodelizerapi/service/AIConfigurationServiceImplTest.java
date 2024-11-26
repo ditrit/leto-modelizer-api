@@ -1,5 +1,6 @@
 package com.ditrit.letomodelizerapi.service;
 
+import com.ditrit.letomodelizerapi.controller.model.QueryFilter;
 import com.ditrit.letomodelizerapi.model.ai.AIConfigurationRecord;
 import com.ditrit.letomodelizerapi.model.error.ApiException;
 import com.ditrit.letomodelizerapi.model.error.ErrorType;
@@ -18,9 +19,9 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.util.LinkedMultiValueMap;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -52,7 +53,7 @@ class AIConfigurationServiceImplTest {
         Mockito.when(aiConfigurationRepository.findAll(Mockito.any(Specification.class), Mockito.any()))
                 .thenReturn(page);
 
-        var result = service.findAll(Map.of(), Pageable.ofSize(10));
+        var result = service.findAll(new LinkedMultiValueMap<>(), new QueryFilter());
         assertEquals(configuration, result.getContent().getFirst());
     }
 

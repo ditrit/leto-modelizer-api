@@ -1,5 +1,6 @@
 package com.ditrit.letomodelizerapi.service;
 
+import com.ditrit.letomodelizerapi.controller.model.QueryFilter;
 import com.ditrit.letomodelizerapi.model.accesscontrol.AccessControlRecord;
 import com.ditrit.letomodelizerapi.model.accesscontrol.AccessControlType;
 import com.ditrit.letomodelizerapi.model.error.ApiException;
@@ -19,7 +20,7 @@ import com.ditrit.letomodelizerapi.persistence.repository.LibraryRepository;
 import com.ditrit.letomodelizerapi.persistence.repository.LibraryTemplateRepository;
 import com.ditrit.letomodelizerapi.persistence.repository.UserLibraryTemplateViewRepository;
 import com.ditrit.letomodelizerapi.persistence.repository.UserLibraryViewRepository;
-import com.ditrit.letomodelizerapi.persistence.specification.SpecificationHelper;
+import com.ditrit.letomodelizerapi.persistence.specification.CustomSpringQueryFilterSpecification;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -36,8 +37,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
@@ -338,40 +337,42 @@ public class LibraryServiceImpl implements LibraryService {
     }
 
     @Override
-    public Page<Library> findAll(final Map<String, String> filters, final Pageable pageable) {
+    public Page<Library> findAll(final Map<String, List<String>> filters,
+                                 final QueryFilter queryFilter) {
         return libraryRepository.findAll(
-                new SpecificationHelper<>(Library.class, filters),
-                PageRequest.of(pageable.getPageNumber(), pageable.getPageSize())
-        );
+                new CustomSpringQueryFilterSpecification<>(Library.class, filters),
+                queryFilter.getPageable());
     }
 
     @Override
-    public Page<Library> findAll(final User user, final Map<String, String> immutableFilters, final Pageable pageable) {
-        Map<String, String> filters = new HashMap<>(immutableFilters);
-        filters.put("userId", user.getId().toString());
+    public Page<Library> findAll(final User user,
+                                 final Map<String, List<String>> immutableFilters,
+                                 final QueryFilter queryFilter) {
+        var filters = new HashMap<>(immutableFilters);
+        filters.put("userId", List.of(user.getId().toString()));
 
         return userLibraryViewRepository.findAll(
-                new SpecificationHelper<>(UserLibraryView.class, filters),
-                PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), pageable.getSort())
+                new CustomSpringQueryFilterSpecification<>(UserLibraryView.class, filters),
+                queryFilter.getPageable()
         ).map(new UserLibraryViewToLibraryFunction());
     }
 
     @Override
-    public Page<LibraryTemplate> findAllTemplates(final Map<String, String> filters, final Pageable pageable) {
+    public Page<LibraryTemplate> findAllTemplates(final Map<String, List<String>> filters,
+                                                  final QueryFilter queryFilter) {
         return libraryTemplateRepository.findAll(
-                new SpecificationHelper<>(LibraryTemplate.class, filters),
-                PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), pageable.getSort())
-        );
+                new CustomSpringQueryFilterSpecification<>(LibraryTemplate.class, filters),
+                queryFilter.getPageable());
     }
 
     @Override
     public Page<LibraryTemplate> findAllTemplates(final User user,
-                                                  final Map<String, String> filters,
-                                                  final Pageable pageable) {
+                                                  final Map<String, List<String>> filters,
+                                                  final QueryFilter queryFilter) {
         return userLibraryTemplateViewRepository.findAllByUserId(
                 user.getId(),
-                new SpecificationHelper<>(UserLibraryTemplateView.class, filters),
-                PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), pageable.getSort())
+                new CustomSpringQueryFilterSpecification<>(UserLibraryTemplateView.class, filters),
+                queryFilter.getPageable()
         ).map(new UserLibraryTemplateViewToLibraryTemplateFunction());
     }
 

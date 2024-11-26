@@ -1,6 +1,7 @@
 package com.ditrit.letomodelizerapi.service;
 
 import com.ditrit.letomodelizerapi.config.Constants;
+import com.ditrit.letomodelizerapi.controller.model.QueryFilter;
 import com.ditrit.letomodelizerapi.model.error.ApiException;
 import com.ditrit.letomodelizerapi.model.error.ErrorType;
 import com.ditrit.letomodelizerapi.model.permission.ActionPermission;
@@ -10,17 +11,15 @@ import com.ditrit.letomodelizerapi.persistence.model.Library;
 import com.ditrit.letomodelizerapi.persistence.model.Permission;
 import com.ditrit.letomodelizerapi.persistence.repository.AccessControlRepository;
 import com.ditrit.letomodelizerapi.persistence.repository.PermissionRepository;
-import com.ditrit.letomodelizerapi.persistence.specification.SpecificationHelper;
+import com.ditrit.letomodelizerapi.persistence.specification.CustomSpringQueryFilterSpecification;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -57,11 +56,11 @@ public class PermissionServiceImpl implements PermissionService {
     private AccessControlPermissionService accessControlPermissionService;
 
     @Override
-    public Page<Permission> findAll(final Map<String, String> filters, final Pageable pageable) {
-        return permissionRepository.findAll(new SpecificationHelper<>(Permission.class, filters), PageRequest.of(
-                pageable.getPageNumber(),
-                pageable.getPageSize(),
-                pageable.getSortOr(Sort.by(Sort.Direction.ASC, "entity"))));
+    public Page<Permission> findAll(final Map<String, List<String>> filters,
+                                    final QueryFilter queryFilter) {
+        return permissionRepository.findAll(
+                new CustomSpringQueryFilterSpecification<>(Permission.class, filters),
+                queryFilter.getPageable(true, "entity"));
     }
 
     @Override
@@ -97,8 +96,8 @@ public class PermissionServiceImpl implements PermissionService {
     public Permission create(final EntityPermission entity, final ActionPermission action, final UUID libraryId) {
         Permission permission = new Permission();
 
-        permission.setAction(action.name());
-        permission.setEntity(entity.name());
+        permission.setAction(action);
+        permission.setEntity(entity);
         permission.setLibraryId(libraryId);
 
         permission = permissionRepository.save(permission);

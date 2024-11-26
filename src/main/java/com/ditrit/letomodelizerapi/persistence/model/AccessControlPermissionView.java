@@ -1,6 +1,6 @@
 package com.ditrit.letomodelizerapi.persistence.model;
 
-import com.ditrit.letomodelizerapi.persistence.specification.filter.FilterType;
+import io.github.zorin95670.predicate.FilterType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -31,42 +31,42 @@ public class AccessControlPermissionView extends AbstractEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "acp_id")
-    @FilterType(type = FilterType.Type.TEXT)
+    @FilterType(type = String.class)
     private String id;
 
     /**
      * The identifier of the access control to whom this permission is assigned.
      */
     @Column(name = "aco_id")
-    @FilterType(type = FilterType.Type.UUID)
+    @FilterType(type = UUID.class)
     private UUID accessControlId;
 
     /**
      * The identifier of the access control to whom this permission is assigned.
      */
     @Column(name = "per_id")
-    @FilterType(type = FilterType.Type.UUID)
+    @FilterType(type = UUID.class)
     private UUID permissionId;
 
     /**
      * The entity associated with this permission.
      */
     @Column(name = "entity")
-    @FilterType(type = FilterType.Type.TEXT)
+    @FilterType(type = String.class)
     private String entity;
 
     /**
      * The action associated with this permission.
      */
     @Column(name = "action")
-    @FilterType(type = FilterType.Type.TEXT)
+    @FilterType(type = String.class)
     private String action;
 
     /**
      * The identifier of the library associated with this permission.
      */
     @Column(name = "lib_id")
-    @FilterType(type = FilterType.Type.UUID)
+    @FilterType(type = UUID.class)
     private UUID libraryId;
 
     /**
@@ -75,6 +75,6 @@ public class AccessControlPermissionView extends AbstractEntity {
      * inherited through the role's position in the role hierarchy, offering a nuanced view of permission origins.
      */
     @Column(name = "direct")
-    @FilterType(type = FilterType.Type.BOOLEAN)
+    @FilterType(type = Boolean.class)
     private Boolean isDirect;
 }

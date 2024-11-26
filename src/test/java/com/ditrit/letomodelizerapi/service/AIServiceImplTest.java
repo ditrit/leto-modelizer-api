@@ -1,5 +1,6 @@
 package com.ditrit.letomodelizerapi.service;
 
+import com.ditrit.letomodelizerapi.controller.model.QueryFilter;
 import com.ditrit.letomodelizerapi.model.ai.AIConversationRecord;
 import com.ditrit.letomodelizerapi.model.ai.AICreateFileRecord;
 import com.ditrit.letomodelizerapi.model.ai.AIMessageRecord;
@@ -23,15 +24,14 @@ import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
+import org.springframework.util.LinkedMultiValueMap;
 
 import java.io.IOException;
 import java.net.http.HttpClient;
 import java.net.http.HttpResponse;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -410,7 +410,7 @@ class AIServiceImplTest {
         User user = new User();
         user.setId(UUID.randomUUID());
 
-        assertEquals(Page.empty(), service.findAll(user, Map.of(), Pageable.ofSize(10)));
+        assertEquals(Page.empty(), service.findAll(user, new LinkedMultiValueMap<>(), new QueryFilter()));
     }
 
     @Test
@@ -427,7 +427,7 @@ class AIServiceImplTest {
         User user = new User();
         user.setId(UUID.randomUUID());
 
-        assertEquals(Page.empty(), service.findAllMessages(user, UUID.randomUUID(), Map.of(), Pageable.ofSize(10)));
+        assertEquals(Page.empty(), service.findAllMessages(user, UUID.randomUUID(), new LinkedMultiValueMap<>(), new QueryFilter()));
     }
 
     @Test
@@ -442,7 +442,7 @@ class AIServiceImplTest {
         ApiException exception = null;
 
         try {
-            service.findAllMessages(user, UUID.randomUUID(), Map.of(), Pageable.ofSize(10));
+            service.findAllMessages(user, UUID.randomUUID(), new LinkedMultiValueMap<>(), new QueryFilter());
         } catch (ApiException e) {
             exception = e;
         }
@@ -462,7 +462,7 @@ class AIServiceImplTest {
                 .thenReturn(Page.empty());
         AIServiceImpl service = newInstance();
 
-        assertEquals(Page.empty(), service.findAllConversations(Map.of(), Pageable.ofSize(10)));
+        assertEquals(Page.empty(), service.findAllConversations(new LinkedMultiValueMap<>(), new QueryFilter()));
     }
 
     @Test

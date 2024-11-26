@@ -7,7 +7,6 @@ import com.ditrit.letomodelizerapi.service.UserPermissionService;
 import com.ditrit.letomodelizerapi.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
-import jakarta.ws.rs.core.Response;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -51,7 +50,7 @@ class CsrfControllerTest {
         Mockito.doNothing().when(userPermissionService).checkIsAdmin(Mockito.any(), Mockito.any());
         Mockito.when(userCsrfTokenService.findByLogin(Mockito.any())).thenReturn(new UserCsrfToken());
 
-        Response response = controller.getCsrfToken(request);
-        assertNotNull(response.getEntity());
+        var response = controller.getCsrfToken(request);
+        assertNotNull(response.getBody());
     }
 }

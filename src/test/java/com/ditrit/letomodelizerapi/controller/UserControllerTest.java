@@ -2,6 +2,11 @@ package com.ditrit.letomodelizerapi.controller;
 
 import com.ditrit.letomodelizerapi.controller.model.QueryFilter;
 import com.ditrit.letomodelizerapi.helper.MockHelper;
+import com.ditrit.letomodelizerapi.model.accesscontrol.AccessControlDTO;
+import com.ditrit.letomodelizerapi.model.accesscontrol.AccessControlDirectDTO;
+import com.ditrit.letomodelizerapi.model.ai.AIConversationDTO;
+import com.ditrit.letomodelizerapi.model.permission.PermissionDTO;
+import com.ditrit.letomodelizerapi.model.user.UserDTO;
 import com.ditrit.letomodelizerapi.persistence.model.User;
 import com.ditrit.letomodelizerapi.service.AIService;
 import com.ditrit.letomodelizerapi.service.AccessControlService;
@@ -9,7 +14,6 @@ import com.ditrit.letomodelizerapi.service.UserPermissionService;
 import com.ditrit.letomodelizerapi.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
-import jakarta.ws.rs.core.Response;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -21,6 +25,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.util.LinkedMultiValueMap;
 
 import java.net.http.HttpHeaders;
 import java.net.http.HttpResponse;
@@ -68,11 +74,11 @@ class UserControllerTest extends MockHelper {
                 .thenReturn(session);
         Mockito.doNothing().when(userPermissionService).checkIsAdmin(Mockito.any(), Mockito.any());
         Mockito.when(this.userService.findAll(Mockito.any(), Mockito.any())).thenReturn(new PageImpl<>(new ArrayList<>()));
-        final Response response = this.controller.getUsers(request, mockUriInfo(), new QueryFilter());
+        final ResponseEntity<Page<UserDTO>> response = this.controller.getUsers(request, new LinkedMultiValueMap<>(), new QueryFilter());
 
         assertNotNull(response);
-        assertEquals(HttpStatus.OK.value(), response.getStatus());
-        assertNotNull(response.getEntity());
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertNotNull(response.getBody());
     }
 
     @Test
@@ -90,11 +96,11 @@ class UserControllerTest extends MockHelper {
                 .thenReturn(session);
         Mockito.doNothing().when(userPermissionService).checkIsAdmin(Mockito.any(), Mockito.any());
         Mockito.when(this.userService.findByLogin(Mockito.any())).thenReturn(new User());
-        final Response response = this.controller.getUserByLogin(request, "test");
+        final ResponseEntity<UserDTO> response = this.controller.getUserByLogin(request, "test");
 
         assertNotNull(response);
-        assertEquals(HttpStatus.OK.value(), response.getStatus());
-        assertNotNull(response.getEntity());
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertNotNull(response.getBody());
     }
 
     @Test
@@ -112,10 +118,10 @@ class UserControllerTest extends MockHelper {
                 .thenReturn(session);
         Mockito.doNothing().when(userPermissionService).checkIsAdmin(Mockito.any(), Mockito.any());
         Mockito.doNothing().when(userService).deleteByLogin("test");
-        final Response response = this.controller.deleteUserByLogin(request, "test");
+        final ResponseEntity<Object> response = this.controller.deleteUserByLogin(request, "test");
 
         assertNotNull(response);
-        assertEquals(HttpStatus.NO_CONTENT.value(), response.getStatus());
+        assertEquals(HttpStatus.NO_CONTENT, response.getStatusCode());
     }
 
     @Test
@@ -135,11 +141,11 @@ class UserControllerTest extends MockHelper {
         Mockito.when(this.userService.findByLogin(Mockito.any())).thenReturn(new User());
         Mockito.when(this.accessControlService.findAll(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any()))
                 .thenReturn(Page.empty());
-        final Response response = this.controller.getRolesOfUser(request, "test", mockUriInfo(), new QueryFilter());
+        final ResponseEntity<Page<AccessControlDirectDTO>> response = this.controller.getRolesOfUser(request, "test", new LinkedMultiValueMap<>(), new QueryFilter());
 
         assertNotNull(response);
-        assertEquals(HttpStatus.OK.value(), response.getStatus());
-        assertNotNull(response.getEntity());
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertNotNull(response.getBody());
     }
 
     @Test
@@ -159,11 +165,11 @@ class UserControllerTest extends MockHelper {
         Mockito.when(this.userService.findByLogin(Mockito.any())).thenReturn(new User());
         Mockito.when(this.accessControlService.findAll(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any()))
                 .thenReturn(Page.empty());
-        final Response response = this.controller.getGroupsOfUser(request, "test", mockUriInfo(), new QueryFilter());
+        final ResponseEntity<Page<AccessControlDTO>> response = this.controller.getGroupsOfUser(request, "test", new LinkedMultiValueMap<>(), new QueryFilter());
 
         assertNotNull(response);
-        assertEquals(HttpStatus.OK.value(), response.getStatus());
-        assertNotNull(response.getEntity());
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertNotNull(response.getBody());
     }
 
     @Test
@@ -183,11 +189,11 @@ class UserControllerTest extends MockHelper {
         Mockito.when(this.userService.findByLogin(Mockito.any())).thenReturn(new User());
         Mockito.when(this.userPermissionService.findAll(Mockito.any(), Mockito.any(), Mockito.any()))
                 .thenReturn(Page.empty());
-        final Response response = this.controller.getPermissionsOfUser(request, "login", mockUriInfo(), new QueryFilter());
+        final ResponseEntity<Page<PermissionDTO>> response = this.controller.getPermissionsOfUser(request, "login", new LinkedMultiValueMap<>(), new QueryFilter());
 
         assertNotNull(response);
-        assertEquals(HttpStatus.OK.value(), response.getStatus());
-        assertNotNull(response.getEntity());
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertNotNull(response.getBody());
     }
 
     @Test
@@ -211,11 +217,11 @@ class UserControllerTest extends MockHelper {
         Mockito.when(this.userService.findByLogin(Mockito.any())).thenReturn(new User());
         Mockito.when(this.userPermissionService.findAll(Mockito.any(), Mockito.any(), Mockito.any()))
                 .thenReturn(Page.empty());
-        final Response response = this.controller.getPermissionsOfUser(request, "login", mockUriInfo(), new QueryFilter());
+        final ResponseEntity<Page<PermissionDTO>> response = this.controller.getPermissionsOfUser(request, "login", new LinkedMultiValueMap<>(), new QueryFilter());
 
         assertNotNull(response);
-        assertEquals(HttpStatus.OK.value(), response.getStatus());
-        assertNotNull(response.getEntity());
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertNotNull(response.getBody());
     }
 
     @Test
@@ -235,11 +241,11 @@ class UserControllerTest extends MockHelper {
         Mockito.when(this.userService.findByLogin(Mockito.any())).thenReturn(new User());
         Mockito.when(this.accessControlService.findAll(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any()))
                 .thenReturn(Page.empty());
-        final Response response = this.controller.getScopesOfUser(request, "test", mockUriInfo(), new QueryFilter());
+        final ResponseEntity<Page<AccessControlDTO>> response = this.controller.getScopesOfUser(request, "test", new LinkedMultiValueMap<>(), new QueryFilter());
 
         assertNotNull(response);
-        assertEquals(HttpStatus.OK.value(), response.getStatus());
-        assertNotNull(response.getEntity());
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertNotNull(response.getBody());
     }
 
     @Test
@@ -269,10 +275,10 @@ class UserControllerTest extends MockHelper {
                 .when(userService.getPicture(Mockito.any()))
                 .thenReturn(picture);
 
-        Response response = userController.getPictureOfUser(request, "test");
+        ResponseEntity<byte[]> response = userController.getPictureOfUser(request, "test");
 
         assertNotNull(response);
-        assertEquals(HttpStatus.OK.value(), response.getStatus());
+        assertEquals(HttpStatus.OK, response.getStatusCode());
     }
 
     @Test
@@ -292,11 +298,11 @@ class UserControllerTest extends MockHelper {
         Mockito.when(this.userService.findByLogin(Mockito.any())).thenReturn(new User());
         Mockito.when(this.aiService.findAll(Mockito.any(), Mockito.any(), Mockito.any()))
                 .thenReturn(Page.empty());
-        final Response response = this.controller.getAIConversationsOfUser(request, "login", mockUriInfo(), new QueryFilter());
+        final ResponseEntity<Page<AIConversationDTO>> response = this.controller.getAIConversationsOfUser(request, "login", new LinkedMultiValueMap<>(), new QueryFilter());
 
         assertNotNull(response);
-        assertEquals(HttpStatus.OK.value(), response.getStatus());
-        assertNotNull(response.getEntity());
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertNotNull(response.getBody());
     }
 
     @Test
@@ -320,10 +326,10 @@ class UserControllerTest extends MockHelper {
         Mockito.when(this.userService.findByLogin(Mockito.any())).thenReturn(new User());
         Mockito.when(this.aiService.findAll(Mockito.any(), Mockito.any(), Mockito.any()))
                 .thenReturn(Page.empty());
-        final Response response = this.controller.getAIConversationsOfUser(request, "login", mockUriInfo(), new QueryFilter());
+        final ResponseEntity<Page<AIConversationDTO>> response = this.controller.getAIConversationsOfUser(request, "login", new LinkedMultiValueMap<>(), new QueryFilter());
 
         assertNotNull(response);
-        assertEquals(HttpStatus.OK.value(), response.getStatus());
-        assertNotNull(response.getEntity());
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertNotNull(response.getBody());
     }
 }

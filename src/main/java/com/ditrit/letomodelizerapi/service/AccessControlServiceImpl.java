@@ -1,6 +1,7 @@
 package com.ditrit.letomodelizerapi.service;
 
 import com.ditrit.letomodelizerapi.config.Constants;
+import com.ditrit.letomodelizerapi.controller.model.QueryFilter;
 import com.ditrit.letomodelizerapi.model.BeanMapper;
 import com.ditrit.letomodelizerapi.model.accesscontrol.AccessControlDirectDTO;
 import com.ditrit.letomodelizerapi.model.accesscontrol.AccessControlRecord;
@@ -21,27 +22,26 @@ import com.ditrit.letomodelizerapi.persistence.repository.AccessControlTreeRepos
 import com.ditrit.letomodelizerapi.persistence.repository.AccessControlTreeViewRepository;
 import com.ditrit.letomodelizerapi.persistence.repository.UserAccessControlRepository;
 import com.ditrit.letomodelizerapi.persistence.repository.UserAccessControlViewRepository;
-import com.ditrit.letomodelizerapi.persistence.specification.SpecificationHelper;
+import com.ditrit.letomodelizerapi.persistence.specification.CustomSpringQueryFilterSpecification;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
 /**
  * Implementation of the AccessControlService interface.
- *
+ * <p>
  * This class provides concrete implementations for the access control management operations defined in
  * AccessControlService.
+ * </p>
  * AccessControlServiceImpl interacts with the underlying repository layer to perform these operations,
  * ensuring that business logic and data access are effectively managed.
  */
@@ -104,33 +104,29 @@ public class AccessControlServiceImpl implements AccessControlService {
 
     @Override
     public Page<AccessControl> findAll(final AccessControlType type,
-                                       final Map<String, String> immutableFilters,
-                                       final Pageable pageable) {
-        Map<String, String> filters = new HashMap<>(immutableFilters);
-        filters.put("type", type.name());
+                                       final Map<String, List<String>> immutableFilters,
+                                       final QueryFilter queryFilter) {
+        Map<String, List<String>> filters = new HashMap<>(immutableFilters);
+        filters.put("type", List.of(type.toString()));
 
-        return accessControlRepository.findAll(new SpecificationHelper<>(AccessControl.class, filters), PageRequest.of(
-                pageable.getPageNumber(),
-                pageable.getPageSize(),
-                pageable.getSortOr(Sort.by(Sort.Direction.ASC, "name"))));
+        return accessControlRepository.findAll(
+                new CustomSpringQueryFilterSpecification<>(AccessControl.class, filters),
+                queryFilter.getPageable(true, "name")
+        );
     }
 
     @Override
     public Page<AccessControlDirectDTO> findAll(final AccessControlType type,
                                        final User user,
-                                       final Map<String, String> immutableFilters,
-                                       final Pageable pageable) {
-        Map<String, String> filters = new HashMap<>(immutableFilters);
-        filters.put("type", type.name());
-        filters.put("userId", user.getId().toString());
+                                       final Map<String, List<String>> immutableFilters,
+                                       final QueryFilter queryFilter) {
+        var filters = new HashMap<>(immutableFilters);
+        filters.put("type", List.of(type.name()));
+        filters.put("userId", List.of(user.getId().toString()));
 
         return userAccessControlViewRepository.findAll(
-                new SpecificationHelper<>(UserAccessControlView.class, filters),
-                PageRequest.of(
-                        pageable.getPageNumber(),
-                        pageable.getPageSize(),
-                        pageable.getSortOr(Sort.by(Sort.Direction.ASC, "name"))
-                )
+                new CustomSpringQueryFilterSpecification<>(UserAccessControlView.class, filters),
+                queryFilter.getPageable(true, "name")
         ).map(new UserAccessControlViewToAccessControlDirectDTOFunction());
     }
 
@@ -138,37 +134,31 @@ public class AccessControlServiceImpl implements AccessControlService {
     public Page<AccessControlDirectDTO> findAllChildren(final AccessControlType type,
                                                         final UUID id,
                                                         final AccessControlType childrenType,
-                                                        final Map<String, String> immutableFilters,
-                                                        final Pageable pageable) {
+                                                        final Map<String, List<String>> immutableFilters,
+                                                        final QueryFilter queryFilter) {
         AccessControl accessControl = findById(type, id);
-        Map<String, String> filters = new HashMap<>(immutableFilters);
-        filters.put("type", childrenType.name());
-        filters.put("parentId", accessControl.getId().toString());
+        var filters = new HashMap<>(immutableFilters);
+        filters.put("type", List.of(childrenType.name()));
+        filters.put("parentId", List.of(accessControl.getId().toString()));
 
         return accessControlTreeViewRepository.findAll(
-                new SpecificationHelper<>(AccessControlTreeView.class, filters),
-                PageRequest.of(
-                        pageable.getPageNumber(),
-                        pageable.getPageSize(),
-                        pageable.getSortOr(Sort.by(Sort.Direction.ASC, "parentName"))
-                )
+                new CustomSpringQueryFilterSpecification<>(AccessControlTreeView.class, filters),
+                queryFilter.getPageable(true, "parentName")
         ).map(new AccessControlTreeViewToAccessControlDirectDTOFunction(false));
     }
 
     @Override
     public Page<User> findAllUsers(final AccessControlType type,
                                    final UUID id,
-                                   final Map<String, String> immutableFilters,
-                                   final Pageable pageable) {
+                                   final Map<String, List<String>> immutableFilters,
+                                   final QueryFilter queryFilter) {
         AccessControl accessControl = findById(type, id);
-        Map<String, String> filters = new HashMap<>(immutableFilters);
-        filters.put("accessControlId", accessControl.getId().toString());
+        var filters = new HashMap<>(immutableFilters);
+        filters.put("accessControlId", List.of(accessControl.getId().toString()));
 
-        return userAccessControlViewRepository.findAll(new SpecificationHelper<>(UserAccessControlView.class, filters),
-                PageRequest.of(
-                    pageable.getPageNumber(),
-                    pageable.getPageSize(),
-                    pageable.getSortOr(Sort.by(Sort.Direction.ASC, "userName")))
+        return userAccessControlViewRepository.findAll(
+                new CustomSpringQueryFilterSpecification<>(UserAccessControlView.class, filters),
+                queryFilter.getPageable(true, "userName")
         ).map(new UserAccesControlViewToUserFunction());
     }
 
@@ -176,25 +166,29 @@ public class AccessControlServiceImpl implements AccessControlService {
     public Page<AccessControlDirectDTO> findAllAccessControls(final AccessControlType type,
                                                               final UUID id,
                                                               final AccessControlType subType,
-                                                              final Map<String, String> immutableFilters,
-                                                              final Pageable pageable) {
+                                                              final Map<String, List<String>> immutableFilters,
+                                                              final QueryFilter queryFilter) {
         AccessControl accessControl = this.findById(type, id);
-        Map<String, String> filters = new HashMap<>(immutableFilters);
-        filters.put("id", accessControl.getId().toString());
-        filters.put("parentType", subType.name());
+        var filters = new HashMap<>(immutableFilters);
+        filters.put("id", List.of(accessControl.getId().toString()));
+        filters.put("parentType", List.of(subType.name()));
 
-        return accessControlTreeViewRepository.findAll(new SpecificationHelper<>(AccessControlTreeView.class, filters),
-                PageRequest.of(
-                        pageable.getPageNumber(),
-                        pageable.getPageSize(),
-                        pageable.getSortOr(Sort.by(Sort.Direction.ASC, "parentName")))
+        return accessControlTreeViewRepository.findAll(
+                new CustomSpringQueryFilterSpecification<>(AccessControlTreeView.class, filters),
+                queryFilter.getPageable(true, "parentName")
         ).map(new AccessControlTreeViewToAccessControlDirectDTOFunction());
     }
 
     @Override
     public AccessControl findById(final AccessControlType type, final UUID id) {
-        Map<String, String> filters = Map.of("id", id.toString(), "type", type.name());
-        return accessControlRepository.findOne(new SpecificationHelper<>(AccessControl.class, filters))
+        Map<String, List<String>> filters = Map.of(
+            "id",
+            List.of(id.toString()),
+            "type",
+            List.of(type.name())
+        );
+        return accessControlRepository.findOne(
+                new CustomSpringQueryFilterSpecification<>(AccessControl.class, filters))
                 .orElseThrow(() -> new ApiException(ErrorType.ENTITY_NOT_FOUND, "id", id.toString()));
     }
 

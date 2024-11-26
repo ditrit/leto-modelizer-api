@@ -1,6 +1,6 @@
 package com.ditrit.letomodelizerapi.persistence.model;
 
-import com.ditrit.letomodelizerapi.persistence.specification.filter.FilterType;
+import io.github.zorin95670.predicate.FilterType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -30,14 +30,14 @@ public class UserAccessControl extends AbstractEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "uac_id")
-    @FilterType(type = FilterType.Type.UUID)
+    @FilterType(type = UUID.class)
     private UUID id;
 
     /**
      * The identifier of the user.
      */
     @Column(name = "usr_id")
-    @FilterType(type = FilterType.Type.UUID)
+    @FilterType(type = UUID.class)
     private UUID userId;
 
 
@@ -45,7 +45,7 @@ public class UserAccessControl extends AbstractEntity {
      * The identifier of the access control.
      */
     @Column(name = "aco_id")
-    @FilterType(type = FilterType.Type.UUID)
+    @FilterType(type = UUID.class)
     private UUID accessControlId;
 
     /**

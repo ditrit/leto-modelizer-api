@@ -1,6 +1,5 @@
 package com.ditrit.letomodelizerapi.controller;
 
-import com.ditrit.letomodelizerapi.config.Constants;
 import com.ditrit.letomodelizerapi.controller.model.QueryFilter;
 import com.ditrit.letomodelizerapi.model.BeanMapper;
 import com.ditrit.letomodelizerapi.model.accesscontrol.AccessControlDTO;
@@ -21,27 +20,25 @@ import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import jakarta.ws.rs.BeanParam;
-import jakarta.ws.rs.Consumes;
-import jakarta.ws.rs.DELETE;
-import jakarta.ws.rs.GET;
-import jakarta.ws.rs.POST;
-import jakarta.ws.rs.PUT;
-import jakarta.ws.rs.Path;
-import jakarta.ws.rs.PathParam;
-import jakarta.ws.rs.Produces;
-import jakarta.ws.rs.core.Context;
-import jakarta.ws.rs.core.MediaType;
-import jakarta.ws.rs.core.Response;
-import jakarta.ws.rs.core.UriInfo;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
-import org.springframework.stereotype.Controller;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.util.MultiValueMap;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
-import java.util.Map;
 import java.util.UUID;
 
 /**
@@ -51,9 +48,8 @@ import java.util.UUID;
  * Only accessible by users with administrative permissions.
  */
 @Slf4j
-@Path("/scopes")
-@Produces(MediaType.APPLICATION_JSON)
-@Controller
+@RestController
+@RequestMapping("/scopes")
 @AllArgsConstructor(onConstructor = @__(@Autowired))
 public class ScopeController implements DefaultController {
 
@@ -81,25 +77,24 @@ public class ScopeController implements DefaultController {
      * Finds and returns all scopes based on the provided query filters.
      *
      * @param request      HttpServletRequest to access the HTTP session
-     * @param uriInfo      UriInfo to extract query parameters
-     * @param queryFilter  BeanParam for pagination and filtering
+     * @param filters     All query parameters for filtering results.
+     * @param queryFilter the filter criteria and pagination information.
      * @return a Response containing a page of AccessControlDTO objects
      */
-    @GET
-    public Response findAll(final @Context HttpServletRequest request,
-                            final @Context UriInfo uriInfo,
-                            final @BeanParam @Valid QueryFilter queryFilter) {
+    @GetMapping
+    public ResponseEntity<Page<AccessControlDTO>> findAll(final HttpServletRequest request,
+                                                          final @RequestParam MultiValueMap<String, String> filters,
+                                                          final @ModelAttribute QueryFilter queryFilter) {
         HttpSession session = request.getSession();
         User user = userService.getFromSession(session);
         userPermissionService.checkIsAdmin(user, null);
-        Map<String, String> filters = this.getFilters(uriInfo);
 
         log.info("[{}] Received GET request to get scopes with the following filters: {}", user.getLogin(), filters);
         Page<AccessControlDTO> resources = accessControlService
-                .findAll(AccessControlType.SCOPE, filters, queryFilter.getPagination())
+                .findAll(AccessControlType.SCOPE, filters, queryFilter)
                 .map(new BeanMapper<>(AccessControlDTO.class));
 
-        return Response.status(this.getStatus(resources)).entity(resources).build();
+        return ResponseEntity.status(this.getStatus(resources)).body(resources);
     }
 
     /**
@@ -109,10 +104,9 @@ public class ScopeController implements DefaultController {
      * @param id      the ID of the scope to retrieve
      * @return a Response containing the AccessControlDTO of the requested scope
      */
-    @GET
-    @Path("/{id}")
-    public Response getScopeById(final @Context HttpServletRequest request,
-                                final @PathParam("id") @Valid @NotNull UUID id) {
+    @GetMapping("/{id}")
+    public ResponseEntity<AccessControlDTO> getScopeById(final HttpServletRequest request,
+                                                         final @PathVariable UUID id) {
         HttpSession session = request.getSession();
         User user = userService.getFromSession(session);
         userPermissionService.checkIsAdmin(user, null);
@@ -121,7 +115,7 @@ public class ScopeController implements DefaultController {
         AccessControlDTO accessControlDTO = new BeanMapper<>(AccessControlDTO.class)
                 .apply(accessControlService.findById(AccessControlType.SCOPE, id));
 
-        return Response.ok(accessControlDTO).build();
+        return ResponseEntity.ok(accessControlDTO);
     }
 
     /**
@@ -131,9 +125,10 @@ public class ScopeController implements DefaultController {
      * @param accessControlRecord  Data for creating the new scope
      * @return a Response indicating the outcome of the creation operation
      */
-    @POST
-    public Response createScope(final @Context HttpServletRequest request,
-                               final @Valid AccessControlRecord accessControlRecord) {
+    @PostMapping
+    public ResponseEntity<AccessControlDTO> createScope(
+            final HttpServletRequest request,
+            final @RequestBody @Valid AccessControlRecord accessControlRecord) {
         HttpSession session = request.getSession();
         User user = userService.getFromSession(session);
         userPermissionService.checkIsAdmin(user, null);
@@ -142,7 +137,7 @@ public class ScopeController implements DefaultController {
         AccessControlDTO accessControlDTO = new BeanMapper<>(AccessControlDTO.class)
                 .apply(accessControlService.create(AccessControlType.SCOPE, accessControlRecord));
 
-        return Response.status(HttpStatus.CREATED.value()).entity(accessControlDTO).build();
+        return ResponseEntity.status(HttpStatus.CREATED.value()).body(accessControlDTO);
     }
 
     /**
@@ -153,11 +148,11 @@ public class ScopeController implements DefaultController {
      * @param accessControlRecord  Data for updating the scope
      * @return a Response indicating the outcome of the update operation
      */
-    @PUT
-    @Path("/{id}")
-    public Response updateScope(final @Context HttpServletRequest request,
-                                final @PathParam("id") @Valid @NotNull UUID id,
-                                final @Valid AccessControlRecord accessControlRecord) {
+    @PutMapping("/{id}")
+    public ResponseEntity<AccessControlDTO> updateScope(
+            final HttpServletRequest request,
+            final @PathVariable UUID id,
+            final @RequestBody @Valid AccessControlRecord accessControlRecord) {
         HttpSession session = request.getSession();
         User user = userService.getFromSession(session);
         userPermissionService.checkIsAdmin(user, null);
@@ -172,7 +167,7 @@ public class ScopeController implements DefaultController {
         AccessControlDTO accessControlDTO = new BeanMapper<>(AccessControlDTO.class)
                 .apply(accessControlService.update(AccessControlType.SCOPE, id, accessControlRecord));
 
-        return Response.ok(accessControlDTO).build();
+        return ResponseEntity.ok(accessControlDTO);
     }
 
     /**
@@ -182,10 +177,9 @@ public class ScopeController implements DefaultController {
      * @param id      the ID of the scope to delete
      * @return a Response indicating the outcome of the delete operation
      */
-    @DELETE
-    @Path("/{id}")
-    public Response deleteScope(final @Context HttpServletRequest request,
-                                final @PathParam("id") @Valid @NotNull UUID id) {
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Object> deleteScope(final HttpServletRequest request,
+                                final @PathVariable UUID id) {
         HttpSession session = request.getSession();
         User user = userService.getFromSession(session);
         userPermissionService.checkIsAdmin(user, null);
@@ -193,7 +187,7 @@ public class ScopeController implements DefaultController {
         log.info("[{}] Received DELETE request to delete scope with id {}", user.getLogin(), id);
         accessControlService.delete(AccessControlType.SCOPE, id);
 
-        return Response.noContent().build();
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).contentType(MediaType.APPLICATION_JSON).build();
     }
 
     /**
@@ -201,23 +195,20 @@ public class ScopeController implements DefaultController {
      * This endpoint fetches and returns a paginated list of users associated with the given scope ID.
      * The method is accessible only to users with administrative permissions.
      *
-     * @param request      HttpServletRequest to access the HTTP session for authentication and authorization.
-     * @param id           the ID of the scope for which users are to be retrieved.
-     * @param uriInfo      UriInfo to extract query parameters for additional filtering.
-     * @param queryFilter  BeanParam object for pagination and filtering purposes.
+     * @param request     HttpServletRequest to access the HTTP session for authentication and authorization.
+     * @param id          the ID of the scope for which users are to be retrieved.
+     * @param filters     All query parameters for filtering results.
+     * @param queryFilter the filter criteria and pagination information.
      * @return a Response containing a paginated list of UserDTO objects associated with the scope.
      */
-    @GET
-    @Path("/{id}/users")
-    public Response getUsersByScope(final @Context HttpServletRequest request,
-                                   final @PathParam("id") @Valid @NotNull UUID id,
-                                   final @Context UriInfo uriInfo,
-                                   final @BeanParam @Valid QueryFilter queryFilter) {
+    @GetMapping("/{id}/users")
+    public ResponseEntity<Page<UserDTO>> getUsersByScope(final HttpServletRequest request,
+                                                         final @PathVariable UUID id,
+                                                         final @RequestParam MultiValueMap<String, String> filters,
+                                                         final @ModelAttribute QueryFilter queryFilter) {
         HttpSession session = request.getSession();
         User user = userService.getFromSession(session);
         userPermissionService.checkIsAdmin(user, null);
-
-        Map<String, String> filters = this.getFilters(uriInfo);
 
         log.info(
                 "[{}] Received GET request to get users of scope {} with the following filters: {}",
@@ -227,10 +218,10 @@ public class ScopeController implements DefaultController {
         );
 
         Page<UserDTO> resources = accessControlService
-                .findAllUsers(AccessControlType.SCOPE, id, filters, queryFilter.getPagination())
+                .findAllUsers(AccessControlType.SCOPE, id, filters, queryFilter)
                 .map(new BeanMapper<>(UserDTO.class));
 
-        return Response.status(this.getStatus(resources)).entity(resources).build();
+        return ResponseEntity.status(this.getStatus(resources)).body(resources);
     }
 
     /**
@@ -243,12 +234,10 @@ public class ScopeController implements DefaultController {
      * @param login   the login identifier of the user to associate with the scope.
      * @return a Response indicating the outcome of the association operation.
      */
-    @POST
-    @Consumes(MediaType.TEXT_PLAIN)
-    @Path("/{id}/users")
-    public Response associateUser(final @Context HttpServletRequest request,
-                                  final @PathParam("id") @Valid @NotNull UUID id,
-                                  final @Valid @NotBlank String login) {
+    @PostMapping("/{id}/users")
+    public ResponseEntity<Object> associateUser(final HttpServletRequest request,
+                                                final @PathVariable UUID id,
+                                                final @RequestBody @Valid @NotBlank String login) {
         HttpSession session = request.getSession();
         User user = userService.getFromSession(session);
         userPermissionService.checkIsAdmin(user, null);
@@ -256,7 +245,7 @@ public class ScopeController implements DefaultController {
         log.info("[{}] Received POST request to associate scope {} with user {}", user.getLogin(), id, login);
         accessControlService.associateUser(AccessControlType.SCOPE, id, login);
 
-        return Response.status(HttpStatus.CREATED.value()).build();
+        return ResponseEntity.status(HttpStatus.CREATED.value()).contentType(MediaType.APPLICATION_JSON).build();
     }
 
     /**
@@ -269,11 +258,10 @@ public class ScopeController implements DefaultController {
      * @param login   the login identifier of the user to dissociate from the scope.
      * @return a Response indicating the outcome of the dissociation operation.
      */
-    @DELETE
-    @Path("/{id}/users/{login}")
-    public Response dissociateUser(final @Context HttpServletRequest request,
-                                  final @PathParam("id") @Valid @NotNull UUID id,
-                                  final @PathParam(Constants.DEFAULT_USER_PROPERTY) @Valid @NotBlank String login) {
+    @DeleteMapping("/{id}/users/{login}")
+    public ResponseEntity<Object> dissociateUser(final HttpServletRequest request,
+                                                 final @PathVariable UUID id,
+                                                 final @PathVariable String login) {
         HttpSession session = request.getSession();
         User user = userService.getFromSession(session);
         userPermissionService.checkIsAdmin(user, null);
@@ -281,7 +269,7 @@ public class ScopeController implements DefaultController {
         log.info("[{}] Received DELETE request to dissociate scope {} with user {}", user.getLogin(), id, login);
         accessControlService.dissociateUser(AccessControlType.SCOPE, id, login);
 
-        return Response.noContent().build();
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).contentType(MediaType.APPLICATION_JSON).build();
     }
 
     /**
@@ -290,24 +278,22 @@ public class ScopeController implements DefaultController {
      * <p>This method processes a GET request to obtain groups associated with a given scope ID. It filters the
      * scopes based on the provided query parameters and pagination settings.
      *
-     * @param request the HttpServletRequest from which to obtain the HttpSession for user validation.
-     * @param id the ID of the scope for which to retrieve sub-scopes. Must be a valid and non-null Long value.
-     * @param uriInfo UriInfo context to extract query parameters for filtering results.
-     * @param queryFilter bean parameter encapsulating filtering and pagination criteria.
+     * @param request     the HttpServletRequest from which to obtain the HttpSession for user validation.
+     * @param id          the ID of the scope for which to retrieve sub-scopes. Must be a valid and non-null Long value.
+     * @param filters     All query parameters for filtering results.
+     * @param queryFilter the filter criteria and pagination information.
      * @return a Response object containing the requested page of AccessControlDirectDTO objects representing the
      * groups of the specified scope. The status of the response can vary based on the outcome of the request.
      */
-    @GET
-    @Path("/{id}/groups")
-    public Response getGroupsOfScope(final @Context HttpServletRequest request,
-                                        final @PathParam("id") @Valid @NotNull UUID id,
-                                        final @Context UriInfo uriInfo,
-                                        final @BeanParam @Valid QueryFilter queryFilter) {
+    @GetMapping("/{id}/groups")
+    public ResponseEntity<Page<AccessControlDirectDTO>> getGroupsOfScope(
+            final HttpServletRequest request,
+            final @PathVariable UUID id,
+            final @RequestParam MultiValueMap<String, String> filters,
+            final @ModelAttribute QueryFilter queryFilter) {
         HttpSession session = request.getSession();
         User user = userService.getFromSession(session);
         userPermissionService.checkIsAdmin(user, null);
-
-        Map<String, String> filters = this.getFilters(uriInfo);
 
         log.info(
                 "[{}] Received GET request to get groups of scope {} with the following filters: {}",
@@ -322,10 +308,10 @@ public class ScopeController implements DefaultController {
                         id,
                         AccessControlType.GROUP,
                         filters,
-                        queryFilter.getPagination()
+                        queryFilter
                 );
 
-        return Response.status(this.getStatus(resources)).entity(resources).build();
+        return ResponseEntity.status(this.getStatus(resources)).body(resources);
     }
 
     /**
@@ -341,12 +327,10 @@ public class ScopeController implements DefaultController {
      * @return a Response object indicating the outcome of the association operation. A successful operation returns
      * a status of CREATED.
      */
-    @POST
-    @Consumes(MediaType.TEXT_PLAIN)
-    @Path("/{id}/groups")
-    public Response associate(final @Context HttpServletRequest request,
-                              final @PathParam("id") @Valid @NotNull UUID id,
-                              final @Valid @NotNull String groupId) {
+    @PostMapping("/{id}/groups")
+    public ResponseEntity<Object> associate(final HttpServletRequest request,
+                                            final @PathVariable UUID id,
+                                            final @RequestBody @Valid @NotNull String groupId) {
         HttpSession session = request.getSession();
         User user = userService.getFromSession(session);
         userPermissionService.checkIsAdmin(user, null);
@@ -359,7 +343,7 @@ public class ScopeController implements DefaultController {
                 UUID.fromString(groupId)
         );
 
-        return Response.status(HttpStatus.CREATED.value()).build();
+        return ResponseEntity.status(HttpStatus.CREATED.value()).contentType(MediaType.APPLICATION_JSON).build();
     }
 
     /**
@@ -376,11 +360,10 @@ public class ScopeController implements DefaultController {
      * @return a Response object with a status indicating the outcome of the dissociation operation. A successful
      * operation returns a status of NO_CONTENT.
      */
-    @DELETE
-    @Path("/{id}/groups/{groupId}")
-    public Response dissociate(final @Context HttpServletRequest request,
-                               final @PathParam("id") @Valid @NotNull UUID id,
-                               final @PathParam("groupId") @Valid @NotNull UUID groupId) {
+    @DeleteMapping("/{id}/groups/{groupId}")
+    public ResponseEntity<Object> dissociate(final HttpServletRequest request,
+                                             final @PathVariable UUID id,
+                                             final @PathVariable UUID groupId) {
         HttpSession session = request.getSession();
         User user = userService.getFromSession(session);
         userPermissionService.checkIsAdmin(user, null);
@@ -394,7 +377,7 @@ public class ScopeController implements DefaultController {
 
         accessControlService.dissociate(AccessControlType.SCOPE, id, AccessControlType.SCOPE, groupId);
 
-        return Response.noContent().build();
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).contentType(MediaType.APPLICATION_JSON).build();
     }
 
     /**
@@ -406,26 +389,23 @@ public class ScopeController implements DefaultController {
      * for a scope. It is particularly useful for managing and reviewing the roles and permissions assigned to a scope
      * within an access control system.
      *
-     * @param request The HttpServletRequest providing context to access the HTTP session.
-     * @param id The unique identifier of the scope whose roles are being retrieved.
-     * @param uriInfo URI information for extracting query parameters to apply as filters.
-     * @param queryFilter A BeanParam object encapsulating pagination and filtering criteria to manage result set size
-     *                    and relevance.
+     * @param request     The HttpServletRequest providing context to access the HTTP session.
+     * @param id          The unique identifier of the scope whose roles are being retrieved.
+     * @param filters     All query parameters for filtering results.
+     * @param queryFilter the filter criteria and pagination information.
      * @return A Response object containing a paginated list of AccessControlDirectDTO objects representing the roles
      *         associated with the specified scope. The response includes pagination details and adheres to the
      *         HTTP status code conventions to indicate the outcome of the request.
      */
-    @GET
-    @Path("/{id}/roles")
-    public Response getRolesOfScope(final @Context HttpServletRequest request,
-                                    final @PathParam("id") @Valid @NotNull UUID id,
-                                    final @Context UriInfo uriInfo,
-                                    final @BeanParam @Valid QueryFilter queryFilter) {
+    @GetMapping("/{id}/roles")
+    public ResponseEntity<Page<AccessControlDirectDTO>> getRolesOfScope(
+            final HttpServletRequest request,
+            final @PathVariable UUID id,
+            final @RequestParam MultiValueMap<String, String> filters,
+            final @ModelAttribute QueryFilter queryFilter) {
         HttpSession session = request.getSession();
         User user = userService.getFromSession(session);
         userPermissionService.checkIsAdmin(user, null);
-
-        Map<String, String> filters = this.getFilters(uriInfo);
 
         log.info(
                 "[{}] Received GET request to get roles of scope {} with the following filters: {}",
@@ -440,10 +420,10 @@ public class ScopeController implements DefaultController {
                         id,
                         AccessControlType.ROLE,
                         filters,
-                        queryFilter.getPagination()
+                        queryFilter
                 );
 
-        return Response.status(this.getStatus(resources)).entity(resources).build();
+        return ResponseEntity.status(this.getStatus(resources)).body(resources);
     }
 
     /**
@@ -452,24 +432,23 @@ public class ScopeController implements DefaultController {
      * <p>This method processes a GET request to obtain permissions associated with a given scope ID. It filters the
      * permissions based on the provided query parameters and pagination settings.
      *
-     * @param request the HttpServletRequest from which to obtain the HttpSession for user validation.
-     * @param id the ID of the scopes for which to retrieve permissions. Must be a valid and non-null Long value.
-     * @param uriInfo UriInfo context to extract query parameters for filtering results.
-     * @param queryFilter bean parameter encapsulating filtering and pagination criteria.
+     * @param request     the HttpServletRequest from which to obtain the HttpSession for user validation.
+     * @param id          the ID of the scopes for which to retrieve permissions. Must be a valid and non-null Long
+     *                    value.
+     * @param filters     All query parameters for filtering results.
+     * @param queryFilter the filter criteria and pagination information.
      * @return a Response object containing the requested page of PermissionDirectDTO objects representing the
      * permissions of the specified scope. The status of the response can vary based on the outcome of the request.
      */
-    @GET
-    @Path("/{id}/permissions")
-    public Response getPermissionsOfScope(final @Context HttpServletRequest request,
-                                          final @PathParam("id") @Valid @NotNull UUID id,
-                                          final @Context UriInfo uriInfo,
-                                          final @BeanParam @Valid QueryFilter queryFilter) {
+    @GetMapping("/{id}/permissions")
+    public ResponseEntity<Page<PermissionDirectDTO>> getPermissionsOfScope(
+            final HttpServletRequest request,
+            final @PathVariable UUID id,
+            final @RequestParam MultiValueMap<String, String> filters,
+            final @ModelAttribute QueryFilter queryFilter) {
         HttpSession session = request.getSession();
         User user = userService.getFromSession(session);
         userPermissionService.checkIsAdmin(user, null);
-
-        Map<String, String> filters = this.getFilters(uriInfo);
 
         log.info(
                 "[{}] Received GET request to get permissions of scope {} with the following filters: {}",
@@ -480,10 +459,10 @@ public class ScopeController implements DefaultController {
 
         AccessControl accessControl = accessControlService.findById(AccessControlType.SCOPE, id);
         Page<PermissionDirectDTO> resources = accessControlPermissionService
-                .findAll(accessControl.getId(), filters, queryFilter.getPagination())
+                .findAll(accessControl.getId(), filters, queryFilter)
                 .map(new AccessControlPermissionViewToPermissionDirectDTOFunction());
 
 
-        return Response.status(this.getStatus(resources)).entity(resources).build();
+        return ResponseEntity.status(this.getStatus(resources)).body(resources);
     }
 }

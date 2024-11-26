@@ -2,6 +2,7 @@ package com.ditrit.letomodelizerapi.controller;
 
 import com.ditrit.letomodelizerapi.controller.model.QueryFilter;
 import com.ditrit.letomodelizerapi.helper.MockHelper;
+import com.ditrit.letomodelizerapi.model.ai.AIConfigurationDTO;
 import com.ditrit.letomodelizerapi.model.ai.AIConfigurationRecord;
 import com.ditrit.letomodelizerapi.model.ai.UpdateMultipleAIConfigurationRecord;
 import com.ditrit.letomodelizerapi.persistence.model.AIConfiguration;
@@ -13,7 +14,6 @@ import com.ditrit.letomodelizerapi.service.UserPermissionService;
 import com.ditrit.letomodelizerapi.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
-import jakarta.ws.rs.core.Response;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -22,8 +22,11 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.util.LinkedMultiValueMap;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -69,11 +72,11 @@ class AIConfigurationControllerTest extends MockHelper {
         Mockito.when(this.aiConfigurationService.findAll(Mockito.any(), Mockito.any()))
                 .thenReturn(new PageImpl<>(new ArrayList<>()));
 
-        final Response response = this.controller.getAllConfigurations(request, mockUriInfo(), new QueryFilter());
+        final ResponseEntity<Page<AIConfigurationDTO>> response = this.controller.getAllConfigurations(request, new LinkedMultiValueMap<>(), new QueryFilter());
 
         assertNotNull(response);
-        assertEquals(HttpStatus.OK.value(), response.getStatus());
-        assertNotNull(response.getEntity());
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertNotNull(response.getBody());
     }
 
     @Test
@@ -90,11 +93,11 @@ class AIConfigurationControllerTest extends MockHelper {
                 Mockito.any());
         Mockito.when(this.aiConfigurationService.findById(Mockito.any())).thenReturn(new AIConfiguration());
 
-        final Response response = this.controller.getConfigurationById(request, UUID.randomUUID());
+        final ResponseEntity<AIConfigurationDTO> response = this.controller.getConfigurationById(request, UUID.randomUUID());
 
         assertNotNull(response);
-        assertEquals(HttpStatus.OK.value(), response.getStatus());
-        assertNotNull(response.getEntity());
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertNotNull(response.getBody());
     }
 
     @Test
@@ -113,12 +116,12 @@ class AIConfigurationControllerTest extends MockHelper {
         Mockito.when(this.aiSecretService.generateConfiguration()).thenReturn("test".getBytes());
         Mockito.doNothing().when(this.aiService).sendConfiguration(Mockito.any());
 
-        final Response response = this.controller.createConfiguration(request,
+        final ResponseEntity<AIConfigurationDTO> response = this.controller.createConfiguration(request,
                 new AIConfigurationRecord("handler","key", "value"));
 
         assertNotNull(response);
-        assertEquals(HttpStatus.CREATED.value(), response.getStatus());
-        assertNotNull(response.getEntity());
+        assertEquals(HttpStatus.CREATED, response.getStatusCode());
+        assertNotNull(response.getBody());
     }
 
     @Test
@@ -138,12 +141,12 @@ class AIConfigurationControllerTest extends MockHelper {
         Mockito.when(this.aiSecretService.generateConfiguration()).thenReturn("test".getBytes());
         Mockito.doNothing().when(this.aiService).sendConfiguration(Mockito.any());
 
-        final Response response = this.controller.updateConfiguration(request, UUID.randomUUID(),
+        final ResponseEntity<AIConfigurationDTO> response = this.controller.updateConfiguration(request, UUID.randomUUID(),
                 new AIConfigurationRecord("handler", "key", "value"));
 
         assertNotNull(response);
-        assertEquals(HttpStatus.OK.value(), response.getStatus());
-        assertNotNull(response.getEntity());
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertNotNull(response.getBody());
     }
 
     @Test
@@ -163,12 +166,12 @@ class AIConfigurationControllerTest extends MockHelper {
         Mockito.when(this.aiSecretService.generateConfiguration()).thenReturn("test".getBytes());
         Mockito.doNothing().when(this.aiService).sendConfiguration(Mockito.any());
 
-        final Response response = this.controller.updateConfiguration(request,
+        final ResponseEntity<List<AIConfigurationDTO>> response = this.controller.updateConfiguration(request,
                 List.of(new UpdateMultipleAIConfigurationRecord(UUID.randomUUID(), "handler", "key", "value")));
 
         assertNotNull(response);
-        assertEquals(HttpStatus.OK.value(), response.getStatus());
-        assertNotNull(response.getEntity());
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertNotNull(response.getBody());
     }
 
     @Test
@@ -188,10 +191,10 @@ class AIConfigurationControllerTest extends MockHelper {
         Mockito.when(this.aiSecretService.generateConfiguration()).thenReturn("test".getBytes());
         Mockito.doNothing().when(this.aiService).sendConfiguration(Mockito.any());
 
-        final Response response = this.controller.deleteConfiguration(request, UUID.randomUUID());
+        final ResponseEntity<Object> response = this.controller.deleteConfiguration(request, UUID.randomUUID());
 
         assertNotNull(response);
-        assertEquals(HttpStatus.NO_CONTENT.value(), response.getStatus());
-        assertNull(response.getEntity());
+        assertEquals(HttpStatus.NO_CONTENT, response.getStatusCode());
+        assertNull(response.getBody());
     }
 }

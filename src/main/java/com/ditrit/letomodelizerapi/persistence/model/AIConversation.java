@@ -1,6 +1,6 @@
 package com.ditrit.letomodelizerapi.persistence.model;
 
-import com.ditrit.letomodelizerapi.persistence.specification.filter.FilterType;
+import io.github.zorin95670.predicate.FilterType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -32,21 +32,21 @@ public class AIConversation extends AbstractEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "aic_id")
-    @FilterType(type = FilterType.Type.UUID)
+    @FilterType(type = UUID.class)
     private UUID id;
 
     /**
      * The login identifier of the user to whom the conversation is associated.
      */
     @Column(name = "usr_id")
-    @FilterType(type = FilterType.Type.UUID)
+    @FilterType(type = UUID.class)
     private UUID userId;
 
     /**
      * The conversation key.
      */
     @Column(name = "key")
-    @FilterType(type = FilterType.Type.TEXT)
+    @FilterType(type = String.class)
     private String key;
 
     /**
@@ -65,7 +65,7 @@ public class AIConversation extends AbstractEntity {
      * Size of all conversation messages.
      */
     @Column(name = "size")
-    @FilterType(type = FilterType.Type.NUMBER)
+    @FilterType(type = Long.class)
     private Long size;
 
     /**

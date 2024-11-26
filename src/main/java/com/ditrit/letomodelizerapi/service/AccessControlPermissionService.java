@@ -1,9 +1,10 @@
 package com.ditrit.letomodelizerapi.service;
 
+import com.ditrit.letomodelizerapi.controller.model.QueryFilter;
 import com.ditrit.letomodelizerapi.persistence.model.AccessControlPermissionView;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -17,11 +18,11 @@ public interface AccessControlPermissionService {
      * Finds and returns a page of AccessControl entities of a specific type, filtered by provided criteria.
      *
      * @param id       the ID of the AccessControl entity
-     * @param filters  a Map of strings representing the filtering criteria
-     * @param pageable a Pageable object for pagination information
+     * @param filters a Map of strings representing the filtering criteria.
+     * @param queryFilter a Pageable object for pagination information.
      * @return a Page of AccessControl entities matching the specified type and filters
      */
-    Page<AccessControlPermissionView> findAll(UUID id, Map<String, String> filters, Pageable pageable);
+    Page<AccessControlPermissionView> findAll(UUID id, Map<String, List<String>> filters, QueryFilter queryFilter);
 
     /**
      * Associates a specific permission with an AccessControl entity. This method creates a new linkage between the

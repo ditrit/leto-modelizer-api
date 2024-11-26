@@ -16,30 +16,32 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
-import jakarta.ws.rs.BeanParam;
-import jakarta.ws.rs.DELETE;
-import jakarta.ws.rs.GET;
-import jakarta.ws.rs.POST;
-import jakarta.ws.rs.PUT;
-import jakarta.ws.rs.Path;
-import jakarta.ws.rs.PathParam;
-import jakarta.ws.rs.Produces;
-import jakarta.ws.rs.core.Context;
-import jakarta.ws.rs.core.HttpHeaders;
-import jakarta.ws.rs.core.MediaType;
-import jakarta.ws.rs.core.Response;
-import jakarta.ws.rs.core.UriInfo;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
+import org.springframework.http.ContentDisposition;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
+import org.springframework.util.MultiValueMap;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.net.http.HttpResponse;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -50,8 +52,8 @@ import java.util.UUID;
  * Only accessible by users with administrative permissions.
  */
 @Slf4j
-@Path("/libraries")
-@Produces(MediaType.APPLICATION_JSON)
+@RestController
+@RequestMapping("/libraries")
 @Controller
 public class LibraryController implements DefaultController {
 
@@ -114,30 +116,29 @@ public class LibraryController implements DefaultController {
      * while others can only view libraries based on specific criteria.
      *
      * @param request the HttpServletRequest containing the session information to identify the user.
-     * @param uriInfo the UriInfo to extract query parameters for filters.
-     * @param queryFilter the query parameters encapsulated in a QueryFilter object for pagination and filtering.
+     * @param filters     All query parameters for filtering results.
+     * @param queryFilter the filter criteria and pagination information.
      * @return a Response containing the list of libraries with status code and pagination details.
      */
-    @GET
-    public Response findAll(final @Context HttpServletRequest request,
-                            final @Context UriInfo uriInfo,
-                            final @BeanParam @Valid QueryFilter queryFilter) {
+    @GetMapping
+    public ResponseEntity<Page<LibraryDTO>> findAll(final HttpServletRequest request,
+                                                    final @RequestParam MultiValueMap<String, String> filters,
+                                                    final @ModelAttribute QueryFilter queryFilter) {
         HttpSession session = request.getSession();
         User user = userService.getFromSession(session);
-        Map<String, String> filters = this.getFilters(uriInfo);
 
         log.info("[{}] Received GET request to get libraries with the following filters: {}", user.getLogin(), filters);
         Page<LibraryDTO> resources;
 
         if (userPermissionService.hasPermission(user, EntityPermission.LIBRARY, ActionPermission.ACCESS)) {
-            resources = libraryService.findAll(filters, queryFilter.getPagination())
+            resources = libraryService.findAll(filters, queryFilter)
                     .map(new BeanMapper<>(LibraryDTO.class));
         } else {
-            resources = libraryService.findAll(user, filters, queryFilter.getPagination())
+            resources = libraryService.findAll(user, filters, queryFilter)
                     .map(new BeanMapper<>(LibraryDTO.class));
         }
 
-        return Response.status(this.getStatus(resources)).entity(resources).build();
+        return ResponseEntity.status(this.getStatus(resources)).body(resources);
     }
 
     /**
@@ -149,10 +150,9 @@ public class LibraryController implements DefaultController {
      * @param id the unique identifier of the library to be retrieved, validated for non-null value.
      * @return a Response object containing the library details if accessible, with an OK status.
      */
-    @GET
-    @Path("/{id}")
-    public Response getLibraryById(final @Context HttpServletRequest request,
-                                   final @PathParam("id") @Valid @NotNull UUID id) {
+    @GetMapping("/{id}")
+    public ResponseEntity<LibraryDTO> getLibraryById(final HttpServletRequest request,
+                                                     final @PathVariable UUID id) {
         HttpSession session = request.getSession();
         User user = userService.getFromSession(session);
         userPermissionService.checkLibraryPermission(user, ActionPermission.ACCESS, id);
@@ -160,7 +160,7 @@ public class LibraryController implements DefaultController {
         log.info("[{}] Received GET request to get library with id {}", user.getLogin(), id);
         LibraryDTO library = new BeanMapper<>(LibraryDTO.class).apply(libraryService.findById(id));
 
-        return Response.ok(library).build();
+        return ResponseEntity.ok(library);
     }
 
     /**
@@ -173,10 +173,9 @@ public class LibraryController implements DefaultController {
      * @param id the unique identifier of the library whose icon is being retrieved, validated for non-null value.
      * @return a Response object containing the icon as a byte array and the appropriate content type.
      */
-    @GET
-    @Path("/{id}/icon")
-    public Response getLibraryIcon(final @Context HttpServletRequest request,
-                                   final @PathParam("id") @Valid @NotNull UUID id) {
+    @GetMapping("/{id}/icon")
+    public ResponseEntity<byte[]> getLibraryIcon(final HttpServletRequest request,
+                                                 final @PathVariable UUID id) {
         HttpSession session = request.getSession();
         User user = userService.getFromSession(session);
         userPermissionService.checkLibraryPermission(user, ActionPermission.ACCESS, id);
@@ -184,11 +183,14 @@ public class LibraryController implements DefaultController {
         log.info("[{}] Received GET request to get library icon with id {}", user.getLogin(), id);
 
         HttpResponse<byte[]> response = libraryService.getIcon(id);
-        String contentType = response.headers()
-                .firstValue(HttpHeaders.CONTENT_TYPE)
-                .orElse(MediaType.APPLICATION_OCTET_STREAM);
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
+        headers.setCacheControl(getCacheControl(resourceCacheMaxAge));
 
-        return Response.ok(response.body(), contentType).cacheControl(getCacheControl(resourceCacheMaxAge)).build();
+        return ResponseEntity
+                .ok()
+                .headers(headers)
+                .body(response.body());
     }
 
     /**
@@ -197,24 +199,25 @@ public class LibraryController implements DefaultController {
      * additional filters provided through the URI and the QueryFilter bean to refine the search for templates.
      * It ensures that only templates associated with the specified library ID are fetched.
      *
-     * @param request the HttpServletRequest containing the session information to identify the user.
-     * @param uriInfo the UriInfo containing query parameters for additional filtering.
-     * @param queryFilter a QueryFilter bean containing pagination settings.
-     * @param id the unique identifier of the library whose templates are being retrieved, validated for non-null value.
+     * @param request     the HttpServletRequest containing the session information to identify the user.
+     * @param id          the unique identifier of the library whose templates are being retrieved, validated for
+     *                    non-null value.
+     * @param immutableFilters All query parameters for filtering results.
+     * @param queryFilter the filter criteria and pagination information.
      * @return a Response object containing a page of LibraryTemplate entities associated with the library and matching
      * the specified filters and pagination settings.
      */
-    @GET
-    @Path("/{id}/templates")
-    public Response getLibraryTemplates(final @Context HttpServletRequest request,
-                                        final @Context UriInfo uriInfo,
-                                        final @BeanParam @Valid QueryFilter queryFilter,
-                                        final @PathParam("id") @Valid @NotNull UUID id) {
+    @GetMapping("/{id}/templates")
+    public ResponseEntity<Page<LibraryTemplate>> getLibraryTemplates(
+            final HttpServletRequest request,
+            final @PathVariable UUID id,
+            final @RequestParam Map<String, List<String>> immutableFilters,
+            final @ModelAttribute QueryFilter queryFilter) {
         HttpSession session = request.getSession();
         User user = userService.getFromSession(session);
         userPermissionService.checkLibraryPermission(user, ActionPermission.ACCESS, id);
-        Map<String, String> filters = new HashMap<>(this.getFilters(uriInfo));
-        filters.put("libraryId", id.toString());
+        Map<String, List<String>> filters = new HashMap<>(immutableFilters);
+        filters.put("libraryId", List.of(id.toString()));
 
         log.info(
                 "[{}] Received GET request to get templates of library with id {} with the following filters: {}",
@@ -223,9 +226,9 @@ public class LibraryController implements DefaultController {
                 filters
         );
 
-        Page<LibraryTemplate> resources = libraryService.findAllTemplates(filters, queryFilter.getPagination());
+        Page<LibraryTemplate> resources = libraryService.findAllTemplates(filters, queryFilter);
 
-        return Response.status(this.getStatus(resources)).entity(resources).build();
+        return ResponseEntity.status(this.getStatus(resources)).body(resources);
     }
 
     /**
@@ -240,9 +243,10 @@ public class LibraryController implements DefaultController {
      * @return a Response object with the status set to CREATED and the newly created library as the entity.
      * @throws JsonProcessingException if there is an error processing the input library record.
      */
-    @POST
-    public Response createLibrary(final @Context HttpServletRequest request,
-                                  final @Valid LibraryRecord libraryRecord) throws JsonProcessingException {
+    @PostMapping
+    public ResponseEntity<LibraryDTO> createLibrary(final HttpServletRequest request,
+                                                    final @RequestBody @Valid LibraryRecord libraryRecord)
+            throws JsonProcessingException {
         HttpSession session = request.getSession();
         User user = userService.getFromSession(session);
         userPermissionService.checkLibraryPermission(user, ActionPermission.CREATE, null);
@@ -251,7 +255,7 @@ public class LibraryController implements DefaultController {
         LibraryDTO library = new BeanMapper<>(LibraryDTO.class)
                 .apply(libraryService.create(libraryRecord, user.getLogin()));
 
-        return Response.status(HttpStatus.CREATED.value()).entity(library).build();
+        return ResponseEntity.status(HttpStatus.CREATED.value()).body(library);
     }
 
     /**
@@ -268,10 +272,10 @@ public class LibraryController implements DefaultController {
      * (204 status code) is returned if the validation is successful, indicating that the library at the specified URL
      * meets the required standards.
      */
-    @POST
-    @Path("/validate")
-    public Response validateLibrary(final @Context HttpServletRequest request,
-                                    final @Valid @Pattern(regexp = ".+/index\\.json$")  String url) {
+    @PostMapping("/validate")
+    public ResponseEntity<Object> validateLibrary(
+            final HttpServletRequest request,
+            final @RequestBody @Pattern(regexp = ".+/index\\.json$")  String url) {
         HttpSession session = request.getSession();
         User user = userService.getFromSession(session);
         userPermissionService.checkLibraryPermission(user, ActionPermission.CREATE, null);
@@ -279,7 +283,7 @@ public class LibraryController implements DefaultController {
         log.info("[{}] Received POST request to validate a library with {}", user.getLogin(), url);
         libraryService.validateLibrary(url);
 
-        return Response.noContent().build();
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).contentType(MediaType.APPLICATION_JSON).build();
     }
 
     /**
@@ -294,11 +298,11 @@ public class LibraryController implements DefaultController {
      * operation.
      * @throws JsonProcessingException if there is an error processing the new URL for the library.
      */
-    @PUT
-    @Path("/{id}")
-    public Response updateLibrary(final @Context HttpServletRequest request,
-                                  final @PathParam("id") @Valid @NotNull UUID id,
-                                  final @Valid @Pattern(regexp = ".+/index\\.json$") String url)
+    @PutMapping("/{id}")
+    public ResponseEntity<Object> updateLibrary(
+            final HttpServletRequest request,
+            final @PathVariable UUID id,
+            final @RequestBody @Valid @Pattern(regexp = ".+/index\\.json$") String url)
             throws JsonProcessingException {
         HttpSession session = request.getSession();
         User user = userService.getFromSession(session);
@@ -307,7 +311,7 @@ public class LibraryController implements DefaultController {
         log.info("[{}] Received PUT request to update a library {} with {}", user.getLogin(), id, url);
         libraryService.update(id, url);
 
-        return Response.noContent().build();
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).contentType(MediaType.APPLICATION_JSON).build();
     }
 
     /**
@@ -320,10 +324,9 @@ public class LibraryController implements DefaultController {
      * @return a Response object with a status indicating that no content exists (successful deletion) after the
      * operation.
      */
-    @DELETE
-    @Path("/{id}")
-    public Response deleteLibrary(final @Context HttpServletRequest request,
-                                  final @PathParam("id") @Valid @NotNull UUID id) {
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Object> deleteLibrary(final HttpServletRequest request,
+                                                final @PathVariable UUID id) {
         HttpSession session = request.getSession();
         User user = userService.getFromSession(session);
         userPermissionService.checkLibraryPermission(user, ActionPermission.DELETE, id);
@@ -331,7 +334,7 @@ public class LibraryController implements DefaultController {
         log.info("[{}] Received DELETE request to delete library with id {}", user.getLogin(), id);
         libraryService.delete(id);
 
-        return Response.noContent().build();
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).contentType(MediaType.APPLICATION_JSON).build();
     }
 
 
@@ -340,19 +343,18 @@ public class LibraryController implements DefaultController {
      * Access is controlled based on the user's permissions. Users with access permission can view all library
      * templates, while others can only view library templates based on specific criteria.
      *
-     * @param request the HttpServletRequest containing the session information to identify the user.
-     * @param uriInfo the UriInfo to extract query parameters for filters.
-     * @param queryFilter the query parameters encapsulated in a QueryFilter object for pagination and filtering.
+     * @param request     the HttpServletRequest containing the session information to identify the user.
+     * @param filters     All query parameters for filtering results.
+     * @param queryFilter the filter criteria and pagination information.
      * @return a Response containing the list of library templates with status code and pagination details.
      */
-    @GET
-    @Path("/templates")
-    public Response findAllTemplates(final @Context HttpServletRequest request,
-                            final @Context UriInfo uriInfo,
-                            final @BeanParam @Valid QueryFilter queryFilter) {
+    @GetMapping("/templates")
+    public ResponseEntity<Page<LibraryTemplate>> findAllTemplates(
+            final HttpServletRequest request,
+            final @RequestParam MultiValueMap<String, String> filters,
+            final @ModelAttribute QueryFilter queryFilter) {
         HttpSession session = request.getSession();
         User user = userService.getFromSession(session);
-        Map<String, String> filters = this.getFilters(uriInfo);
 
         log.info(
                 "[{}] Received GET request to get library templates with the following filters: {}",
@@ -363,12 +365,12 @@ public class LibraryController implements DefaultController {
         Page<LibraryTemplate> resources;
 
         if (userPermissionService.hasPermission(user, EntityPermission.LIBRARY, ActionPermission.ACCESS)) {
-            resources = libraryService.findAllTemplates(filters, queryFilter.getPagination());
+            resources = libraryService.findAllTemplates(filters, queryFilter);
         } else {
-            resources = libraryService.findAllTemplates(user, filters, queryFilter.getPagination());
+            resources = libraryService.findAllTemplates(user, filters, queryFilter);
         }
 
-        return Response.status(this.getStatus(resources)).entity(resources).build();
+        return ResponseEntity.status(this.getStatus(resources)).body(resources);
     }
 
     /**
@@ -381,10 +383,9 @@ public class LibraryController implements DefaultController {
      * @param id the unique identifier of the library template being retrieved, validated for non-null value.
      * @return a Response object containing the LibraryTemplate entity if found and accessible by the user.
      */
-    @GET
-    @Path("/templates/{id}")
-    public Response getTemplatesById(final @Context HttpServletRequest request,
-                                     final @PathParam("id") @Valid @NotNull UUID id) {
+    @GetMapping("/templates/{id}")
+    public ResponseEntity<LibraryTemplate> getTemplatesById(final HttpServletRequest request,
+                                                            final @PathVariable UUID id) {
         HttpSession session = request.getSession();
         User user = userService.getFromSession(session);
         LibraryTemplate libraryTemplate = libraryService.getTemplateById(id);
@@ -392,7 +393,7 @@ public class LibraryController implements DefaultController {
 
         log.info("[{}] Received GET request to get templates with id {}", user.getLogin(), id);
 
-        return Response.ok(libraryTemplate).build();
+        return ResponseEntity.ok(libraryTemplate);
     }
 
     /**
@@ -408,10 +409,9 @@ public class LibraryController implements DefaultController {
      *           value.
      * @return a Response object containing the icon as a byte array and the appropriate content type.
      */
-    @GET
-    @Path("/templates/{id}/icon")
-    public Response getTemplateIcon(final @Context HttpServletRequest request,
-                                    final @PathParam("id") @Valid @NotNull UUID id) {
+    @GetMapping("/templates/{id}/icon")
+    public ResponseEntity<byte[]> getTemplateIcon(final HttpServletRequest request,
+                                                  final @PathVariable UUID id) {
         HttpSession session = request.getSession();
         User user = userService.getFromSession(session);
         LibraryTemplate libraryTemplate = libraryService.getTemplateById(id);
@@ -420,11 +420,15 @@ public class LibraryController implements DefaultController {
         log.info("[{}] Received GET request to get template icon with id {}", user.getLogin(), id);
 
         HttpResponse<byte[]> response = libraryService.getTemplateIcon(libraryTemplate);
-        String contentType = response.headers()
-                .firstValue(HttpHeaders.CONTENT_TYPE)
-                .orElse(MediaType.APPLICATION_OCTET_STREAM);
 
-        return Response.ok(response.body(), contentType).cacheControl(getCacheControl(resourceCacheMaxAge)).build();
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
+        headers.setCacheControl(getCacheControl(resourceCacheMaxAge));
+
+        return ResponseEntity
+                .ok()
+                .headers(headers)
+                .body(response.body());
     }
 
     /**
@@ -441,11 +445,10 @@ public class LibraryController implements DefaultController {
      * @param index the index of the schema within the template, validated to be non-null and minimum 0.
      * @return a Response object containing the schema as a byte array and the appropriate content type.
      */
-    @GET
-    @Path("/templates/{id}/schemas/{index}")
-    public Response getTemplateSchema(final @Context HttpServletRequest request,
-                                      final @PathParam("id") @Valid @NotNull UUID id,
-                                      final @PathParam("index") @Valid @NotNull @Min(0) Long index) {
+    @GetMapping("/templates/{id}/schemas/{index}")
+    public ResponseEntity<byte[]> getTemplateSchema(final HttpServletRequest request,
+                                      final @PathVariable UUID id,
+                                      final @PathVariable @Min(0) Long index) {
         HttpSession session = request.getSession();
         User user = userService.getFromSession(session);
         LibraryTemplate libraryTemplate = libraryService.getTemplateById(id);
@@ -459,15 +462,16 @@ public class LibraryController implements DefaultController {
         );
 
         HttpResponse<byte[]> response = libraryService.getTemplateSchema(libraryTemplate, index);
-        String contentType = response.headers()
-                .firstValue(HttpHeaders.CONTENT_TYPE)
-                .orElse(MediaType.APPLICATION_OCTET_STREAM);
         String fileName = libraryService.getFileName(true, libraryTemplate, index);
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentDisposition(ContentDisposition.builder("attachment").filename(fileName).build());
+        headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
+        headers.setCacheControl(getCacheControl(resourceCacheMaxAge));
 
-        return Response.ok(response.body(), contentType)
-                .header("Content-Disposition", String.format("filename=\"%s\"", fileName))
-                .cacheControl(getCacheControl(resourceCacheMaxAge))
-                .build();
+        return ResponseEntity
+                .ok()
+                .headers(headers)
+                .body(response.body());
     }
 
     /**
@@ -484,11 +488,10 @@ public class LibraryController implements DefaultController {
      * @param index the index of the file within the template, validated to be non-null and minimum 0.
      * @return a Response object containing the file as a byte array and the appropriate content type.
      */
-    @GET
-    @Path("/templates/{id}/files/{index}")
-    public Response getTemplateFile(final @Context HttpServletRequest request,
-                                      final @PathParam("id") @Valid @NotNull UUID id,
-                                      final @PathParam("index") @Valid @NotNull @Min(0) Long index) {
+    @GetMapping("/templates/{id}/files/{index}")
+    public ResponseEntity<byte[]> getTemplateFile(final HttpServletRequest request,
+                                                  final @PathVariable UUID id,
+                                                  final @PathVariable @Min(0) Long index) {
         HttpSession session = request.getSession();
         User user = userService.getFromSession(session);
         LibraryTemplate libraryTemplate = libraryService.getTemplateById(id);
@@ -497,14 +500,15 @@ public class LibraryController implements DefaultController {
         log.info("[{}] Received GET request to get template file with id {} and index {}", user.getLogin(), id, index);
 
         HttpResponse<byte[]> response = libraryService.getTemplateFile(libraryTemplate, index);
-        String contentType = response.headers()
-                .firstValue(HttpHeaders.CONTENT_TYPE)
-                .orElse(MediaType.APPLICATION_OCTET_STREAM);
-        String fileName = libraryService.getFileName(false, libraryTemplate, index);
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentDisposition(ContentDisposition.builder("attachment")
+                .filename(libraryTemplate.getFiles().get(index.intValue())).build());
+        headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
+        headers.setCacheControl(getCacheControl(resourceCacheMaxAge));
 
-        return Response.ok(response.body(), contentType)
-                .header("Content-Disposition", String.format("filename=\"%s\"", fileName))
-                .cacheControl(getCacheControl(resourceCacheMaxAge))
-                .build();
+        return ResponseEntity
+                .ok()
+                .headers(headers)
+                .body(response.body());
     }
 }

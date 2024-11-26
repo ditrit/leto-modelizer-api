@@ -1,6 +1,6 @@
 package com.ditrit.letomodelizerapi.persistence.model;
 
-import com.ditrit.letomodelizerapi.persistence.specification.filter.FilterType;
+import io.github.zorin95670.predicate.FilterType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -28,7 +28,7 @@ public class AccessControlTreeView {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "aca_id")
-    @FilterType(type = FilterType.Type.TEXT)
+    @FilterType(type = String.class)
     private String internalId;
 
     /**
@@ -36,42 +36,42 @@ public class AccessControlTreeView {
      * This field represents the current node in the access control tree structure.
      */
     @Column(name = "aco_id")
-    @FilterType(type = FilterType.Type.UUID)
+    @FilterType(type = UUID.class)
     private UUID id;
 
     /**
      * Type of the current access control.
      */
     @Column(name = "type")
-    @FilterType(type = FilterType.Type.TEXT)
+    @FilterType(type = String.class)
     private String type;
 
     /**
      * Name of the current access control.
      */
     @Column(name = "name")
-    @FilterType(type = FilterType.Type.TEXT)
+    @FilterType(type = String.class)
     private String name;
 
     /**
      * Identifier of the parent access control in the tree structure.
      */
     @Column(name = "parent")
-    @FilterType(type = FilterType.Type.UUID)
+    @FilterType(type = UUID.class)
     private UUID parentId;
 
     /**
      * Name of the parent access control.
      */
     @Column(name = "parent_name")
-    @FilterType(type = FilterType.Type.TEXT)
+    @FilterType(type = String.class)
     private String parentName;
 
     /**
      * Type of the parent access control.
      */
     @Column(name = "parent_type")
-    @FilterType(type = FilterType.Type.TEXT)
+    @FilterType(type = String.class)
     private String parentType;
 
     /**
@@ -82,6 +82,6 @@ public class AccessControlTreeView {
      * hierarchical structure and for operations that depend on direct lineage.
      */
     @Column(name = "direct")
-    @FilterType(type = FilterType.Type.BOOLEAN)
+    @FilterType(type = Boolean.class)
     private Boolean isDirect;
 }

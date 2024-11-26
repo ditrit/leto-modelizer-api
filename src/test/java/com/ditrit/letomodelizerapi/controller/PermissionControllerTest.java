@@ -2,13 +2,13 @@ package com.ditrit.letomodelizerapi.controller;
 
 import com.ditrit.letomodelizerapi.controller.model.QueryFilter;
 import com.ditrit.letomodelizerapi.helper.MockHelper;
+import com.ditrit.letomodelizerapi.persistence.model.Permission;
 import com.ditrit.letomodelizerapi.persistence.model.User;
 import com.ditrit.letomodelizerapi.service.PermissionService;
 import com.ditrit.letomodelizerapi.service.UserPermissionService;
 import com.ditrit.letomodelizerapi.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
-import jakarta.ws.rs.core.Response;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -19,6 +19,8 @@ import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.util.LinkedMultiValueMap;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -51,9 +53,9 @@ class PermissionControllerTest extends MockHelper {
         Mockito.doNothing().when(userPermissionService).checkIsAdmin(Mockito.any(), Mockito.any());
         Mockito.when(permissionService.findAll(Mockito.any(), Mockito.any())).thenReturn(Page.empty());
 
-        Response response = this.controller.findAll(request, mockUriInfo(), new QueryFilter());
+        ResponseEntity<Page<Permission>> response = this.controller.findAll(request, new LinkedMultiValueMap<>(), new QueryFilter());
         assertNotNull(response);
-        assertEquals(HttpStatus.OK.value(), response.getStatus());
-        assertNotNull(response.getEntity());
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertNotNull(response.getBody());
     }
 }
