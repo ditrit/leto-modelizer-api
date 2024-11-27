@@ -12,7 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * Add api endpoints:
   * For AI configuration actions on proxy:
     * `GET /api/ai/proxy/configuration`, to send configuration on the proxy.
-    * `GET /api/ai/proxy/descriptions`, to get all configurations descriptions on the proxy. 
+    * `GET /api/ai/proxy/descriptions`, to get all configurations descriptions on the proxy.
   * For AI configurations:
     * `GET    /api/ai/configurations`, to get all AI configurations.
     * `POST   /api/ai/configurations`, to get create an AI configuration.
@@ -21,7 +21,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     * `PUT    /api/ai/configurations/[CONFIGURATION_ID]`, to update an AI configuration.
     * `DELETE /api/ai/configurations/[CONFIGURATION_ID]`, to delete an AI configuration.
   * For AI secrets:
-    * `GET    /api/ai/secrets`, to get all AI secret keys. 
+    * `GET    /api/ai/secrets`, to get all AI secret keys.
     * `POST   /api/ai/secrets`, to create an AI secret.
     * `GET    /api/ai/secrets/[SECRET_ID]`, to get an AI secret.
     * `PUT    /api/ai/secrets/[SECRET_ID]`, to update an AI secret.
@@ -31,6 +31,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Removed
 
 - Jersey by Spring.
+
+### Fixed
+
+- Workflow to generate sonar statistics.
 
 ## [1.0.0] - 2024/10/15
 
@@ -130,3 +134,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   * `/api/redirect`, to redirect with token on leto-modelizer/leto-modelizer-admin.
 
 [1.0.0]: https://github.com/ditrit/leto-modelizer-api/blob/main/changelog.md#1.0.0
+
