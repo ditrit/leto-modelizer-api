@@ -43,7 +43,7 @@ jobs:
       - name: Build application
         run: docker build -t leto-modelizer-api .
       - name: Run application
-        run: docker compose up -d
+        run: docker compose -f docker-compose-e2e.yml up -d
         env:
           GITHUB_CLIENT_ID: test
           GITHUB_CLIENT_SECRET: test
